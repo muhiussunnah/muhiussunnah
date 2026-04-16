@@ -1,0 +1,210 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* -------------------------------------------------------------------------
+   Shikkha Platform — dark-first design system
+   Tokens defined in FRONTEND_UX_GUIDE §14
+   ------------------------------------------------------------------------- */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --font-sans: var(--font-hind-siliguri), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-arabic: var(--font-noto-naskh-arabic), serif;
+  --font-bangla-print: var(--font-noto-sans-bengali), var(--font-hind-siliguri), sans-serif;
+  --font-heading: var(--font-hind-siliguri), var(--font-inter), system-ui, sans-serif;
+
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* Shikkha semantic tokens (not in shadcn default) */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-glass: var(--glass);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* Light theme (fallback) */
+:root {
+  --background: #fafbfc;
+  --foreground: #0b1020;
+  --card: #ffffff;
+  --card-foreground: #0b1020;
+  --popover: #ffffff;
+  --popover-foreground: #0b1020;
+  --primary: #7c5cff;
+  --primary-foreground: #ffffff;
+  --secondary: #ec4899;
+  --secondary-foreground: #ffffff;
+  --muted: #eef1f7;
+  --muted-foreground: #5b6479;
+  --accent: #22d3ee;
+  --accent-foreground: #0b1020;
+  --destructive: #ef4444;
+  --success: #22c55e;
+  --success-foreground: #052e13;
+  --warning: #f59e0b;
+  --warning-foreground: #2d1a00;
+  --info: #22d3ee;
+  --info-foreground: #052e35;
+  --border: rgba(11, 16, 32, 0.08);
+  --input: rgba(11, 16, 32, 0.12);
+  --ring: #7c5cff;
+  --glass: rgba(255, 255, 255, 0.7);
+
+  --chart-1: #7c5cff;
+  --chart-2: #22d3ee;
+  --chart-3: #ec4899;
+  --chart-4: #22c55e;
+  --chart-5: #f59e0b;
+
+  --radius: 0.625rem;
+
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0b1020;
+  --sidebar-primary: #7c5cff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef1f7;
+  --sidebar-accent-foreground: #0b1020;
+  --sidebar-border: rgba(11, 16, 32, 0.08);
+  --sidebar-ring: #7c5cff;
+}
+
+/* Dark theme (primary per UX guide — "dark-first, light optional") */
+.dark {
+  --background: #0b1020;
+  --foreground: #e8ecf4;
+  --card: #121830;
+  --card-foreground: #e8ecf4;
+  --popover: #121830;
+  --popover-foreground: #e8ecf4;
+  --primary: #7c5cff;
+  --primary-foreground: #ffffff;
+  --secondary: #ec4899;
+  --secondary-foreground: #ffffff;
+  --muted: #1a2140;
+  --muted-foreground: #95a0bb;
+  --accent: #22d3ee;
+  --accent-foreground: #0b1020;
+  --destructive: #ef4444;
+  --success: #22c55e;
+  --success-foreground: #052e13;
+  --warning: #f59e0b;
+  --warning-foreground: #2d1a00;
+  --info: #22d3ee;
+  --info-foreground: #052e35;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #7c5cff;
+  --glass: rgba(255, 255, 255, 0.04);
+
+  --chart-1: #7c5cff;
+  --chart-2: #22d3ee;
+  --chart-3: #ec4899;
+  --chart-4: #22c55e;
+  --chart-5: #f59e0b;
+
+  --sidebar: #0e1428;
+  --sidebar-foreground: #e8ecf4;
+  --sidebar-primary: #7c5cff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a2140;
+  --sidebar-accent-foreground: #e8ecf4;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #7c5cff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* Right-to-left support for Arabic (madrasa mode) */
+  html[dir="rtl"] {
+    font-family: var(--font-arabic);
+  }
+
+  /* Bangla-specific typography tuning */
+  html[lang="bn"] body {
+    font-feature-settings: "kern";
+  }
+}
+
+@layer utilities {
+  .bg-gradient-primary {
+    background-image: linear-gradient(135deg, #7c5cff 0%, #22d3ee 100%);
+  }
+  .text-gradient-primary {
+    background-image: linear-gradient(135deg, #7c5cff 0%, #22d3ee 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .glass {
+    background: var(--glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
+  }
+}
