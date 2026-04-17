@@ -19,20 +19,38 @@ function WhatsAppGlyph({ className }: { className?: string }) {
 /**
  * FloatingActions — two fixed buttons:
  *   • Bottom-start (left in LTR, right in RTL): WhatsApp chat in brand green.
- *   • Bottom-end (right in LTR, left in RTL): Scroll-to-top, fades in after 300px.
- *
- * Uses logical inset-* so both LTR and RTL pages place them on the
- * "start" / "end" sides correctly.
+ *   • Bottom-end (right in LTR, left in RTL): Scroll-to-top with circular
+ *     progress ring that fills as the user scrolls the page. Raised above
+ *     the PWA install prompt so it never collides with it.
  */
 export function FloatingActions() {
   const [showTop, setShowTop] = useState(false);
+  const [progress, setProgress] = useState(0); // 0..1
 
   useEffect(() => {
-    const onScroll = () => setShowTop(window.scrollY > 300);
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const scrollTop = window.scrollY || doc.scrollTop;
+      const scrollable = doc.scrollHeight - doc.clientHeight;
+      const pct = scrollable > 0 ? Math.min(1, Math.max(0, scrollTop / scrollable)) : 0;
+      setProgress(pct);
+      setShowTop(scrollTop > 300);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
+
+  // Progress ring geometry
+  const size = 52;          // px — outer SVG box
+  const stroke = 3;         // ring thickness
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference * (1 - progress);
 
   return (
     <>
@@ -55,14 +73,58 @@ export function FloatingActions() {
         </span>
       </a>
 
-      {/* Scroll to top — end/right side */}
+      {/* Scroll to top — end/right side, raised above PWA install prompt */}
       <button
         type="button"
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Scroll to top"
-        className={`group fixed bottom-6 end-6 z-[60] flex size-12 items-center justify-center rounded-full bg-gradient-primary animate-gradient text-white shadow-2xl shadow-primary/40 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 hover:shadow-primary/60 ${showTop ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-4 pointer-events-none"}`}
+        aria-label={`Scroll to top (${Math.round(progress * 100)}% read)`}
+        className={`group fixed bottom-24 end-6 z-[60] flex size-[52px] items-center justify-center rounded-full transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-110 ${
+          showTop ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-4 pointer-events-none"
+        }`}
       >
-        <ArrowUp className="size-5 transition-transform group-hover:-translate-y-0.5" />
+        {/* Progress track */}
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          className="absolute inset-0 -rotate-90 text-border/60"
+          aria-hidden
+        >
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={stroke}
+            fill="none"
+          />
+        </svg>
+        {/* Progress fill */}
+        <svg
+          width={size}
+          height={size}
+          viewBox={`0 0 ${size} ${size}`}
+          className="absolute inset-0 -rotate-90 text-primary"
+          aria-hidden
+        >
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={stroke}
+            strokeLinecap="round"
+            fill="none"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashOffset}
+            style={{ transition: "stroke-dashoffset 120ms linear" }}
+          />
+        </svg>
+
+        {/* Inner button pill */}
+        <span className="relative flex size-10 items-center justify-center rounded-full bg-gradient-primary animate-gradient text-white shadow-xl shadow-primary/40 group-hover:shadow-primary/60 transition-shadow">
+          <ArrowUp className="size-5 transition-transform group-hover:-translate-y-0.5" />
+        </span>
       </button>
     </>
   );
