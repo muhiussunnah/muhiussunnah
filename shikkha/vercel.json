@@ -2,14 +2,17 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
     {
+      "comment": "Monthly fee invoice generation — runs once on the 1st of every month at 2 AM UTC (~8 AM BDT).",
       "path": "/api/cron/monthly-fee-gen",
       "schedule": "0 2 1 * *"
     },
     {
+      "comment": "Messaging queue flush — daily at 6 AM UTC (~noon BDT). Upgrade to Pro for every-15-min flush.",
       "path": "/api/messaging/send-queued",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 6 * * *"
     },
     {
+      "comment": "Weekly dropout-risk recompute — every Sunday at 3 AM UTC (~9 AM BDT).",
       "path": "/api/cron/compute-risk-scores",
       "schedule": "0 3 * * 0"
     }
