@@ -20,7 +20,7 @@ const pkg: PackageDetail = {
     "WhatsApp-এ auto-notify করতে চান",
     "AI দিয়ে স্মার্ট ডিসিশন নিতে চান",
   ],
-  bestValue: "মাসে ৳২,০০০ = বাজারে এই feature-এর জন্য সর্বনিম্ন দাম। Bornomala এই set-এর জন্য ৳৫,০০০+ নেয়।",
+  bestValue: "মাসে ৳২,০০০ = বাজারে এই feature-এর জন্য সর্বনিম্ন দাম। অন্যান্য সফটওয়্যার এই set-এর জন্য ৳৫,০০০+ নেয়।",
   sections: [
     {
       title: "Starter-এর সব কিছু +",

@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     "school management",
     "madrasa management",
     "bangladesh",
-    "bornomala alternative",
+    "madrasa software",
     "hifz",
     "sabaq",
     "kitab",

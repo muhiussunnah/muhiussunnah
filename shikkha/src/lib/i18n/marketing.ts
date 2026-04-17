@@ -127,16 +127,16 @@ const bn: Copy = {
   nav: { home: "হোম", features: "ফিচার", pricing: "প্রাইসিং", about: "আমাদের সম্পর্কে", contact: "যোগাযোগ", login: "লগইন", signup: "শুরু করুন" },
 
   hero: {
-    eyebrow: "🇧🇩 বাংলাদেশের স্কুল ও মাদ্রাসার জন্য ১ নম্বর সফটওয়্যার",
-    title: "সম্পূর্ণ স্কুল ম্যানেজমেন্ট —",
+    eyebrow: "🇧🇩 বাংলাদেশের মাদ্রাসা ও স্কুলের জন্য ১ নম্বর সফটওয়্যার",
+    title: "সম্পূর্ণ মাদ্রাসা ও স্কুল ম্যানেজমেন্ট —",
     titleHighlight: "এক প্ল্যাটফর্মে",
-    subtitle: "ভর্তি থেকে পরীক্ষা, ফি থেকে অভিভাবক যোগাযোগ, হিফজ থেকে সার্টিফিকেট — সব কিছু সুন্দর বাংলায়। Bornomala-এর সব ফিচার + আরও অনেক কিছু।",
+    subtitle: "ভর্তি থেকে পরীক্ষা, ফি থেকে অভিভাবক যোগাযোগ, হিফজ থেকে সার্টিফিকেট — সব কিছু সুন্দর বাংলায়। আধুনিক, সাশ্রয়ী ও সম্পূর্ণ দেশীয় সমাধান।",
     primaryCta: "ফ্রি ট্রায়াল শুরু করুন",
     secondaryCta: "ডেমো দেখুন",
     trustBadges: ["✓ কোন ক্রেডিট কার্ড লাগবে না", "✓ ১৫ দিনের ফ্রি ট্রায়াল", "✓ ২৪/৭ বাংলা সাপোর্ট", "✓ SSL encrypted"],
   },
 
-  stats: { students: "সক্রিয় শিক্ষার্থী", schools: "স্কুল ও মাদ্রাসা", transactions: "মাসিক লেনদেন", languages: "ভাষা সাপোর্ট" },
+  stats: { students: "সক্রিয় শিক্ষার্থী", schools: "মাদ্রাসা ও স্কুল", transactions: "মাসিক লেনদেন", languages: "ভাষা সাপোর্ট" },
 
   features: {
     eyebrow: "ফিচার",
@@ -242,7 +242,7 @@ const bn: Copy = {
     eyebrow: "প্রতিক্রিয়া",
     title: "শিক্ষকরা যা বলছেন",
     list: [
-      { quote: "Bornomala ছেড়ে Muhius Sunnah নিয়েছি — অভিভাবকরা এখন নিজেরাই পেমেন্ট করেন, আমার অফিসে ভিড় কমে গেছে।", author: "মাওলানা আব্দুর রহমান", role: "প্রিন্সিপাল", school: "ঢাকা ইসলামিয়া মাদ্রাসা", avatarSeed: "Abdur-Rahman" },
+      { quote: "Muhius Sunnah নেওয়ার পর অভিভাবকরা এখন নিজেরাই পেমেন্ট করেন, আমার অফিসে ভিড় কমে গেছে — সম্পূর্ণ ডিজিটাল হয়ে গেছে।", author: "মাওলানা আব্দুর রহমান", role: "প্রিন্সিপাল", school: "ঢাকা ইসলামিয়া মাদ্রাসা", avatarSeed: "Abdur-Rahman" },
       { quote: "হিফজ মডিউলটা দারুণ! ৩০ পারা heatmap দেখে কে কতদূর এসেছে এক নজরে বোঝা যায়।", author: "হাফেজ মোহাম্মদ ইউসুফ", role: "হিফজ শিক্ষক", school: "জামিয়া ইসলামিয়া", avatarSeed: "Md-Yousuf" },
       { quote: "QR attendance-এ ২ মিনিটে ৬০ জনের হাজিরা — আগে ১৫ মিনিট লাগতো।", author: "ফারজানা আক্তার", role: "ক্লাস টিচার", school: "গ্রীন হাইস্কুল", avatarSeed: "Farzana-Akter" },
       { quote: "AI dropout risk দেখে আগেই বুঝি কোন ছাত্রকে বেশি নজর দিতে হবে — এ বছর কেউ বাদ পড়েনি।", author: "মোহাম্মদ রফিকুল ইসলাম", role: "ভাইস প্রিন্সিপাল", school: "সাউদিয়া মডেল স্কুল", avatarSeed: "Rafiqul-Islam" },
@@ -256,7 +256,7 @@ const bn: Copy = {
     title: "প্রায়ই জিজ্ঞাসিত প্রশ্ন",
     list: [
       { q: "লাইফটাইম ২০,০০০ টাকার প্ল্যানে কি কি পাব?", a: "২০০ জন পর্যন্ত শিক্ষার্থীর সম্পূর্ণ ব্যবস্থাপনা — student, staff, attendance, manual fee tracking, exam, marksheet, certificate, parent portal। একবার পেমেন্ট, সারাজীবন ব্যবহার। কোন AI বা SMS ক্রেডিট অন্তর্ভুক্ত নেই।" },
-      { q: "পুরাতন সিস্টেম থেকে ডেটা আনা যাবে?", a: "হ্যাঁ। Excel import আছে সব ডেটার জন্য — students, staff, fees, attendance। পুরাতন Bornomala ডেটা-ও আমরা migrate করে দিই।" },
+      { q: "পুরাতন সিস্টেম থেকে ডেটা আনা যাবে?", a: "হ্যাঁ। Excel import আছে সব ডেটার জন্য — students, staff, fees, attendance। যেকোনো পুরাতন সফটওয়্যার বা ম্যানুয়াল রেকর্ড থেকে migrate করতে আমরা সাহায্য করি।" },
       { q: "প্ল্যান পরিবর্তন করা যাবে?", a: "যে কোন সময় upgrade বা downgrade করা যাবে। ডেটা কখনো হারাবে না।" },
       { q: "পেমেন্ট কিভাবে করব?", a: "bKash, Nagad, Rocket, ব্যাংক ট্রান্সফার — সব পদ্ধতি চলবে।" },
       { q: "আমার ডেটা কি নিরাপদ?", a: "Row-Level Security (প্রতিটি স্কুলের ডেটা আলাদা), 2FA, encrypted backup — ব্যাংক-level সুরক্ষা।" },
@@ -325,16 +325,16 @@ const en: Copy = {
   nav: { home: "Home", features: "Features", pricing: "Pricing", about: "About", contact: "Contact", login: "Log in", signup: "Get Started" },
 
   hero: {
-    eyebrow: "🇧🇩 #1 School Management Software for Bangladesh",
-    title: "Complete school management —",
+    eyebrow: "🇧🇩 #1 Madrasa & School Management Software for Bangladesh",
+    title: "Complete madrasa & school management —",
     titleHighlight: "all in one platform",
-    subtitle: "From admissions to exams, fees to parent communication, hifz to certificates — everything in beautiful Bangla. All Bornomala features + so much more.",
+    subtitle: "From admissions to exams, fees to parent communication, hifz to certificates — everything in beautiful Bangla. Modern, affordable, and built entirely for Bangladesh.",
     primaryCta: "Start Free Trial",
     secondaryCta: "Watch Demo",
     trustBadges: ["✓ No credit card required", "✓ 15-day free trial", "✓ 24/7 Bangla support", "✓ SSL encrypted"],
   },
 
-  stats: { students: "Active Students", schools: "Schools & Madrasas", transactions: "Monthly Transactions", languages: "Languages Supported" },
+  stats: { students: "Active Students", schools: "Madrasas & Schools", transactions: "Monthly Transactions", languages: "Languages Supported" },
 
   features: {
     eyebrow: "Features",
@@ -440,7 +440,7 @@ const en: Copy = {
     eyebrow: "Testimonials",
     title: "What educators are saying",
     list: [
-      { quote: "Switched from Bornomala to Muhius Sunnah — parents now pay online themselves, my office is no longer crowded.", author: "Maulana Abdur Rahman", role: "Principal", school: "Dhaka Islamia Madrasa", avatarSeed: "Abdur-Rahman" },
+      { quote: "After switching to Muhius Sunnah, parents now pay online themselves — my office is no longer crowded. Fully digital.", author: "Maulana Abdur Rahman", role: "Principal", school: "Dhaka Islamia Madrasa", avatarSeed: "Abdur-Rahman" },
       { quote: "The hifz module is incredible! See the 30-para heatmap to know everyone's progress at a glance.", author: "Hafez Mohammad Yousuf", role: "Hifz Teacher", school: "Jamia Islamia", avatarSeed: "Md-Yousuf" },
       { quote: "60 students' attendance in 2 minutes with QR — used to take 15 minutes before.", author: "Farzana Akter", role: "Class Teacher", school: "Green High School", avatarSeed: "Farzana-Akter" },
       { quote: "AI dropout risk lets us intervene early — this year not a single student dropped out. Game-changer.", author: "Mohammad Rafiqul Islam", role: "Vice Principal", school: "Saudia Model School", avatarSeed: "Rafiqul-Islam" },
@@ -454,7 +454,7 @@ const en: Copy = {
     title: "Frequently Asked Questions",
     list: [
       { q: "What's included in the ৳20,000 Lifetime plan?", a: "Complete management for up to 200 students — student, staff, attendance, manual fee tracking, exams, marksheets, certificates, parent portal. One-time payment, lifetime use. No AI or SMS credits included." },
-      { q: "Can I migrate data from my old system?", a: "Yes. Excel import available for all data types — students, staff, fees, attendance. We also migrate from Bornomala." },
+      { q: "Can I migrate data from my old system?", a: "Yes. Excel import available for all data types — students, staff, fees, attendance. We also help migrate from any old software or manual records." },
       { q: "Can I change plans later?", a: "Upgrade or downgrade anytime. Your data is never lost." },
       { q: "How can I pay?", a: "bKash, Nagad, Rocket, bank transfer — all methods supported." },
       { q: "Is my data safe?", a: "Row-Level Security (each school's data isolated), 2FA, encrypted backups — bank-level security." },
@@ -523,8 +523,8 @@ const ur: Copy = {
   nav: { home: "ہوم", features: "خصوصیات", pricing: "قیمتیں", about: "ہمارے بارے میں", contact: "رابطہ", login: "لاگ ان", signup: "شروع کریں" },
 
   hero: {
-    eyebrow: "🇵🇰 اسکول اور مدرسے کے لیے نمبر ۱ سافٹ ویئر",
-    title: "مکمل اسکول انتظام —",
+    eyebrow: "🇵🇰 مدارس اور اسکولوں کے لیے نمبر ۱ سافٹ ویئر",
+    title: "مکمل مدرسہ اور اسکول انتظام —",
     titleHighlight: "ایک پلیٹ فارم پر",
     subtitle: "داخلہ سے امتحان تک، فیس سے والدین کے رابطے تک، حفظ سے اسناد تک — سب کچھ خوبصورت اردو میں۔",
     primaryCta: "مفت آزمائش شروع کریں",
@@ -532,7 +532,7 @@ const ur: Copy = {
     trustBadges: ["✓ کریڈٹ کارڈ کی ضرورت نہیں", "✓ ۱۵ دن کی مفت آزمائش", "✓ ۲۴/۷ سپورٹ", "✓ SSL محفوظ"],
   },
 
-  stats: { students: "فعال طلباء", schools: "اسکول اور مدارس", transactions: "ماہانہ لین دین", languages: "زبانوں کی حمایت" },
+  stats: { students: "فعال طلباء", schools: "مدارس اور اسکول", transactions: "ماہانہ لین دین", languages: "زبانوں کی حمایت" },
 
   features: {
     eyebrow: "خصوصیات",
@@ -614,7 +614,7 @@ const ur: Copy = {
     eyebrow: "آراء",
     title: "اساتذہ کیا کہتے ہیں",
     list: [
-      { quote: "Bornomala چھوڑ کر Muhius Sunnah لیا — والدین اب خود آن لائن ادائیگی کرتے ہیں۔", author: "مولانا عبدالرحمن", role: "پرنسپل", school: "ڈھاکہ اسلامیہ مدرسہ", avatarSeed: "Abdur-Rahman" },
+      { quote: "Muhius Sunnah لینے کے بعد والدین اب خود آن لائن ادائیگی کرتے ہیں — میرا دفتر اب بھیڑ سے خالی ہے۔", author: "مولانا عبدالرحمن", role: "پرنسپل", school: "ڈھاکہ اسلامیہ مدرسہ", avatarSeed: "Abdur-Rahman" },
       { quote: "حفظ ماڈیول بہت اچھا ہے! ۳۰ پارہ ہیٹ میپ میں کون کہاں پہنچا فوراً نظر آتا ہے۔", author: "حافظ محمد یوسف", role: "حفظ استاد", school: "جامعہ اسلامیہ", avatarSeed: "Md-Yousuf" },
       { quote: "QR حاضری میں ۶۰ طلباء کی حاضری ۲ منٹ میں — پہلے ۱۵ منٹ لگتے تھے۔", author: "فرزانہ اختر", role: "کلاس ٹیچر", school: "گرین ہائی اسکول", avatarSeed: "Farzana-Akter" },
       { quote: "AI ڈراپ آؤٹ رسک سے پہلے ہی پتہ چل جاتا ہے — اس سال کوئی طالب علم نہیں چھوڑا۔", author: "محمد رفیق الاسلام", role: "وائس پرنسپل", school: "سعودیہ ماڈل اسکول", avatarSeed: "Rafiqul-Islam" },
@@ -697,8 +697,8 @@ const ar: Copy = {
   nav: { home: "الرئيسية", features: "المميزات", pricing: "الأسعار", about: "من نحن", contact: "اتصل بنا", login: "تسجيل الدخول", signup: "ابدأ الآن" },
 
   hero: {
-    eyebrow: "🕌 برنامج إدارة المدارس والمدارس الدينية الأول",
-    title: "إدارة مدرسية كاملة —",
+    eyebrow: "🕌 برنامج إدارة المدارس الدينية والعامة الأول",
+    title: "إدارة كاملة للمدارس الدينية والمدارس —",
     titleHighlight: "في منصة واحدة",
     subtitle: "من القبول إلى الامتحانات، من الرسوم إلى التواصل مع الوالدين، من الحفظ إلى الشهادات — كل شيء في مكان واحد.",
     primaryCta: "ابدأ التجربة المجانية",
@@ -706,7 +706,7 @@ const ar: Copy = {
     trustBadges: ["✓ بدون بطاقة ائتمان", "✓ تجربة مجانية لمدة 15 يوم", "✓ دعم 24/7", "✓ مشفر SSL"],
   },
 
-  stats: { students: "طلاب نشطون", schools: "مدارس", transactions: "معاملات شهرية", languages: "لغات مدعومة" },
+  stats: { students: "طلاب نشطون", schools: "مدارس دينية وعامة", transactions: "معاملات شهرية", languages: "لغات مدعومة" },
 
   features: {
     eyebrow: "المميزات",
@@ -788,7 +788,7 @@ const ar: Copy = {
     eyebrow: "الآراء",
     title: "ماذا يقول المعلمون",
     list: [
-      { quote: "تركت Bornomala لصالح Muhius Sunnah — الوالدان يدفعون الآن بأنفسهم عبر الإنترنت.", author: "الشيخ عبد الرحمن", role: "مدير", school: "مدرسة دكا الإسلامية", avatarSeed: "Abdur-Rahman" },
+      { quote: "بعد التحول إلى Muhius Sunnah، يدفع الوالدان الآن عبر الإنترنت بأنفسهم — لم يعد مكتبي مزدحمًا.", author: "الشيخ عبد الرحمن", role: "مدير", school: "مدرسة دكا الإسلامية", avatarSeed: "Abdur-Rahman" },
       { quote: "وحدة الحفظ رائعة! الخريطة الحرارية لـ 30 جزءًا تُظهر تقدم الجميع.", author: "الحافظ محمد يوسف", role: "مدرس الحفظ", school: "جامعة إسلامية", avatarSeed: "Md-Yousuf" },
       { quote: "حضور 60 طالبًا في دقيقتين بـ QR — كان يستغرق 15 دقيقة من قبل.", author: "فرزانة أختر", role: "معلمة فصل", school: "مدرسة الخضراء الثانوية", avatarSeed: "Farzana-Akter" },
       { quote: "تحليل مخاطر التسرب بالذكاء الاصطناعي يتيح التدخل المبكر — لم يتسرب أي طالب هذا العام.", author: "محمد رفيق الإسلام", role: "نائب المدير", school: "مدرسة سعودية النموذجية", avatarSeed: "Rafiqul-Islam" },

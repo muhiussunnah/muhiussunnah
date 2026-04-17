@@ -69,7 +69,7 @@ export default function AboutPage() {
               {[
                 { icon: Heart, accent: "from-destructive to-secondary", title: "সাশ্রয়ী মূল্য", desc: "ছোট প্রতিষ্ঠানও যেন ব্যবহার করতে পারে — তাই Lifetime ৫,০০০ টাকার প্ল্যান।" },
                 { icon: Users, accent: "from-primary to-accent", title: "স্থানীয় সহযোগিতা", desc: "আমাদের team পুরোপুরি বাংলাদেশে। বাংলা সাপোর্ট, বাংলাদেশি context।" },
-                { icon: Zap, accent: "from-warning to-secondary", title: "গতি ও উদ্ভাবন", desc: "Bornomala যা করতে ২ বছর লাগায়, আমরা ২ সপ্তাহে করি।" },
+                { icon: Zap, accent: "from-warning to-secondary", title: "গতি ও উদ্ভাবন", desc: "নতুন feature দ্রুত — আপনার প্রয়োজন ২ সপ্তাহে বাস্তবায়ন, বছর নয়।" },
               ].map((v, i) => (
                 <Reveal key={v.title} variant="fade-up" delay={i * 120}>
                   <TiltCard>
@@ -94,7 +94,7 @@ export default function AboutPage() {
                 <div className="h-full rounded-2xl border border-destructive/30 bg-destructive/5 p-6 hover-lift">
                   <div className="text-sm font-semibold text-destructive mb-2">❌ সমস্যা</div>
                   <p className="text-muted-foreground leading-relaxed">
-                    বাংলাদেশের বেশিরভাগ স্কুল ও মাদ্রাসা এখনো কাগজে-কলমে চলে। Bornomala-র মতো সিস্টেম dated, অনলাইন পেমেন্ট নেই, মাদ্রাসা feature নেই, সাপোর্ট ধীর।
+                    বাংলাদেশের বেশিরভাগ মাদ্রাসা ও স্কুল এখনো কাগজে-কলমে চলে। পুরাতন সফটওয়্যারগুলোতে অনলাইন পেমেন্ট নেই, মাদ্রাসা-specific feature নেই, সাপোর্ট ধীর।
                   </p>
                 </div>
               </TiltCard>
