@@ -352,6 +352,11 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
           mask-composite: exclude;
   opacity: 0;
   transition: opacity 300ms;
+  /* CRITICAL: this decorative overlay must not intercept clicks on inner links/buttons.
+     Without this, the pseudo-element covers the whole card and blocks the View Details
+     anchor from being clickable (affected Lifetime/Starter/Scale but not Growth since
+     the highlighted Growth card didn't use .shine-border). */
+  pointer-events: none;
 }
 .shine-border:hover::before { opacity: 1; animation: shimmer 2s linear infinite; }
 
