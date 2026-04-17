@@ -24,6 +24,8 @@ const PUBLIC_PATHS = new Set([
   "/features",
   "/about",
   "/contact",
+  "/support",
+  "/refund-policy",
   "/terms",
   "/privacy",
 ]);

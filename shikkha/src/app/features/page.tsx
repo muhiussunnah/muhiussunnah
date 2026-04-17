@@ -11,6 +11,7 @@ import { MarketingNav } from "@/components/marketing/marketing-nav";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { CustomCursor } from "@/components/marketing/custom-cursor";
 import { ScrollProgress } from "@/components/marketing/scroll-progress";
+import { FloatingActions } from "@/components/marketing/floating-actions";
 import { Reveal } from "@/components/marketing/reveal";
 import { TiltCard } from "@/components/marketing/tilt-card";
 import { Magnetic } from "@/components/marketing/magnetic";
@@ -168,6 +169,7 @@ export default async function FeaturesPage() {
         </section>
       </main>
       <MarketingFooter />
+      <FloatingActions />
     </div>
   );
 }

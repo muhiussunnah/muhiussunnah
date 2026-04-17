@@ -49,13 +49,14 @@ export async function MarketingFooter() {
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
   const t = getMarketingCopy(locale);
 
+  // Colorful by default — each icon keeps its brand color always visible
   const socials = [
-    { icon: FacebookIcon, label: "Facebook", href: "#", color: "hover:text-[#1877F2]" },
-    { icon: InstagramIcon, label: "Instagram", href: "#", color: "hover:text-[#E4405F]" },
-    { icon: XIcon, label: "X (Twitter)", href: "#", color: "hover:text-foreground" },
-    { icon: YouTubeIcon, label: "YouTube", href: "#", color: "hover:text-[#FF0000]" },
-    { icon: WhatsAppIcon, label: "WhatsApp", href: "#", color: "hover:text-[#25D366]" },
-    { icon: Send, label: "Telegram", href: "#", color: "hover:text-[#0088CC]" },
+    { icon: FacebookIcon, label: "Facebook", href: "#", bg: "bg-[#1877F2]", text: "text-white" },
+    { icon: InstagramIcon, label: "Instagram", href: "#", bg: "bg-gradient-to-tr from-[#feda75] via-[#d62976] to-[#4f5bd5]", text: "text-white" },
+    { icon: XIcon, label: "X (Twitter)", href: "#", bg: "bg-black", text: "text-white" },
+    { icon: YouTubeIcon, label: "YouTube", href: "#", bg: "bg-[#FF0000]", text: "text-white" },
+    { icon: WhatsAppIcon, label: "WhatsApp", href: "https://wa.me/8801767682381", bg: "bg-[#25D366]", text: "text-white" },
+    { icon: Send, label: "Telegram", href: "#", bg: "bg-[#0088CC]", text: "text-white" },
   ];
 
   return (
@@ -91,7 +92,7 @@ export async function MarketingFooter() {
               </div>
             </div>
 
-            {/* Socials */}
+            {/* Socials — always colorful */}
             <div className="mt-6">
               <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">Follow us</p>
               <div className="flex gap-2">
@@ -99,8 +100,10 @@ export async function MarketingFooter() {
                   <a
                     key={s.label}
                     href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
                     aria-label={s.label}
-                    className={`flex size-9 items-center justify-center rounded-full border border-border/60 bg-card/60 text-muted-foreground transition-all duration-300 backdrop-blur-sm hover:scale-110 hover:border-primary/40 hover:-translate-y-0.5 ${s.color}`}
+                    className={`flex size-9 items-center justify-center rounded-full shadow-md transition-all duration-300 hover:scale-110 hover:-translate-y-0.5 hover:shadow-xl ${s.bg} ${s.text}`}
                   >
                     <s.icon className="size-4" />
                   </a>
@@ -115,7 +118,8 @@ export async function MarketingFooter() {
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li><Link href="/features" className="hover:text-primary transition">{t.nav.features}</Link></li>
               <li><Link href="/pricing" className="hover:text-primary transition">{t.nav.pricing}</Link></li>
-              <li><Link href="/login" className="hover:text-primary transition">{t.nav.login}</Link></li>
+              <li><Link href="/support" className="hover:text-primary transition">সাপোর্ট</Link></li>
+              <li><Link href="/refund-policy" className="hover:text-primary transition">Refund Policy</Link></li>
               <li><Link href="/register-school" className="hover:text-primary transition">{t.nav.signup}</Link></li>
             </ul>
           </div>
@@ -153,7 +157,21 @@ export async function MarketingFooter() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-6 border-t border-border/40 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <div>{t.footer.copyright}</div>
+          <div className="flex items-center gap-3 flex-wrap justify-center">
+            <span>{t.footer.copyright}</span>
+            <span className="text-muted-foreground/50">·</span>
+            <span>
+              Made with <span className="text-destructive">❤</span> by{" "}
+              <a
+                href="https://www.facebook.com/bandamustaqeem"
+                target="_blank"
+                rel="noreferrer"
+                className="font-semibold text-primary hover:underline underline-offset-4"
+              >
+                Mustaqeem Billah
+              </a>
+            </span>
+          </div>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-foreground transition">{t.footer.privacy}</Link>
             <span>·</span>
