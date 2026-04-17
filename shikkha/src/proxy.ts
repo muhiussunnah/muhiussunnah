@@ -137,9 +137,16 @@ export async function proxy(request: NextRequest) {
   }
 
   // --- Auth gating -------------------------------------------------------
-  const isPublic = isPublicPath(pathname);
+  // Use an explicit deny-list (not allow-list) so unknown routes fall through
+  // to Next.js routing, which renders the custom 404 page at src/app/not-found.tsx.
+  // Previously we redirected anything not in PUBLIC_PATHS to /login, which hid
+  // the 404 page behind the login screen.
+  const requiresAuth =
+    pathname.startsWith("/school/") ||
+    pathname.startsWith("/super-admin") ||
+    (pathname.startsWith("/api/") && !isPublicPath(pathname));
 
-  if (!user && !isPublic) {
+  if (!user && requiresAuth) {
     const redirect = request.nextUrl.clone();
     redirect.pathname = "/login";
     redirect.searchParams.set("next", pathname);
