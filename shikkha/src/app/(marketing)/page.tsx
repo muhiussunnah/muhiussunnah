@@ -67,10 +67,10 @@ export default async function LandingPage() {
           <TextReveal
             as="h1"
             text={t.hero.title}
-            className="max-w-5xl text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl lg:text-[5.5rem]"
+            className="max-w-6xl text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
           />
           <Reveal variant="fade-up" delay={600}>
-            <h1 className="max-w-5xl text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl lg:text-[5.5rem] text-gradient-primary animate-gradient -mt-2">
+            <h1 className="max-w-6xl text-3xl font-bold leading-[1.1] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl text-gradient-primary animate-gradient -mt-2">
               {t.hero.titleHighlight}
             </h1>
           </Reveal>
