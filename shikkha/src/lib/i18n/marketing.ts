@@ -93,6 +93,32 @@ type Copy = {
     weAccept: string;
     allSystemsOperational: string;
   };
+
+  // Contact page
+  contact: {
+    badge: string;
+    title: string;
+    titleAccent: string;
+    subtitle: string;
+    formHeading: string;
+    formSubheading: string;
+    labels: { name: string; school: string; email: string; phone: string; subject: string; message: string };
+    placeholders: { name: string; school: string; email: string; phone: string; message: string };
+    subjectOptions: string[];
+    submitCta: string;
+    submitNote: string;
+    infoCards: { phone: string; email: string; whatsapp: string; office: string };
+    infoLines: { phoneHours: string; emailReply: string; whatsappResponse: string; officeVisit: string };
+    supportHoursTitle: string;
+    supportHoursBody: string;
+    quickLinksTitle: string;
+    quickLinksSubtitle: string;
+    quickLinksSeePricing: string;
+    quickLinksSeeFeatures: string;
+    quickLinksFreeTrial: string;
+    phoneDisplay: string;     // universal format +880 1767-682381
+    officeLocation: string;
+  };
 };
 
 // ─── বাংলা ─────────────────────────────────────────────────────────────────
@@ -262,6 +288,31 @@ const bn: Copy = {
     followUs: "আমাদের ফলো করুন",
     weAccept: "আমরা গ্রহণ করি",
     allSystemsOperational: "সব সিস্টেম চালু আছে",
+  },
+
+  contact: {
+    badge: "যোগাযোগ",
+    title: "আমরা আপনাকে",
+    titleAccent: "সাহায্য করতে প্রস্তুত",
+    subtitle: "প্রশ্ন আছে? Demo চান? Partnership proposal? — নিচের ফর্ম দিয়ে জানান, ২৪ ঘণ্টার মধ্যে reply পাবেন।",
+    formHeading: "একটি বার্তা পাঠান",
+    formSubheading: "আমাদের sales টিম দ্রুত যোগাযোগ করবে।",
+    labels: { name: "পূর্ণ নাম *", school: "প্রতিষ্ঠানের নাম", email: "ইমেইল *", phone: "মোবাইল", subject: "কী নিয়ে?", message: "বার্তা *" },
+    placeholders: { name: "আপনার নাম", school: "স্কুল / মাদ্রাসা", email: "you@example.com", phone: "01XXXXXXXXX", message: "আপনার চাহিদা বা প্রশ্ন লিখুন" },
+    subjectOptions: ["Demo দেখতে চাই", "Pricing সম্পর্কে প্রশ্ন", "টেকনিক্যাল সাপোর্ট", "Partnership / Reseller", "Migration সহায়তা", "অন্যান্য"],
+    submitCta: "বার্তা পাঠান",
+    submitNote: "আমরা সাধারণত ২৪ ঘণ্টার মধ্যে reply করি। Urgent হলে সরাসরি ফোন করুন।",
+    infoCards: { phone: "ফোন করুন", email: "ইমেইল করুন", whatsapp: "WhatsApp", office: "অফিস" },
+    infoLines: { phoneHours: "সকাল ৯টা - রাত ৯টা", emailReply: "২৪ ঘণ্টায় reply", whatsappResponse: "দ্রুত response পেতে", officeVisit: "appointment-এ visit" },
+    supportHoursTitle: "সাপোর্ট সময়",
+    supportHoursBody: "রবি - বৃহস্পতি: সকাল ৯টা - রাত ৯টা\nশুক্র - শনি: সকাল ১০টা - সন্ধ্যা ৬টা\nScale প্ল্যানে: ২৪/৭",
+    quickLinksTitle: "দ্রুত উত্তর চান?",
+    quickLinksSubtitle: "আমাদের FAQ দেখুন অথবা প্রাইসিং পেজে যান।",
+    quickLinksSeePricing: "প্রাইসিং দেখুন",
+    quickLinksSeeFeatures: "সকল ফিচার",
+    quickLinksFreeTrial: "ফ্রি ট্রায়াল",
+    phoneDisplay: "+880 1767-682381",
+    officeLocation: "ঢাকা, বাংলাদেশ",
   },
 };
 
@@ -433,6 +484,31 @@ const en: Copy = {
     weAccept: "We Accept",
     allSystemsOperational: "All systems operational",
   },
+
+  contact: {
+    badge: "Contact",
+    title: "We're ready to",
+    titleAccent: "help you succeed",
+    subtitle: "Questions? Want a demo? Partnership proposal? — fill the form below and we'll reply within 24 hours.",
+    formHeading: "Send us a message",
+    formSubheading: "Our sales team will reach out shortly.",
+    labels: { name: "Full Name *", school: "Institution Name", email: "Email *", phone: "Mobile", subject: "What's this about?", message: "Message *" },
+    placeholders: { name: "Your name", school: "School / madrasa", email: "you@example.com", phone: "01XXXXXXXXX", message: "Describe your needs or question" },
+    subjectOptions: ["Book a demo", "Pricing question", "Technical support", "Partnership / Reseller", "Migration help", "Other"],
+    submitCta: "Send Message",
+    submitNote: "We typically reply within 24 hours. For urgent matters please call.",
+    infoCards: { phone: "Call Us", email: "Email Us", whatsapp: "WhatsApp", office: "Office" },
+    infoLines: { phoneHours: "9 AM - 9 PM", emailReply: "Reply within 24 hrs", whatsappResponse: "Fastest response", officeVisit: "By appointment" },
+    supportHoursTitle: "Support Hours",
+    supportHoursBody: "Sun - Thu: 9 AM - 9 PM\nFri - Sat: 10 AM - 6 PM\nScale plan: 24/7",
+    quickLinksTitle: "Need a quick answer?",
+    quickLinksSubtitle: "Check our FAQ or go to pricing.",
+    quickLinksSeePricing: "See Pricing",
+    quickLinksSeeFeatures: "All Features",
+    quickLinksFreeTrial: "Free Trial",
+    phoneDisplay: "+880 1767-682381",
+    officeLocation: "Dhaka, Bangladesh",
+  },
 };
 
 // ─── اردو (Urdu, RTL) ──────────────────────────────────────────────────────
@@ -579,6 +655,31 @@ const ur: Copy = {
     weAccept: "ہم قبول کرتے ہیں",
     allSystemsOperational: "تمام سسٹم چل رہے ہیں",
   },
+
+  contact: {
+    badge: "رابطہ",
+    title: "ہم آپ کی",
+    titleAccent: "مدد کے لیے تیار ہیں",
+    subtitle: "سوالات ہیں؟ ڈیمو چاہیے؟ پارٹنرشپ؟ — ذیل کا فارم بھریں، ہم ۲۴ گھنٹوں میں جواب دیں گے۔",
+    formHeading: "ایک پیغام بھیجیں",
+    formSubheading: "ہماری سیلز ٹیم جلد رابطہ کرے گی۔",
+    labels: { name: "پورا نام *", school: "ادارے کا نام", email: "ای میل *", phone: "موبائل", subject: "کس بارے میں؟", message: "پیغام *" },
+    placeholders: { name: "آپ کا نام", school: "اسکول / مدرسہ", email: "you@example.com", phone: "01XXXXXXXXX", message: "اپنی ضرورت یا سوال لکھیں" },
+    subjectOptions: ["ڈیمو دیکھنا چاہتا ہوں", "قیمت کے بارے میں سوال", "ٹیکنیکل سپورٹ", "پارٹنرشپ / ری سیلر", "مائیگریشن مدد", "دیگر"],
+    submitCta: "پیغام بھیجیں",
+    submitNote: "ہم عام طور پر ۲۴ گھنٹوں میں جواب دیتے ہیں۔ فوری بات کے لیے فون کریں۔",
+    infoCards: { phone: "فون کریں", email: "ای میل کریں", whatsapp: "WhatsApp", office: "دفتر" },
+    infoLines: { phoneHours: "صبح ۹ تا رات ۹", emailReply: "۲۴ گھنٹے میں جواب", whatsappResponse: "تیز ترین جواب", officeVisit: "اپائنٹمنٹ پر" },
+    supportHoursTitle: "سپورٹ اوقات",
+    supportHoursBody: "اتوار - جمعرات: ۹ صبح تا ۹ رات\nجمعہ - ہفتہ: ۱۰ صبح تا ۶ شام\nScale پلان: ۲۴/۷",
+    quickLinksTitle: "فوری جواب چاہیے؟",
+    quickLinksSubtitle: "ہمارا FAQ دیکھیں یا قیمت پیج پر جائیں۔",
+    quickLinksSeePricing: "قیمت دیکھیں",
+    quickLinksSeeFeatures: "تمام خصوصیات",
+    quickLinksFreeTrial: "مفت ٹرائل",
+    phoneDisplay: "+880 1767-682381",
+    officeLocation: "ڈھاکہ، بنگلہ دیش",
+  },
 };
 
 // ─── العربية (Arabic, RTL) ─────────────────────────────────────────────────
@@ -724,6 +825,31 @@ const ar: Copy = {
     followUs: "تابعنا",
     weAccept: "نقبل",
     allSystemsOperational: "جميع الأنظمة تعمل",
+  },
+
+  contact: {
+    badge: "اتصل بنا",
+    title: "نحن مستعدون",
+    titleAccent: "لمساعدتك",
+    subtitle: "لديك أسئلة؟ تريد عرضًا توضيحيًا؟ شراكة؟ — املأ النموذج أدناه وسنرد خلال 24 ساعة.",
+    formHeading: "أرسل رسالة",
+    formSubheading: "سيتواصل معك فريق المبيعات قريبًا.",
+    labels: { name: "الاسم الكامل *", school: "اسم المؤسسة", email: "البريد الإلكتروني *", phone: "الجوال", subject: "ما الموضوع؟", message: "الرسالة *" },
+    placeholders: { name: "اسمك", school: "مدرسة / مدرسة دينية", email: "you@example.com", phone: "01XXXXXXXXX", message: "صف احتياجك أو سؤالك" },
+    subjectOptions: ["أريد عرضًا توضيحيًا", "سؤال عن الأسعار", "دعم فني", "شراكة / وسيط بيع", "مساعدة في الترحيل", "أخرى"],
+    submitCta: "إرسال الرسالة",
+    submitNote: "نرد عادةً خلال 24 ساعة. للأمور العاجلة، اتصل مباشرة.",
+    infoCards: { phone: "اتصل بنا", email: "البريد الإلكتروني", whatsapp: "WhatsApp", office: "المكتب" },
+    infoLines: { phoneHours: "9 صباحًا - 9 مساءً", emailReply: "الرد خلال 24 ساعة", whatsappResponse: "أسرع استجابة", officeVisit: "بموعد مسبق" },
+    supportHoursTitle: "أوقات الدعم",
+    supportHoursBody: "الأحد - الخميس: 9 صباحًا - 9 مساءً\nالجمعة - السبت: 10 صباحًا - 6 مساءً\nخطة Scale: 24/7",
+    quickLinksTitle: "تحتاج إجابة سريعة؟",
+    quickLinksSubtitle: "تحقق من الأسئلة الشائعة أو اذهب إلى الأسعار.",
+    quickLinksSeePricing: "عرض الأسعار",
+    quickLinksSeeFeatures: "كل الميزات",
+    quickLinksFreeTrial: "تجربة مجانية",
+    phoneDisplay: "+880 1767-682381",
+    officeLocation: "دكا، بنغلاديش",
   },
 };
 

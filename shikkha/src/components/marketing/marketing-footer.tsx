@@ -91,9 +91,10 @@ export async function MarketingFooter() {
               <a
                 href="tel:+8801767682381"
                 className="flex items-center gap-2 text-muted-foreground hover:text-primary transition group"
+                dir="ltr"
               >
-                <Phone className="size-4 text-primary group-hover:scale-110 transition-transform" />
-                <span className="group-hover:underline underline-offset-4">+৮৮০ ১৭৬৭-৬৮২৩৮১</span>
+                <Phone className="size-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
+                <span className="group-hover:underline underline-offset-4 whitespace-nowrap">+880 1767-682381</span>
               </a>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="size-4 text-primary" />
