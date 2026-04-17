@@ -193,12 +193,18 @@
 }
 
 /* Global: no underlines on any anchor — site-wide preference.
-   Placed outside @layer base so it overrides Tailwind's hover:underline utility. */
+   Placed outside @layer base so it overrides Tailwind's hover:underline
+   and group-hover:underline utilities. Covers both the anchor itself and
+   any descendant element that might receive an underline via hover. */
 a,
+a *,
 a:hover,
+a:hover *,
 a:focus,
+a:focus *,
 a:visited {
   text-decoration: none !important;
+  text-decoration-line: none !important;
 }
 
 /* =========================================================================
