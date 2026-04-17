@@ -126,7 +126,7 @@ const bn: Copy = {
       {
         name: "Lifetime Basic",
         tagline: "ছোট প্রতিষ্ঠান · একবার পেমেন্টে সারাজীবন",
-        price: 5000,
+        price: 20000,
         priceUnit: "once",
         badge: "লাইফটাইম ডিল",
         features: [
@@ -140,12 +140,12 @@ const bn: Copy = {
           "Excel রিপোর্ট",
           "কমিউনিটি সাপোর্ট (ইমেইল)",
         ],
-        cta: "৫০০০ টাকায় কিনুন",
+        cta: "লাইফটাইম কিনুন",
       },
       {
         name: "Starter",
         tagline: "বৃদ্ধিমান প্রতিষ্ঠান",
-        price: 800,
+        price: 1000,
         priceUnit: "month",
         features: [
           "Lifetime Basic-এর সব কিছু",
@@ -178,7 +178,7 @@ const bn: Copy = {
       {
         name: "Scale",
         tagline: "এন্টারপ্রাইজ · মাল্টি-ব্রাঞ্চ",
-        price: 4500,
+        price: 4000,
         priceUnit: "month",
         features: [
           "Growth-এর সব কিছু",
@@ -208,7 +208,7 @@ const bn: Copy = {
     eyebrow: "সাহায্য",
     title: "প্রায়ই জিজ্ঞাসিত প্রশ্ন",
     list: [
-      { q: "লাইফটাইম ৫,০০০ টাকার প্ল্যানে কি কি পাব?", a: "২০০ জন পর্যন্ত শিক্ষার্থীর সম্পূর্ণ ব্যবস্থাপনা — student, staff, attendance, manual fee tracking, exam, marksheet, certificate, parent portal। একবার পেমেন্ট, সারাজীবন ব্যবহার। কোন AI বা SMS ক্রেডিট অন্তর্ভুক্ত নেই।" },
+      { q: "লাইফটাইম ২০,০০০ টাকার প্ল্যানে কি কি পাব?", a: "২০০ জন পর্যন্ত শিক্ষার্থীর সম্পূর্ণ ব্যবস্থাপনা — student, staff, attendance, manual fee tracking, exam, marksheet, certificate, parent portal। একবার পেমেন্ট, সারাজীবন ব্যবহার। কোন AI বা SMS ক্রেডিট অন্তর্ভুক্ত নেই।" },
       { q: "পুরাতন সিস্টেম থেকে ডেটা আনা যাবে?", a: "হ্যাঁ। Excel import আছে সব ডেটার জন্য — students, staff, fees, attendance। পুরাতন Bornomala ডেটা-ও আমরা migrate করে দিই।" },
       { q: "প্ল্যান পরিবর্তন করা যাবে?", a: "যে কোন সময় upgrade বা downgrade করা যাবে। ডেটা কখনো হারাবে না।" },
       { q: "পেমেন্ট কিভাবে করব?", a: "bKash, Nagad, Rocket, ব্যাংক ট্রান্সফার — সব পদ্ধতি চলবে।" },
@@ -280,7 +280,7 @@ const en: Copy = {
       {
         name: "Lifetime Basic",
         tagline: "Small institutions · pay once, use forever",
-        price: 5000,
+        price: 20000,
         priceUnit: "once",
         badge: "LIFETIME DEAL",
         features: [
@@ -294,12 +294,12 @@ const en: Copy = {
           "Excel reports",
           "Community support (email)",
         ],
-        cta: "Buy for ৳5,000",
+        cta: "Buy Lifetime",
       },
       {
         name: "Starter",
         tagline: "Growing institutions",
-        price: 800,
+        price: 1000,
         priceUnit: "month",
         features: [
           "Everything in Lifetime Basic",
@@ -332,7 +332,7 @@ const en: Copy = {
       {
         name: "Scale",
         tagline: "Enterprise · Multi-branch",
-        price: 4500,
+        price: 4000,
         priceUnit: "month",
         features: [
           "Everything in Growth",
@@ -362,7 +362,7 @@ const en: Copy = {
     eyebrow: "Help",
     title: "Frequently Asked Questions",
     list: [
-      { q: "What's included in the ৳5,000 Lifetime plan?", a: "Complete management for up to 200 students — student, staff, attendance, manual fee tracking, exams, marksheets, certificates, parent portal. One-time payment, lifetime use. No AI or SMS credits included." },
+      { q: "What's included in the ৳20,000 Lifetime plan?", a: "Complete management for up to 200 students — student, staff, attendance, manual fee tracking, exams, marksheets, certificates, parent portal. One-time payment, lifetime use. No AI or SMS credits included." },
       { q: "Can I migrate data from my old system?", a: "Yes. Excel import available for all data types — students, staff, fees, attendance. We also migrate from Bornomala." },
       { q: "Can I change plans later?", a: "Upgrade or downgrade anytime. Your data is never lost." },
       { q: "How can I pay?", a: "bKash, Nagad, Rocket, bank transfer — all methods supported." },
@@ -434,7 +434,7 @@ const ur: Copy = {
       {
         name: "Lifetime Basic",
         tagline: "چھوٹے ادارے · ایک بار ادائیگی، ہمیشہ کے لیے",
-        price: 5000,
+        price: 20000,
         priceUnit: "once",
         badge: "لائف ٹائم ڈیل",
         features: [
@@ -448,12 +448,12 @@ const ur: Copy = {
           "Excel رپورٹس",
           "کمیونٹی سپورٹ",
         ],
-        cta: "۵۰۰۰ میں خریدیں",
+        cta: "لائف ٹائم خریدیں",
       },
       {
         name: "Starter",
         tagline: "بڑھتے ہوئے ادارے",
-        price: 800,
+        price: 1000,
         priceUnit: "month",
         features: ["Lifetime Basic کی سب کچھ", "۵۰۰ طلباء تک", "SMS اطلاعات", "۱۰+ رپورٹ اقسام", "PWA آف لائن موڈ"],
         cta: "آزمائش شروع کریں",
@@ -470,7 +470,7 @@ const ur: Copy = {
       {
         name: "Scale",
         tagline: "انٹرپرائز · ملٹی برانچ",
-        price: 4500,
+        price: 4000,
         priceUnit: "month",
         features: ["Growth کی سب کچھ", "ملٹی برانچ", "کسٹم ڈومین", "عوامی ویب سائٹ", "۲۰،۰۰۰ SMS/ماہ", "۲۴/۷ سپورٹ"],
         cta: "آزمائش شروع کریں",
@@ -492,7 +492,7 @@ const ur: Copy = {
     eyebrow: "مدد",
     title: "عام سوالات",
     list: [
-      { q: "۵۰۰۰ کے لائف ٹائم پلان میں کیا ملے گا؟", a: "۲۰۰ طلباء تک کا مکمل انتظام — طالب علم، اساتذہ، حاضری، فیس، امتحانات، مارک شیٹ، اسناد، والدین پورٹل۔ ایک بار ادائیگی، ہمیشہ کے لیے۔" },
+      { q: "۲۰،۰۰۰ کے لائف ٹائم پلان میں کیا ملے گا؟", a: "۲۰۰ طلباء تک کا مکمل انتظام — طالب علم، اساتذہ، حاضری، فیس، امتحانات، مارک شیٹ، اسناد، والدین پورٹل۔ ایک بار ادائیگی، ہمیشہ کے لیے۔" },
       { q: "پرانے سسٹم سے ڈیٹا منتقل کر سکتے ہیں؟", a: "ہاں۔ تمام ڈیٹا کے لیے Excel درآمد دستیاب ہے۔" },
       { q: "پلان تبدیل کر سکتے ہیں؟", a: "کسی بھی وقت اپ گریڈ یا ڈاؤن گریڈ کر سکتے ہیں۔ ڈیٹا ضائع نہیں ہوتا۔" },
       { q: "ادائیگی کیسے کریں؟", a: "bKash، Nagad، Rocket، بینک ٹرانسفر — تمام طریقے۔" },
@@ -564,7 +564,7 @@ const ar: Copy = {
       {
         name: "Lifetime Basic",
         tagline: "المؤسسات الصغيرة · ادفع مرة، استخدم للأبد",
-        price: 5000,
+        price: 20000,
         priceUnit: "once",
         badge: "صفقة مدى الحياة",
         features: [
@@ -578,12 +578,12 @@ const ar: Copy = {
           "تقارير Excel",
           "دعم مجتمعي",
         ],
-        cta: "اشتر بـ 5000",
+        cta: "اشتر مدى الحياة",
       },
       {
         name: "Starter",
         tagline: "المؤسسات النامية",
-        price: 800,
+        price: 1000,
         priceUnit: "month",
         features: ["كل ما في Lifetime Basic", "حتى 500 طالب", "إشعارات SMS", "10+ أنواع تقارير", "وضع PWA غير متصل"],
         cta: "ابدأ التجربة",
@@ -600,7 +600,7 @@ const ar: Copy = {
       {
         name: "Scale",
         tagline: "المؤسسات · متعدد الفروع",
-        price: 4500,
+        price: 4000,
         priceUnit: "month",
         features: ["كل ما في Growth", "متعدد الفروع", "نطاق مخصص", "موقع عام", "20،000 SMS/شهر", "دعم 24/7"],
         cta: "ابدأ التجربة",
@@ -622,7 +622,7 @@ const ar: Copy = {
     eyebrow: "المساعدة",
     title: "أسئلة شائعة",
     list: [
-      { q: "ماذا تتضمن خطة 5000 مدى الحياة؟", a: "إدارة كاملة لما يصل إلى 200 طالب — الطلاب، الموظفين، الحضور، الرسوم، الامتحانات، كشوف الدرجات، الشهادات، بوابة الوالدين. دفعة واحدة، استخدام مدى الحياة." },
+      { q: "ماذا تتضمن خطة 20،000 مدى الحياة؟", a: "إدارة كاملة لما يصل إلى 200 طالب — الطلاب، الموظفين، الحضور، الرسوم، الامتحانات، كشوف الدرجات، الشهادات، بوابة الوالدين. دفعة واحدة، استخدام مدى الحياة." },
       { q: "هل يمكنني نقل البيانات؟", a: "نعم. يتوفر استيراد Excel لجميع أنواع البيانات." },
       { q: "هل يمكنني تغيير الخطة؟", a: "يمكنك الترقية أو التخفيض في أي وقت. لن تفقد أي بيانات." },
       { q: "كيف أدفع؟", a: "bKash، Nagad، Rocket، التحويل البنكي — جميع الطرق مدعومة." },
