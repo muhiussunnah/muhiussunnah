@@ -281,27 +281,28 @@ export default async function LandingPage() {
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {t.pricing.plans.map((plan, i) => (
               <Reveal key={plan.name} variant="fade-up" delay={i * 100}>
-                <TiltCard>
-                  <div
-                    className={`relative flex flex-col h-full rounded-2xl border p-6 backdrop-blur-sm hover-lift transition-all ${
-                      plan.highlighted
-                        ? "border-primary bg-gradient-to-br from-primary/10 via-card/80 to-accent/10 shadow-2xl shadow-primary/20 scale-[1.03]"
-                        : plan.priceUnit === "once"
-                          ? "border-accent/50 bg-accent/5"
-                          : "border-border/60 bg-card/50"
-                    }`}
-                  >
-                    {plan.highlighted && (
-                      <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 bg-gradient-primary animate-gradient text-white shadow-lg whitespace-nowrap">
-                        <Sparkles className="me-1 size-3" /> {t.pricing.mostPopular}
-                      </Badge>
-                    )}
-                    {plan.badge && !plan.highlighted && (
-                      <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg whitespace-nowrap">
-                        🏆 {plan.badge}
-                      </Badge>
-                    )}
-
+                <div className="relative h-full">
+                  {/* Badges OUTSIDE the tilted card so nothing clips them */}
+                  {plan.highlighted && (
+                    <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 z-20 bg-gradient-primary animate-gradient text-white shadow-lg whitespace-nowrap">
+                      <Sparkles className="me-1 size-3" /> {t.pricing.mostPopular}
+                    </Badge>
+                  )}
+                  {plan.badge && !plan.highlighted && (
+                    <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 z-20 bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg whitespace-nowrap">
+                      🏆 {plan.badge}
+                    </Badge>
+                  )}
+                  <TiltCard className="h-full">
+                    <div
+                      className={`relative flex flex-col h-full rounded-2xl border p-6 backdrop-blur-sm hover-lift transition-all ${
+                        plan.highlighted
+                          ? "border-primary bg-gradient-to-br from-primary/10 via-card/80 to-accent/10 shadow-2xl shadow-primary/20 scale-[1.03]"
+                          : plan.priceUnit === "once"
+                            ? "border-accent/50 bg-accent/5"
+                            : "border-border/60 bg-card/50"
+                      }`}
+                    >
                     <div className="mb-4">
                       <h3 className="text-lg font-bold">{plan.name}</h3>
                       <p className="text-xs text-muted-foreground mt-1">{plan.tagline}</p>
@@ -341,8 +342,9 @@ export default async function LandingPage() {
                         {plan.cta}
                       </Link>
                     </Magnetic>
-                  </div>
-                </TiltCard>
+                    </div>
+                  </TiltCard>
+                </div>
               </Reveal>
             ))}
           </div>

@@ -59,27 +59,28 @@ export default async function PricingPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {t.pricing.plans.map((plan, i) => (
               <Reveal key={plan.name} variant="fade-up" delay={i * 100}>
-                <TiltCard>
-                  <div
-                    className={`relative flex flex-col h-full rounded-2xl border p-6 backdrop-blur-sm transition-all hover-lift ${
-                      plan.highlighted
-                        ? "border-primary bg-gradient-to-br from-primary/10 via-card/80 to-accent/10 shadow-2xl shadow-primary/20 scale-[1.03]"
-                        : plan.priceUnit === "once"
-                          ? "border-accent/50 bg-accent/5 shine-border"
-                          : "border-border/60 bg-card/50 shine-border"
-                    }`}
-                  >
-                    {plan.highlighted && (
-                      <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 bg-gradient-primary animate-gradient text-white shadow-lg whitespace-nowrap">
-                        <Sparkles className="me-1 size-3" /> {t.pricing.mostPopular}
-                      </Badge>
-                    )}
-                    {plan.badge && !plan.highlighted && (
-                      <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg whitespace-nowrap">
-                        <Trophy className="me-1 size-3" /> {plan.badge}
-                      </Badge>
-                    )}
-
+                <div className="relative h-full">
+                  {/* Badge lives OUTSIDE TiltCard/shine-border so overflow:hidden doesn't clip it */}
+                  {plan.highlighted && (
+                    <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 z-20 bg-gradient-primary animate-gradient text-white shadow-lg whitespace-nowrap">
+                      <Sparkles className="me-1 size-3" /> {t.pricing.mostPopular}
+                    </Badge>
+                  )}
+                  {plan.badge && !plan.highlighted && (
+                    <Badge className="absolute -top-3 start-1/2 -translate-x-1/2 z-20 bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg whitespace-nowrap">
+                      <Trophy className="me-1 size-3" /> {plan.badge}
+                    </Badge>
+                  )}
+                  <TiltCard className="h-full">
+                    <div
+                      className={`relative flex flex-col h-full rounded-2xl border p-6 backdrop-blur-sm transition-all hover-lift ${
+                        plan.highlighted
+                          ? "border-primary bg-gradient-to-br from-primary/10 via-card/80 to-accent/10 shadow-2xl shadow-primary/20 scale-[1.03]"
+                          : plan.priceUnit === "once"
+                            ? "border-accent/50 bg-accent/5 shine-border"
+                            : "border-border/60 bg-card/50 shine-border"
+                      }`}
+                    >
                     <div className="mb-5 pt-2">
                       <h3 className="text-xl font-bold">{plan.name}</h3>
                       <p className="text-xs text-muted-foreground mt-1">{plan.tagline}</p>
@@ -125,8 +126,9 @@ export default async function PricingPage() {
                     >
                       {t.extras.viewDetails} →
                     </Link>
-                  </div>
-                </TiltCard>
+                    </div>
+                  </TiltCard>
+                </div>
               </Reveal>
             ))}
           </div>
