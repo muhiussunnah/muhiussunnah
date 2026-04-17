@@ -189,6 +189,16 @@
   html[lang="bn"] body {
     font-feature-settings: "kern";
   }
+
+}
+
+/* Global: no underlines on any anchor — site-wide preference.
+   Placed outside @layer base so it overrides Tailwind's hover:underline utility. */
+a,
+a:hover,
+a:focus,
+a:visited {
+  text-decoration: none !important;
 }
 
 /* =========================================================================
