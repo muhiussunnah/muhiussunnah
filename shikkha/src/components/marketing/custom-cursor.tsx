@@ -3,25 +3,27 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Premium custom cursor — follow-dot with an elastic outer ring that
- * expands on interactive elements. Hidden on touch devices.
+ * Premium cursor trail — decorative layer that trails the native cursor.
+ *
+ * IMPORTANT: Native cursor stays visible (no `cursor: none`). This is just
+ * an aesthetic accent. If the trail fails for any reason, users still have
+ * their native cursor for usability.
  *
  * Technique:
- *   - Inner dot follows mouse directly (GPU transform, no React re-render).
- *   - Outer ring lerps toward dot at 0.15 per frame for trailing feel.
- *   - On hover over [data-cursor="lg"] / a / button, ring scales 2.5x + mixes.
+ *   - Single trailing ring (~30px) in primary color with soft glow.
+ *   - Lerps toward mouse at 0.18/frame for elastic feel.
+ *   - Scales 1.8x on hover over interactive elements.
+ *   - Hidden on touch devices.
  */
 export function CustomCursor() {
-  const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (window.matchMedia("(hover: none)").matches) return;
 
-    const dot = dotRef.current;
     const ring = ringRef.current;
-    if (!dot || !ring) return;
+    if (!ring) return;
 
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
@@ -30,16 +32,20 @@ export function CustomCursor() {
     let rafId = 0;
     let ringScale = 1;
     let targetScale = 1;
+    let shown = false;
 
     const onMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
-      dot.style.transform = `translate3d(${mouseX - 4}px, ${mouseY - 4}px, 0)`;
+      if (!shown) {
+        ring.style.opacity = "1";
+        shown = true;
+      }
     };
 
     const tick = () => {
-      ringX += (mouseX - ringX) * 0.18;
-      ringY += (mouseY - ringY) * 0.18;
+      ringX += (mouseX - ringX) * 0.2;
+      ringY += (mouseY - ringY) * 0.2;
       ringScale += (targetScale - ringScale) * 0.2;
       ring.style.transform = `translate3d(${ringX - 18}px, ${ringY - 18}px, 0) scale(${ringScale})`;
       rafId = requestAnimationFrame(tick);
@@ -51,7 +57,7 @@ export function CustomCursor() {
       if (!target) return;
       const interactive = target.closest('a, button, [role="button"], input, textarea, select, [data-cursor="lg"]');
       if (interactive) {
-        targetScale = 2.2;
+        targetScale = 1.8;
         ring.classList.add("cursor-active");
       } else {
         targetScale = 1;
@@ -60,42 +66,28 @@ export function CustomCursor() {
     };
 
     const onLeave = () => {
-      dot.style.opacity = "0";
       ring.style.opacity = "0";
-    };
-    const onEnter = () => {
-      dot.style.opacity = "1";
-      ring.style.opacity = "1";
+      shown = false;
     };
 
     window.addEventListener("mousemove", onMove);
     window.addEventListener("mouseover", onOver);
     document.addEventListener("mouseleave", onLeave);
-    document.addEventListener("mouseenter", onEnter);
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMove);
       window.removeEventListener("mouseover", onOver);
       document.removeEventListener("mouseleave", onLeave);
-      document.removeEventListener("mouseenter", onEnter);
     };
   }, []);
 
   return (
-    <>
-      <div
-        ref={dotRef}
-        aria-hidden
-        className="pointer-events-none fixed start-0 top-0 z-[9999] size-2 rounded-full bg-white mix-blend-difference transition-opacity duration-300"
-        style={{ willChange: "transform" }}
-      />
-      <div
-        ref={ringRef}
-        aria-hidden
-        className="pointer-events-none fixed start-0 top-0 z-[9999] size-9 rounded-full border border-primary/60 mix-blend-difference transition-[opacity,border-color,background-color] duration-300"
-        style={{ willChange: "transform" }}
-      />
-    </>
+    <div
+      ref={ringRef}
+      aria-hidden
+      className="pointer-events-none fixed start-0 top-0 z-[9999] size-9 rounded-full border-2 border-primary/70 opacity-0 shadow-[0_0_20px_rgba(124,92,255,0.4)] transition-[opacity,border-color,background-color] duration-300"
+      style={{ willChange: "transform" }}
+    />
   );
 }

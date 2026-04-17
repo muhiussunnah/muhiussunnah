@@ -219,11 +219,7 @@ html { scroll-behavior: smooth; }
 /* Firefox */
 html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
 
-/* ---- Hide native cursor on marketing pages with data-custom-cursor ---- */
-[data-custom-cursor="on"], [data-custom-cursor="on"] * { cursor: none !important; }
-@media (hover: none) {
-  [data-custom-cursor="on"], [data-custom-cursor="on"] * { cursor: auto !important; }
-}
+/* ---- Custom cursor decoration (native cursor STAYS visible for usability) ---- */
 .cursor-active {
   background: rgba(124, 92, 255, 0.35);
   border-color: rgba(124, 92, 255, 0.8);
