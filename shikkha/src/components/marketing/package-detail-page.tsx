@@ -10,6 +10,7 @@ import { FloatingActions } from "@/components/marketing/floating-actions";
 import { Reveal } from "@/components/marketing/reveal";
 import { TiltCard } from "@/components/marketing/tilt-card";
 import { Magnetic } from "@/components/marketing/magnetic";
+import type { PackageDetailChromeCopy } from "@/lib/i18n/pages";
 
 export type PackageDetail = {
   slug: string;
@@ -65,7 +66,7 @@ const accentClasses: Record<PackageDetail["accent"], { border: string; bg: strin
   },
 };
 
-export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
+export function PackageDetailPage({ pkg, chrome }: { pkg: PackageDetail; chrome: PackageDetailChromeCopy }) {
   const a = accentClasses[pkg.accent];
 
   return (
@@ -83,7 +84,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                 href="/pricing"
                 className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition mb-6"
               >
-                <ArrowLeft className="size-3.5 rtl:rotate-180" /> সকল প্যাকেজ দেখুন
+                <ArrowLeft className="size-3.5 rtl:rotate-180" /> {chrome.backToAll}
               </Link>
             </Reveal>
 
@@ -97,7 +98,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                   )}
                   <h1 className="text-4xl md:text-6xl font-bold tracking-tight leading-[1.05]">
                     {pkg.name}{" "}
-                    <span className="text-gradient-primary animate-gradient">প্যাকেজ</span>
+                    <span className="text-gradient-primary animate-gradient">{chrome.packageSuffix}</span>
                   </h1>
                   <p className="mt-4 text-lg text-muted-foreground">{pkg.tagline}</p>
                   <p className="mt-3 text-base text-muted-foreground max-w-2xl leading-relaxed">{pkg.summary}</p>
@@ -107,12 +108,12 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                       <span className="text-muted-foreground text-2xl">৳</span>
                       <span className="text-6xl font-bold tabular-nums">{pkg.price.toLocaleString("en-IN")}</span>
                       <span className="text-base text-muted-foreground ms-1">
-                        {pkg.priceUnit === "once" ? "একবার পরিশোধ" : "/মাস"}
+                        {pkg.priceUnit === "once" ? chrome.payOnce : chrome.perMonth}
                       </span>
                     </div>
                     {pkg.priceUnit === "once" && (
                       <Badge className="bg-accent/10 text-accent border-accent/30" variant="outline">
-                        ✨ LIFETIME
+                        {chrome.lifetimeBadge}
                       </Badge>
                     )}
                   </div>
@@ -123,7 +124,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                         href="/register-school"
                         className={buttonVariants({ size: "lg" }) + " bg-gradient-primary animate-gradient text-white shadow-xl shadow-primary/30 text-base px-8"}
                       >
-                        এই প্যাকেজ কিনুন <ArrowRight className="ms-2 size-4 rtl:rotate-180" />
+                        {chrome.buyCta} <ArrowRight className="ms-2 size-4 rtl:rotate-180" />
                       </Link>
                     </Magnetic>
                     <Link
@@ -132,7 +133,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                       rel="noreferrer"
                       className={buttonVariants({ size: "lg", variant: "outline" }) + " text-base px-8"}
                     >
-                      WhatsApp-এ জিজ্ঞাসা
+                      {chrome.whatsappCta}
                     </Link>
                   </div>
                 </div>
@@ -144,7 +145,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                     <div className={`inline-flex size-14 items-center justify-center rounded-2xl bg-gradient-to-br ${a.icon} text-white shadow-lg mb-4`}>
                       <Sparkles className="size-6" />
                     </div>
-                    <h3 className="font-bold text-lg mb-3">কাদের জন্য?</h3>
+                    <h3 className="font-bold text-lg mb-3">{chrome.whoFor}</h3>
                     <ul className="space-y-2">
                       {pkg.whoFor.map((w) => (
                         <li key={w} className="flex items-start gap-2 text-sm">
@@ -155,7 +156,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                     </ul>
                     {pkg.bestValue && (
                       <div className="mt-5 pt-5 border-t border-border/40">
-                        <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">সেরা মূল্য</div>
+                        <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">{chrome.bestValue}</div>
                         <p className="text-sm font-medium leading-relaxed">{pkg.bestValue}</p>
                       </div>
                     )}
@@ -175,7 +176,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                 <div className="relative">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="inline-flex items-center gap-1 rounded-full bg-success/20 text-success px-3 py-1 text-xs font-bold uppercase tracking-wider">
-                      💰 HUGE SAVING
+                      {chrome.hugeSaving}
                     </span>
                   </div>
                   <h2 className="text-2xl md:text-4xl font-bold mb-2">{pkg.savingsTable.title}</h2>
@@ -190,25 +191,25 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                       <div className="text-4xl font-bold text-foreground tabular-nums">
                         ৳{pkg.savingsTable.yourYearly.amount.toLocaleString("en-IN")}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">per year</div>
+                      <div className="text-xs text-muted-foreground mt-1">{chrome.perYear}</div>
                     </div>
 
                     {/* Comparison rows */}
                     <div className="rounded-2xl border border-border/60 bg-card/60 overflow-hidden">
                       <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3 border-b border-border/40">
-                        অন্য প্যাকেজের তুলনায় সাশ্রয়
+                        {chrome.savingsCompareHeading}
                       </div>
                       {pkg.savingsTable.compareAgainst.map((c) => (
                         <div key={c.name} className="flex items-center justify-between px-5 py-3 border-b border-border/40 last:border-0 hover:bg-muted/20 transition">
                           <div>
                             <div className="font-semibold text-sm">{c.name}</div>
                             <div className="text-xs text-muted-foreground">
-                              ৳{c.yearly.toLocaleString("en-IN")}/year
+                              ৳{c.yearly.toLocaleString("en-IN")}{chrome.perYearSuffix}
                             </div>
                           </div>
                           <div className="flex items-center gap-1 rounded-full bg-success/15 border border-success/30 px-3 py-1">
                             <span className="text-sm font-bold text-success tabular-nums">{c.savingsPercent}%</span>
-                            <span className="text-xs text-success">সাশ্রয়</span>
+                            <span className="text-xs text-success">{chrome.savings}</span>
                           </div>
                         </div>
                       ))}
@@ -264,7 +265,7 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
             <Reveal variant="fade-up">
               <div className="rounded-2xl border border-warning/30 bg-warning/5 p-6">
                 <h3 className="font-bold mb-3 flex items-center gap-2">
-                  <X className="size-5 text-warning" /> এই প্যাকেজে যা <em>নেই</em>
+                  <X className="size-5 text-warning" /> {chrome.notIncludedTitle} <em>{chrome.notIncludedTitleEm}</em>
                 </h3>
                 <ul className="space-y-1.5 text-sm text-muted-foreground">
                   {pkg.notIncluded.map((n) => (
@@ -275,9 +276,9 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
                   ))}
                 </ul>
                 <p className="text-xs text-muted-foreground mt-4">
-                  উপরের feature গুলো পেতে{" "}
-                  <Link href="/pricing" className="text-primary hover:underline font-medium">উচ্চতর package</Link>{" "}
-                  বেছে নিন।
+                  {chrome.notIncludedFooterBefore}
+                  <Link href="/pricing" className="text-primary hover:underline font-medium">{chrome.notIncludedFooterLink}</Link>
+                  {chrome.notIncludedFooterAfter}
                 </p>
               </div>
             </Reveal>
@@ -287,16 +288,16 @@ export function PackageDetailPage({ pkg }: { pkg: PackageDetail }) {
           <Reveal variant="scale-in">
             <div className="relative overflow-hidden rounded-[2rem] bg-gradient-primary animate-gradient p-10 md:p-14 text-center text-white shadow-2xl shadow-primary/30 noise">
               <div className="relative">
-                <h2 className="text-3xl md:text-4xl font-bold mb-2">{pkg.name} দিয়ে আজই শুরু</h2>
-                <p className="text-white/90 mb-6">১৫ দিন ফ্রি ট্রায়াল + ৩০ দিন refund গ্যারান্টি</p>
+                <h2 className="text-3xl md:text-4xl font-bold mb-2">{pkg.name} {chrome.ctaStart}</h2>
+                <p className="text-white/90 mb-6">{chrome.ctaSubtitle}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Magnetic>
                     <Link href="/register-school" className="inline-flex items-center gap-2 rounded-md bg-white text-primary px-8 py-3.5 font-semibold hover:shadow-2xl transition">
-                      ফ্রি ট্রায়াল শুরু <ArrowRight className="size-4 rtl:rotate-180" />
+                      {chrome.ctaPrimary} <ArrowRight className="size-4 rtl:rotate-180" />
                     </Link>
                   </Magnetic>
                   <Link href="/pricing" className="inline-flex items-center gap-2 rounded-md border border-white/40 px-8 py-3.5 font-semibold hover:bg-white/10 transition">
-                    অন্য প্যাকেজ তুলনা করুন
+                    {chrome.ctaSecondary}
                   </Link>
                 </div>
               </div>
