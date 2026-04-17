@@ -7,6 +7,8 @@ import {
   Noto_Sans_Bengali,
 } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { RegisterServiceWorker } from "@/components/pwa/register-sw";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import "./globals.css";
 
 const hindSiliguri = Hind_Siliguri({
@@ -91,6 +93,8 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col font-sans antialiased">
         {children}
         <Toaster position="top-right" richColors closeButton />
+        <InstallPrompt />
+        <RegisterServiceWorker />
       </body>
     </html>
   );

@@ -2,6 +2,7 @@ import { CalendarDays, Users2, Wallet, TrendingUp } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { MetricCard } from "@/components/ui/metric-card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { RealtimeDashboardIndicator } from "@/components/dashboard/realtime-dashboard-indicator";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { formatDualDate } from "@/lib/utils/date";
@@ -20,8 +21,7 @@ export default async function SchoolAdminDashboardPage({ params }: PageProps) {
         title={`স্বাগতম, ${membership.full_name_bn ?? "প্রিন্সিপাল"} সাহেব`}
         subtitle={`আজ ${today} · আপনার স্কুলের সম্পূর্ণ চিত্র এক নজরে`}
         impact={[
-          { label: "🎯 Phase 0 · setup complete", tone: "accent" },
-          { label: "⚡ Live realtime ready", tone: "success" },
+          { label: <RealtimeDashboardIndicator schoolId={membership.school_id} />, tone: "success" },
         ]}
       />
 

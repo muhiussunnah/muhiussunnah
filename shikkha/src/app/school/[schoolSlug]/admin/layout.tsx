@@ -1,18 +1,32 @@
 import type { ReactNode } from "react";
 import {
+  Award,
+  Banknote,
+  BookOpen,
   BookOpenText,
   Building2,
+  Bus,
+  CalendarDays,
   ClipboardList,
   CreditCard,
   FileCheck2,
+  FileText,
+  HeartHandshake,
+  Home,
   LayoutDashboard,
+  LifeBuoy,
   Megaphone,
+  MessageSquare,
+  Package,
+  Receipt,
   ScrollText,
   Settings2,
+  TrendingUp,
   Users2,
   Wallet,
 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { OnlineStatus } from "@/components/pwa/online-status";
 import { requireRole, type ActiveSchoolMembership } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 
@@ -35,6 +49,7 @@ export default async function SchoolAdminLayout({ children, params }: Props) {
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}
     >
       {children}
+      <OnlineStatus />
     </DashboardShell>
   );
 }
@@ -47,11 +62,23 @@ function adminNav(slug: string, membership: ActiveSchoolMembership) {
     { href: `/school/${slug}/admin/staff`,          label: "শিক্ষক/স্টাফ",     icon: <Users2 className="size-4" /> },
     { href: `/school/${slug}/admin/classes`,        label: "শ্রেণি",           icon: <Building2 className="size-4" /> },
     { href: `/school/${slug}/admin/attendance`,     label: "উপস্থিতি",         icon: <FileCheck2 className="size-4" /> },
+    { href: `/school/${slug}/admin/academic-years`, label: "শিক্ষাবর্ষ",       icon: <CalendarDays className="size-4" /> },
     { href: `/school/${slug}/admin/exams`,          label: "পরীক্ষা",          icon: <ScrollText className="size-4" /> },
+    { href: `/school/${slug}/admin/certificates`,   label: "সার্টিফিকেট",      icon: <FileText className="size-4" /> },
     { href: `/school/${slug}/admin/fees`,           label: "ফি",                icon: <Wallet className="size-4" /> },
+    { href: `/school/${slug}/admin/fees/payments`,  label: "পেমেন্ট",           icon: <Receipt className="size-4" /> },
     { href: `/school/${slug}/admin/expenses`,       label: "খরচ",              icon: <CreditCard className="size-4" /> },
-    { href: `/school/${slug}/admin/donations`,      label: "চাঁদা",             icon: <CreditCard className="size-4" /> },
+    { href: `/school/${slug}/admin/donations`,      label: "চাঁদা",             icon: <HeartHandshake className="size-4" /> },
+    { href: `/school/${slug}/admin/investments`,    label: "বিনিয়োগ",          icon: <TrendingUp className="size-4" /> },
+    { href: `/school/${slug}/admin/payroll`,        label: "বেতন",             icon: <Banknote className="size-4" /> },
+    { href: `/school/${slug}/admin/scholarships`,   label: "বৃত্তি",            icon: <Award className="size-4" /> },
     { href: `/school/${slug}/admin/notices`,        label: "নোটিশ",            icon: <Megaphone className="size-4" /> },
+    { href: `/school/${slug}/admin/messaging`,      label: "মেসেজিং রিপোর্ট", icon: <MessageSquare className="size-4" /> },
+    { href: `/school/${slug}/admin/library`,        label: "লাইব্রেরি",         icon: <BookOpen className="size-4" /> },
+    { href: `/school/${slug}/admin/transport`,      label: "পরিবহন",           icon: <Bus className="size-4" /> },
+    { href: `/school/${slug}/admin/hostel`,         label: "হোস্টেল",           icon: <Home className="size-4" /> },
+    { href: `/school/${slug}/admin/inventory`,      label: "ইনভেন্টরি",        icon: <Package className="size-4" /> },
+    { href: `/school/${slug}/admin/support`,        label: "সাপোর্ট",          icon: <LifeBuoy className="size-4" /> },
     { href: `/school/${slug}/admin/reports`,        label: "রিপোর্ট",          icon: <ScrollText className="size-4" /> },
   ];
 

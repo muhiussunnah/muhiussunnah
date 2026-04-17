@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CalendarCheck, CreditCard, Home, Mail, Megaphone, ScrollText, UserCircle2 } from "lucide-react";
+import { BookOpenText, CalendarCheck, CreditCard, Home, LifeBuoy, Mail, Megaphone, ScrollText, UserCircle2 } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { requireRole } from "@/lib/auth/session";
 import { PORTAL_ROLES } from "@/lib/auth/roles";
@@ -20,8 +20,17 @@ export default async function PortalLayout({ children, params }: Props) {
     { href: `/school/${schoolSlug}/portal/fees`,         label: "ফি পেমেন্ট",     icon: <CreditCard className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/notices`,      label: "নোটিশ",          icon: <Megaphone className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/messages`,     label: "বার্তা",          icon: <Mail className="size-4" /> },
+    { href: `/school/${schoolSlug}/portal/support`,      label: "সাপোর্ট",         icon: <LifeBuoy className="size-4" /> },
     { href: `/school/${schoolSlug}/portal/profile`,      label: "প্রোফাইল",       icon: <UserCircle2 className="size-4" /> },
   ];
+
+  if (membership.school_type === "madrasa" || membership.school_type === "both") {
+    nav.splice(3, 0, {
+      href: `/school/${schoolSlug}/portal/hifz`,
+      label: "হিফজ",
+      icon: <BookOpenText className="size-4" />,
+    });
+  }
 
   return (
     <DashboardShell
