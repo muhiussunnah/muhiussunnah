@@ -1741,3 +1741,169 @@ const packageDetails: Record<PackageSlug, Record<Locale, LocalizedPackageDetail>
 export function getPackageDetailCopy(slug: PackageSlug, locale: Locale): LocalizedPackageDetail {
   return packageDetails[slug][locale] ?? packageDetails[slug].bn;
 }
+
+// ─── /register-school ─────────────────────────────────────────────────────
+
+export type RegisterPageCopy = {
+  metaTitle: string;
+  heading: string;
+  subtitle: string;
+  perks: string[];
+  // Form
+  schoolInfoLegend: string;
+  adminInfoLegend: string;
+  schoolNameBnLabel: string;
+  schoolNameBnPlaceholder: string;
+  schoolNameEnLabel: string;
+  schoolNameEnPlaceholder: string;
+  schoolTypeLabel: string;
+  schoolTypeSchool: string;
+  schoolTypeMadrasa: string;
+  schoolTypeBoth: string;
+  eiinLabel: string;
+  adminNameLabel: string;
+  emailLabel: string;
+  phoneLabel: string;
+  passwordLabel: string;
+  submitIdle: string;
+  submitPending: string;
+  termsNote: string;
+  registerSuccessFallback: string;
+  haveAccount: string;
+  loginLink: string;
+};
+
+const registerPage: Record<Locale, RegisterPageCopy> = {
+  bn: {
+    metaTitle: "স্কুল রেজিস্টার করুন",
+    heading: "ফ্রি ট্রায়াল শুরু",
+    subtitle: "৫ মিনিটে সেটআপ · কোন কার্ড লাগবে না",
+    perks: [
+      "১৫ দিনের ফ্রি ট্রায়াল",
+      "কোন ক্রেডিট কার্ড লাগবে না",
+      "সম্পূর্ণ access — সব ফিচার",
+      "৫ মিনিটে সেটআপ",
+    ],
+    schoolInfoLegend: "স্কুলের তথ্য",
+    adminInfoLegend: "অ্যাডমিনের তথ্য",
+    schoolNameBnLabel: "স্কুলের নাম (বাংলা)",
+    schoolNameBnPlaceholder: "যেমন: দারুল উলুম কওমী মাদ্রাসা",
+    schoolNameEnLabel: "School name (English, optional)",
+    schoolNameEnPlaceholder: "e.g. Darul Uloom Qawmi Madrasa",
+    schoolTypeLabel: "প্রতিষ্ঠানের ধরন",
+    schoolTypeSchool: "স্কুল",
+    schoolTypeMadrasa: "মাদ্রাসা",
+    schoolTypeBoth: "স্কুল + মাদ্রাসা",
+    eiinLabel: "EIIN (ঐচ্ছিক)",
+    adminNameLabel: "আপনার নাম",
+    emailLabel: "ইমেইল",
+    phoneLabel: "ফোন (ঐচ্ছিক)",
+    passwordLabel: "পাসওয়ার্ড (৮+ অক্ষর)",
+    submitIdle: "স্কুল তৈরি করুন",
+    submitPending: "তৈরি হচ্ছে...",
+    termsNote: "রেজিস্টার করে আপনি আমাদের Terms ও Privacy Policy-তে সম্মত হচ্ছেন।",
+    registerSuccessFallback: "রেজিস্ট্রেশন সফল!",
+    haveAccount: "ইতিমধ্যে অ্যাকাউন্ট আছে?",
+    loginLink: "লগইন করুন →",
+  },
+  en: {
+    metaTitle: "Register your school",
+    heading: "Start free trial",
+    subtitle: "Setup in 5 minutes · No card required",
+    perks: [
+      "15-day free trial",
+      "No credit card needed",
+      "Full access — every feature",
+      "Setup in 5 minutes",
+    ],
+    schoolInfoLegend: "School information",
+    adminInfoLegend: "Admin information",
+    schoolNameBnLabel: "School name (Bangla)",
+    schoolNameBnPlaceholder: "e.g. দারুল উলুম কওমী মাদ্রাসা",
+    schoolNameEnLabel: "School name (English, optional)",
+    schoolNameEnPlaceholder: "e.g. Darul Uloom Qawmi Madrasa",
+    schoolTypeLabel: "Institution type",
+    schoolTypeSchool: "School",
+    schoolTypeMadrasa: "Madrasa",
+    schoolTypeBoth: "School + Madrasa",
+    eiinLabel: "EIIN (optional)",
+    adminNameLabel: "Your name",
+    emailLabel: "Email",
+    phoneLabel: "Phone (optional)",
+    passwordLabel: "Password (8+ characters)",
+    submitIdle: "Create school",
+    submitPending: "Creating...",
+    termsNote: "By registering you agree to our Terms and Privacy Policy.",
+    registerSuccessFallback: "Registration successful!",
+    haveAccount: "Already have an account?",
+    loginLink: "Log in →",
+  },
+  ur: {
+    metaTitle: "اپنے اسکول کا اندراج کریں",
+    heading: "مفت ٹرائل شروع کریں",
+    subtitle: "5 منٹ میں سیٹ اپ · کارڈ کی ضرورت نہیں",
+    perks: [
+      "15 دن کا مفت ٹرائل",
+      "کریڈٹ کارڈ کی ضرورت نہیں",
+      "مکمل رسائی — ہر فیچر",
+      "5 منٹ میں سیٹ اپ",
+    ],
+    schoolInfoLegend: "اسکول کی معلومات",
+    adminInfoLegend: "ایڈمن کی معلومات",
+    schoolNameBnLabel: "اسکول کا نام (بنگلہ)",
+    schoolNameBnPlaceholder: "مثال: دارالعلوم قومی مدرسہ",
+    schoolNameEnLabel: "اسکول کا نام (انگریزی، اختیاری)",
+    schoolNameEnPlaceholder: "e.g. Darul Uloom Qawmi Madrasa",
+    schoolTypeLabel: "ادارے کی قسم",
+    schoolTypeSchool: "اسکول",
+    schoolTypeMadrasa: "مدرسہ",
+    schoolTypeBoth: "اسکول + مدرسہ",
+    eiinLabel: "EIIN (اختیاری)",
+    adminNameLabel: "آپ کا نام",
+    emailLabel: "ای میل",
+    phoneLabel: "فون (اختیاری)",
+    passwordLabel: "پاس ورڈ (8+ حروف)",
+    submitIdle: "اسکول بنائیں",
+    submitPending: "بنایا جا رہا ہے...",
+    termsNote: "اندراج کرنے سے آپ ہماری شرائط اور پرائیویسی پالیسی سے متفق ہیں۔",
+    registerSuccessFallback: "اندراج کامیاب!",
+    haveAccount: "پہلے سے اکاؤنٹ ہے؟",
+    loginLink: "لاگ ان کریں →",
+  },
+  ar: {
+    metaTitle: "سجّل مدرستك",
+    heading: "ابدأ النسخة التجريبية المجانية",
+    subtitle: "الإعداد خلال 5 دقائق · بدون بطاقة",
+    perks: [
+      "تجربة مجانية 15 يومًا",
+      "بدون بطاقة ائتمان",
+      "وصول كامل — جميع الميزات",
+      "الإعداد خلال 5 دقائق",
+    ],
+    schoolInfoLegend: "معلومات المدرسة",
+    adminInfoLegend: "معلومات المسؤول",
+    schoolNameBnLabel: "اسم المدرسة (بنغالي)",
+    schoolNameBnPlaceholder: "مثال: دار العلوم القومي المدرسة",
+    schoolNameEnLabel: "اسم المدرسة (إنجليزي، اختياري)",
+    schoolNameEnPlaceholder: "e.g. Darul Uloom Qawmi Madrasa",
+    schoolTypeLabel: "نوع المؤسسة",
+    schoolTypeSchool: "مدرسة عامة",
+    schoolTypeMadrasa: "مدرسة دينية",
+    schoolTypeBoth: "مدرسة عامة + دينية",
+    eiinLabel: "EIIN (اختياري)",
+    adminNameLabel: "اسمك",
+    emailLabel: "البريد الإلكتروني",
+    phoneLabel: "الهاتف (اختياري)",
+    passwordLabel: "كلمة المرور (8+ أحرف)",
+    submitIdle: "إنشاء المدرسة",
+    submitPending: "جاري الإنشاء...",
+    termsNote: "بالتسجيل فإنك توافق على شروط الخدمة وسياسة الخصوصية.",
+    registerSuccessFallback: "تم التسجيل بنجاح!",
+    haveAccount: "هل لديك حساب بالفعل؟",
+    loginLink: "تسجيل الدخول ←",
+  },
+};
+
+export function getRegisterPageCopy(locale: Locale): RegisterPageCopy {
+  return registerPage[locale] ?? registerPage.bn;
+}

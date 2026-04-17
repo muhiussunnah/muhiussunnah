@@ -1,20 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { Rocket, Check } from "lucide-react";
+import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
+import { getRegisterPageCopy } from "@/lib/i18n/pages";
 import { RegisterSchoolForm } from "./register-form";
 
-export const metadata: Metadata = {
-  title: "স্কুল রেজিস্টার করুন",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  return { title: getRegisterPageCopy(locale).metaTitle };
+}
 
-const perks = [
-  "১৫ দিনের ফ্রি ট্রায়াল",
-  "কোন ক্রেডিট কার্ড লাগবে না",
-  "সম্পূর্ণ access — সব ফিচার",
-  "৫ মিনিটে সেটআপ",
-];
+export default async function RegisterSchoolPage() {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const c = getRegisterPageCopy(locale);
 
-export default function RegisterSchoolPage() {
   return (
     <div className="relative">
       <div className="absolute -inset-px rounded-3xl bg-gradient-primary opacity-40 blur-xl" aria-hidden />
@@ -26,14 +30,14 @@ export default function RegisterSchoolPage() {
               <Rocket className="size-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">ফ্রি ট্রায়াল শুরু</h1>
-              <p className="text-sm text-muted-foreground">৫ মিনিটে সেটআপ · কোন কার্ড লাগবে না</p>
+              <h1 className="text-2xl font-bold tracking-tight">{c.heading}</h1>
+              <p className="text-sm text-muted-foreground">{c.subtitle}</p>
             </div>
           </div>
 
           {/* Perks */}
           <div className="mb-6 grid grid-cols-2 gap-2 text-xs">
-            {perks.map((p) => (
+            {c.perks.map((p) => (
               <div key={p} className="flex items-center gap-1.5 rounded-lg bg-success/5 border border-success/20 px-2.5 py-1.5">
                 <Check className="size-3 text-success shrink-0" />
                 <span className="text-muted-foreground">{p}</span>
@@ -41,12 +45,12 @@ export default function RegisterSchoolPage() {
             ))}
           </div>
 
-          <RegisterSchoolForm />
+          <RegisterSchoolForm copy={c} />
 
           <div className="mt-6 border-t border-border/40 pt-5 text-center text-sm text-muted-foreground">
-            ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
+            {c.haveAccount}{" "}
             <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
-              লগইন করুন →
+              {c.loginLink}
             </Link>
           </div>
         </div>
