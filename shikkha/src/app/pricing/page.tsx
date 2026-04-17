@@ -94,9 +94,6 @@ export default async function PricingPage() {
                           {plan.priceUnit === "once" ? t.pricing.oneTime : t.pricing.perMonth}
                         </span>
                       </div>
-                      {plan.priceUnit === "once" && (
-                        <p className="text-xs text-accent font-medium mt-1">✨ {t.pricing.lifetime}</p>
-                      )}
                     </div>
 
                     <ul className="space-y-2.5 flex-1 mb-6">
