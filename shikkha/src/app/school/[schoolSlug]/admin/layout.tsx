@@ -12,6 +12,7 @@ import {
   FileCheck2,
   FileText,
   HeartHandshake,
+  History,
   Home,
   LayoutDashboard,
   LifeBuoy,
@@ -21,6 +22,7 @@ import {
   Receipt,
   ScrollText,
   Settings2,
+  Sparkles,
   TrendingUp,
   Users2,
   Wallet,
@@ -80,6 +82,8 @@ function adminNav(slug: string, membership: ActiveSchoolMembership) {
     { href: `/school/${slug}/admin/inventory`,      label: "ইনভেন্টরি",        icon: <Package className="size-4" /> },
     { href: `/school/${slug}/admin/support`,        label: "সাপোর্ট",          icon: <LifeBuoy className="size-4" /> },
     { href: `/school/${slug}/admin/reports`,        label: "রিপোর্ট",          icon: <ScrollText className="size-4" /> },
+    { href: `/school/${slug}/admin/insights/dropout-risk`, label: "AI ঝুঁকি",  icon: <Sparkles className="size-4" /> },
+    { href: `/school/${slug}/admin/audit-logs`,     label: "অডিট লগ",           icon: <History className="size-4" /> },
   ];
 
   if (membership.school_type === "madrasa" || membership.school_type === "both") {

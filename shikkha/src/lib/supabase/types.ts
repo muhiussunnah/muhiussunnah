@@ -3583,6 +3583,69 @@ export type Database = {
           },
         ]
       }
+      sms_templates: {
+        Row: {
+          body: string
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          is_ai_generated: boolean
+          language: string
+          last_used_at: string | null
+          name: string
+          school_id: string
+          updated_at: string
+          use_count: number
+          variables: Json
+        }
+        Insert: {
+          body: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_ai_generated?: boolean
+          language?: string
+          last_used_at?: string | null
+          name: string
+          school_id: string
+          updated_at?: string
+          use_count?: number
+          variables?: Json
+        }
+        Update: {
+          body?: string
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_ai_generated?: boolean
+          language?: string
+          last_used_at?: string | null
+          name?: string
+          school_id?: string
+          updated_at?: string
+          use_count?: number
+          variables?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sms_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "school_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sms_templates_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       staff_salaries: {
         Row: {
           allowances: Json
@@ -3886,6 +3949,63 @@ export type Database = {
             foreignKeyName: "student_ledger_entries_student_id_fkey"
             columns: ["student_id"]
             isOneToOne: false
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_risk_scores: {
+        Row: {
+          attendance_pct: number | null
+          avg_marks_pct: number | null
+          computed_at: string
+          factors: Json
+          fee_overdue_days: number | null
+          id: string
+          risk_level: string
+          school_id: string
+          score: number
+          student_id: string
+          suggestion: string | null
+        }
+        Insert: {
+          attendance_pct?: number | null
+          avg_marks_pct?: number | null
+          computed_at?: string
+          factors?: Json
+          fee_overdue_days?: number | null
+          id?: string
+          risk_level: string
+          school_id: string
+          score: number
+          student_id: string
+          suggestion?: string | null
+        }
+        Update: {
+          attendance_pct?: number | null
+          avg_marks_pct?: number | null
+          computed_at?: string
+          factors?: Json
+          fee_overdue_days?: number | null
+          id?: string
+          risk_level?: string
+          school_id?: string
+          score?: number
+          student_id?: string
+          suggestion?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_risk_scores_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_risk_scores_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
             referencedRelation: "students"
             referencedColumns: ["id"]
           },
@@ -4623,6 +4743,33 @@ export type Database = {
           },
         ]
       }
+      user_totp_secrets: {
+        Row: {
+          created_at: string
+          recovery_codes: Json
+          secret: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          recovery_codes?: Json
+          secret: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          recovery_codes?: Json
+          secret?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       whatsapp_logs: {
         Row: {
           cost: number | null
@@ -4685,6 +4832,8 @@ export type Database = {
         Args: { amount_bdt: number; note_text?: string; target_school: string }
         Returns: number
       }
+      decrement_book_copies: { Args: { p_book_id: string }; Returns: undefined }
+      increment_book_copies: { Args: { p_book_id: string }; Returns: undefined }
       is_school_member: { Args: { target_school: string }; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
       seed_new_school: { Args: { target_school: string }; Returns: undefined }

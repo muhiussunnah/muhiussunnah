@@ -1,5 +1,8 @@
+import Link from "next/link";
+import { Shield } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/session";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
@@ -64,6 +67,31 @@ export default async function SchoolSettingsPage({ params }: PageProps) {
             <p className="mt-4 rounded-md border border-dashed border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
               💡 আপনার ট্রায়াল শেষ হওয়ার আগে আপগ্রেড করুন, কোন ডেটা হারাবে না।
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-3 p-5">
+            <h2 className="text-lg font-semibold">সুরক্ষা</h2>
+            <p className="text-sm text-muted-foreground">
+              দুই-স্তর প্রমাণীকরণ (2FA) চালু করলে আপনার অ্যাকাউন্টে অননুমোদিত লগইন প্রায় অসম্ভব হয়ে যাবে।
+            </p>
+            <Link href={`/school/${schoolSlug}/admin/settings/2fa`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+              <Shield className="me-1.5 size-4" />
+              2FA সেটিংস
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex flex-col gap-3 p-5">
+            <h2 className="text-lg font-semibold">SMS টেমপ্লেট</h2>
+            <p className="text-sm text-muted-foreground">
+              AI দিয়ে পেশাদার SMS টেমপ্লেট তৈরি করুন — ফি রিমাইন্ডার, অনুপস্থিতি, পরীক্ষার খবর — সব একই জায়গায়।
+            </p>
+            <Link href={`/school/${schoolSlug}/admin/messaging/templates`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+              টেমপ্লেট ম্যানেজ করুন
+            </Link>
           </CardContent>
         </Card>
       </div>
