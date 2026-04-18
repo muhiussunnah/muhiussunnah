@@ -69,9 +69,8 @@ export function LanguageSwitcher({ current, compact = false }: { current: Locale
         <div
           role="listbox"
           className={cn(
-            // Open upward so the full list stays visible above mobile PWA prompts.
-            "absolute bottom-full mb-2 w-44 z-[200] rounded-lg border border-border/60 bg-popover shadow-2xl",
-            // Scroll internally if the viewport is extremely short.
+            "absolute top-full mt-2 w-44 z-[200] rounded-lg border border-border/60 bg-popover shadow-2xl",
+            // Scroll internally if the viewport is extremely short (mobile PWA banner).
             "max-h-[70vh] overflow-y-auto overscroll-contain",
             // Use physical properties with both LTR + RTL aware fallbacks
             "end-0 ltr:right-0 rtl:left-0",
