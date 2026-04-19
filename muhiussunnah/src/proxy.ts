@@ -17,6 +17,7 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { env } from "@/lib/config/env";
+import { defaultLocale, isLocale, localeCookieName } from "@/lib/i18n/config";
 
 const PUBLIC_PATHS = new Set([
   "/",
@@ -101,6 +102,22 @@ export async function proxy(request: NextRequest) {
   }
 
   let response = NextResponse.next({ request });
+
+  // --- Locale cookie bootstrap ------------------------------------------
+  // If the visitor has no locale cookie (first visit, incognito, or cleared
+  // cookies) we seed it with the default locale (Bangla). This ignores the
+  // browser's Accept-Language header by design — the product is Bangladesh-
+  // first and should always open in Bangla until the user picks otherwise
+  // from the language switcher.
+  const existingLocale = request.cookies.get(localeCookieName)?.value;
+  if (!isLocale(existingLocale)) {
+    request.cookies.set(localeCookieName, defaultLocale);
+    response.cookies.set(localeCookieName, defaultLocale, {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+      sameSite: "lax",
+    });
+  }
 
   // --- Supabase session refresh ------------------------------------------
   const supabase = createServerClient(
