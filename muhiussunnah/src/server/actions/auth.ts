@@ -183,11 +183,14 @@ export async function registerSchoolAction(
     return { ok: false, error: memberError.message };
   }
 
+  // When email confirmation is disabled in Supabase Auth settings, supabase.auth.signUp
+  // automatically signs the user in and sets the session cookie. So we can redirect
+  // straight into the new school's admin dashboard without a login round-trip.
   revalidatePath("/", "layout");
   return {
     ok: true,
-    message: "স্কুল সফলভাবে তৈরি হয়েছে। লগইন করুন।",
-    redirect: `/login?next=/school/${school.slug}/admin`,
+    message: "স্কুল সফলভাবে তৈরি হয়েছে! ড্যাশবোর্ডে যাচ্ছে...",
+    redirect: `/school/${school.slug}/admin`,
   };
 }
 
