@@ -61,20 +61,17 @@ export default async function SchoolAdminLayout({ children, params }: Props) {
   const logoUrl = (schoolRow?.logo_url as string | null) ?? null;
   const displayLocale = (schoolRow?.display_name_locale as "bn" | "en" | null) ?? "bn";
 
-  // Pick which name gets the hero treatment based on the admin's preference.
+  // Pick the one name the admin chose to display. We intentionally do NOT
+  // render the other locale as a subtitle — admins who set the preference
+  // expect to see that one name only, not both.
   const heroName =
     displayLocale === "en" && membership.school_name_en
       ? membership.school_name_en
       : membership.school_name_bn;
-  const subName =
-    displayLocale === "en"
-      ? membership.school_name_bn
-      : (membership.school_name_en ?? undefined);
 
   return (
     <DashboardShell
       title={heroName}
-      subtitle={subName}
       logoUrl={logoUrl}
       nav={nav}
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}

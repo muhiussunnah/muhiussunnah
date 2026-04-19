@@ -77,7 +77,19 @@ export default async function StudentsListPage({ params, searchParams }: PagePro
     .limit(500);
 
   if (search.status) query = query.eq("status", search.status);
-  if (search.section_id) query = query.eq("section_id", search.section_id);
+  if (search.section_id) {
+    query = query.eq("section_id", search.section_id);
+  } else if (search.class_id) {
+    // Filter by class: find all sections under this class, then match any.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: classSections } = await (supabase as any)
+      .from("sections")
+      .select("id")
+      .eq("class_id", search.class_id);
+    const sectionIds = (classSections ?? []).map((s: { id: string }) => s.id);
+    if (sectionIds.length > 0) query = query.in("section_id", sectionIds);
+    else query = query.eq("id", "00000000-0000-0000-0000-000000000000"); // no match
+  }
   if (search.q) query = query.ilike("name_bn", `%${search.q}%`);
 
   const { data } = await query;

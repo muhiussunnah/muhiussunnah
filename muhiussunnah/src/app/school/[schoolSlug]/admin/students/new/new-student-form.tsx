@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,33 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { addStudentAction } from "@/server/actions/students";
 import type { ActionResult } from "@/server/actions/_helpers";
 
-type Section = {
-  id: string; name: string; class_id: string;
-  classes: { name_bn: string };
+type ClassOption = {
+  id: string;
+  name_bn: string;
+  name_en: string | null;
+  sections: { id: string; name: string }[];
 };
 
-export function NewStudentForm({ schoolSlug, sections }: { schoolSlug: string; sections: Section[] }) {
+export function NewStudentForm({ schoolSlug, classes }: { schoolSlug: string; classes: ClassOption[] }) {
   const router = useRouter();
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(addStudentAction, null);
+
+  // We capture class locally so we can conditionally render the section picker
+  // (section is optional — only shown when the chosen class has more than
+  // one real section).
+  const [classId, setClassId] = useState<string>("");
+  const [sectionId, setSectionId] = useState<string>("");
+
+  const selectedClass = useMemo(
+    () => classes.find((c) => c.id === classId),
+    [classes, classId],
+  );
+
+  // Hidden section_id we actually submit: either the admin-picked one, or
+  // the first (default "ক") section on the class.
+  const resolvedSectionId = sectionId || selectedClass?.sections[0]?.id || "";
+
+  const multipleSections = (selectedClass?.sections.length ?? 0) > 1;
 
   useEffect(() => {
     if (!state) return;
@@ -33,6 +52,7 @@ export function NewStudentForm({ schoolSlug, sections }: { schoolSlug: string; s
   return (
     <form action={action} className="grid gap-5">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
+      <input type="hidden" name="section_id" value={resolvedSectionId} />
 
       <fieldset className="grid gap-4 md:grid-cols-2">
         <legend className="col-span-full text-sm font-semibold text-muted-foreground">
@@ -48,23 +68,54 @@ export function NewStudentForm({ schoolSlug, sections }: { schoolSlug: string; s
           <Input id="name_en" name="name_en" />
         </div>
 
+        {/* CLASS picker — always required */}
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="section_id">ক্লাস ও সেকশন</Label>
-          <Select name="section_id">
-            <SelectTrigger id="section_id"><SelectValue placeholder="নির্বাচন করুন" /></SelectTrigger>
+          <Label htmlFor="class_id">
+            ক্লাস <span className="text-destructive">*</span>
+          </Label>
+          <Select value={classId} onValueChange={(v) => setClassId(v ?? "")}>
+            <SelectTrigger id="class_id">
+              <SelectValue placeholder="ক্লাস বাছাই করুন" />
+            </SelectTrigger>
             <SelectContent>
-              {sections.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                  {s.classes.name_bn} — {s.name}
+              {classes.map((c) => (
+                <SelectItem key={c.id} value={c.id}>
+                  {c.name_bn}
+                  {c.name_en ? ` (${c.name_en})` : ""}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
+
+        {/* ROLL */}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="roll">রোল নম্বর</Label>
           <Input id="roll" name="roll" type="number" min={0} />
         </div>
+
+        {/* SECTION picker — optional. Only visible when the class has
+            more than one section; otherwise the default one is used
+            transparently. */}
+        {multipleSections ? (
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <Label htmlFor="section_picker">
+              সেকশন <span className="text-xs font-normal text-muted-foreground">(ঐচ্ছিক — না বাছাই করলে প্রথম সেকশনে যোগ হবে)</span>
+            </Label>
+            <Select value={sectionId} onValueChange={(v) => setSectionId(v ?? "")}>
+              <SelectTrigger id="section_picker">
+                <SelectValue placeholder="সেকশন বাছাই করুন" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedClass?.sections.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="gender">লিঙ্গ</Label>
@@ -154,7 +205,11 @@ export function NewStudentForm({ schoolSlug, sections }: { schoolSlug: string; s
       ) : null}
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={pending} className="bg-gradient-primary text-white">
+        <Button
+          type="submit"
+          disabled={pending || !resolvedSectionId}
+          className="bg-gradient-primary text-white"
+        >
           {pending ? "ভর্তি হচ্ছে..." : "ভর্তি করুন"}
         </Button>
       </div>

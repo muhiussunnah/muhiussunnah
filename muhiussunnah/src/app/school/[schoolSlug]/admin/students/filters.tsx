@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
 
 type ClassWithSections = { id: string; name_bn: string; sections: { id: string; name: string }[] };
 
@@ -12,14 +12,52 @@ type Props = {
   initial: { class_id?: string; section_id?: string; status?: string; q?: string };
 };
 
+/**
+ * Filter value encoding:
+ *   "all"                → everyone
+ *   "class:<classId>"    → one class (optionally all sections)
+ *   "section:<sectionId>"→ one specific section
+ *
+ * We encode rather than using two selects because section is optional —
+ * many schools only have 1 section per class, in which case the class row
+ * is enough.
+ */
+
 export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
   const router = useRouter();
   const params = useSearchParams();
 
-  function update(key: string, value: string | null) {
+  // Derive current encoded value from the URL
+  const currentValue = initial.section_id
+    ? `section:${initial.section_id}`
+    : initial.class_id
+      ? `class:${initial.class_id}`
+      : "all";
+
+  function updateFilter(encoded: string | null) {
+    const value = encoded ?? "all";
     const next = new URLSearchParams(params);
-    if (value && value !== "all") next.set(key, value);
-    else next.delete(key);
+    next.delete("class_id");
+    next.delete("section_id");
+    if (value.startsWith("section:")) {
+      next.set("section_id", value.slice("section:".length));
+    } else if (value.startsWith("class:")) {
+      next.set("class_id", value.slice("class:".length));
+    }
+    router.push(`/school/${schoolSlug}/admin/students?${next.toString()}`);
+  }
+
+  function updateStatus(value: string | null) {
+    const next = new URLSearchParams(params);
+    if (value && value !== "all") next.set("status", value);
+    else next.delete("status");
+    router.push(`/school/${schoolSlug}/admin/students?${next.toString()}`);
+  }
+
+  function updateQuery(value: string | null) {
+    const next = new URLSearchParams(params);
+    if (value) next.set("q", value);
+    else next.delete("q");
     router.push(`/school/${schoolSlug}/admin/students?${next.toString()}`);
   }
 
@@ -30,30 +68,43 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
         defaultValue={initial.q ?? ""}
         onKeyDown={(e) => {
           if (e.key === "Enter") {
-            update("q", (e.target as HTMLInputElement).value || null);
+            updateQuery((e.target as HTMLInputElement).value || null);
           }
         }}
-        className="h-8 w-56"
+        className="h-10 w-56"
       />
 
-      <Select defaultValue={initial.section_id ?? "all"} onValueChange={(v: string | null) => update("section_id", !v || v === "all" ? null : v)}>
-        <SelectTrigger className="h-8 w-52">
-          <SelectValue placeholder="সকল ক্লাস ও সেকশন" />
+      <Select value={currentValue} onValueChange={updateFilter}>
+        <SelectTrigger className="h-10 w-60">
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">সকল ক্লাস ও সেকশন</SelectItem>
-          {classes.flatMap((c) =>
-            c.sections.map((s) => (
-              <SelectItem key={s.id} value={s.id}>
-                {c.name_bn} — {s.name}
-              </SelectItem>
-            ))
-          )}
+          <SelectItem value="all">সকল ক্লাস</SelectItem>
+          {classes.map((c) => {
+            const hasMultiple = c.sections.length > 1;
+            return (
+              <SelectGroup key={c.id}>
+                {/* Every class gets a row, even if it has one or zero sections.
+                    Selecting it filters to all students in that class. */}
+                <SelectItem value={`class:${c.id}`}>
+                  📚 {c.name_bn}
+                  {hasMultiple ? ` (সকল সেকশন)` : ""}
+                </SelectItem>
+                {hasMultiple
+                  ? c.sections.map((s) => (
+                      <SelectItem key={s.id} value={`section:${s.id}`}>
+                        &nbsp;&nbsp;&nbsp;↳ {c.name_bn} — সেকশন {s.name}
+                      </SelectItem>
+                    ))
+                  : null}
+              </SelectGroup>
+            );
+          })}
         </SelectContent>
       </Select>
 
-      <Select defaultValue={initial.status ?? "active"} onValueChange={(v: string | null) => update("status", !v || v === "all" ? null : v)}>
-        <SelectTrigger className="h-8 w-36">
+      <Select defaultValue={initial.status ?? "active"} onValueChange={(v: string | null) => updateStatus(v)}>
+        <SelectTrigger className="h-10 w-36">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
