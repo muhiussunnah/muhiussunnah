@@ -34,19 +34,24 @@ export default async function StaffPage({ params }: PageProps) {
   const membership = await requireRole(schoolSlug, ADMIN_ROLES);
 
   const supabase = await supabaseServer();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: staff } = await (supabase as any)
-    .from("school_users")
-    .select("id, full_name_bn, full_name_en, email, phone, role, status, employee_code, branch_id, joined_at")
-    .eq("school_id", membership.school_id)
-    .not("role", "in", "(STUDENT,PARENT)")
-    .order("joined_at", { ascending: false });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: branches } = await (supabase as any)
-    .from("school_branches")
-    .select("id, name")
-    .eq("school_id", membership.school_id);
+  // Fire both queries concurrently — they're independent. Collapsing
+  // two sequential round-trips saves ~200-500ms on every page load.
+  const [staffRes, branchesRes] = await Promise.all([
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("school_users")
+      .select("id, full_name_bn, full_name_en, email, phone, role, status, employee_code, branch_id, joined_at")
+      .eq("school_id", membership.school_id)
+      .not("role", "in", "(STUDENT,PARENT)")
+      .order("joined_at", { ascending: false }),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("school_branches")
+      .select("id, name")
+      .eq("school_id", membership.school_id),
+  ]);
+  const { data: staff } = staffRes;
+  const { data: branches } = branchesRes;
 
   const staffList = (staff ?? []) as Array<{
     id: string; full_name_bn: string | null; full_name_en: string | null;
