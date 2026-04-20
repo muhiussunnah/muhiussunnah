@@ -94,7 +94,7 @@ export async function saveMarksAction(input: SaveInput): Promise<ActionResult<{ 
     meta: { exam_subject_id: input.exam_subject_id, count: rows.length },
   });
 
-  revalidatePath(`/admin/exams`);
+  revalidatePath(`/exams`);
   revalidatePath(`/teacher/marks`);
   return ok({ saved: rows.length }, `${rows.length} জনের মার্ক্স সংরক্ষিত।`);
 }
@@ -127,6 +127,6 @@ export async function toggleLockAction(
     .eq("exam_subject_id", exam_subject_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/admin/exams`);
+  revalidatePath(`/exams`);
   return ok(undefined, lock ? "মার্ক্স লক করা হয়েছে।" : "মার্ক্স unlock করা হয়েছে।");
 }

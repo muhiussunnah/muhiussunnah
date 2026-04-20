@@ -1,1 +1,1 @@
-export { default } from "../admin/loading";
+export { default } from "../(dashboard)/loading";

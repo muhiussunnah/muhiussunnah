@@ -63,7 +63,7 @@ export default async function TeacherSabaqPage() {
           {sections.map((s) => (
             <Link
               key={s.id}
-              href={`/admin/madrasa/daily-sabaq/${s.id}?date=${today}`}
+              href={`/madrasa/daily-sabaq/${s.id}?date=${today}`}
               className="group"
             >
               <Card className="transition hover:shadow-hover">

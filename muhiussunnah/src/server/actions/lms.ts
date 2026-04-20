@@ -44,7 +44,7 @@ export async function createAssignmentAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/admin/assignments`);
+  revalidatePath(`/assignments`);
   revalidatePath(`/teacher/assignments`);
   return ok(null, "অ্যাসাইনমেন্ট তৈরি হয়েছে।");
 }
@@ -121,7 +121,7 @@ export async function gradeSubmissionAction(
     .eq("id", data.submission_id);
 
   if (error) return fail(error.message);
-  revalidatePath(`/admin/assignments`);
+  revalidatePath(`/assignments`);
   return ok(null, "গ্রেড দেওয়া হয়েছে।");
 }
 
@@ -165,6 +165,6 @@ export async function scheduleOnlineClassAction(
   });
 
   if (error) return fail(error.message);
-  revalidatePath(`/admin/online-classes`);
+  revalidatePath(`/online-classes`);
   return ok(null, "ক্লাস শিডিউল হয়েছে।");
 }

@@ -43,7 +43,7 @@ export default async function TeacherAssignmentsPage() {
         subtitle="আপনার শ্রেণিগুলোতে দেওয়া অ্যাসাইনমেন্ট ও জমা ব্যবস্থাপনা।"
         impact={[{ label: <><BanglaDigit value={list.length} /> অ্যাসাইনমেন্ট</>, tone: "default" }]}
         actions={
-          <Link href={`/admin/assignments`} className={buttonVariants({ variant: "default", size: "sm" })}>
+          <Link href={`/assignments`} className={buttonVariants({ variant: "default", size: "sm" })}>
             নতুন অ্যাসাইনমেন্ট
           </Link>
         }
@@ -58,7 +58,7 @@ export default async function TeacherAssignmentsPage() {
       ) : (
         <div className="grid gap-3">
           {list.map((a) => (
-            <Link key={a.id} href={`/admin/assignments/${a.id}`}>
+            <Link key={a.id} href={`/assignments/${a.id}`}>
               <Card className="transition hover:shadow-hover">
                 <CardContent className="p-4 flex items-center justify-between flex-wrap gap-2">
                   <div>

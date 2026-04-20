@@ -23,7 +23,7 @@ export async function requireMadrasaRole(slug: string, allowed: UserRole[]) {
 
 /**
  * Cookie/active-school variant — same semantics but no slug param.
- * Use inside clean-URL routes (/admin/madrasa/*).
+ * Use inside clean-URL routes (/madrasa/*).
  */
 export async function requireActiveMadrasaRole(allowed: UserRole[]) {
   const active = await requireActiveRole(allowed);

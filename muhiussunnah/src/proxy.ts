@@ -35,6 +35,51 @@ const PUBLIC_PATHS = new Set([
 ]);
 
 /**
+ * All flat admin-dashboard route prefixes. Moved from /admin/* to root
+ * (e.g. /students, /fees, /expenses) so URLs feel clean like a blog.
+ * Any request starting with one of these is auth-gated as a dashboard.
+ */
+const DASHBOARD_PREFIXES = [
+  "/admin",          // admin dashboard home
+  "/students",
+  "/staff",
+  "/classes",
+  "/subjects",
+  "/branches",
+  "/academic-years",
+  "/attendance",
+  "/exams",
+  "/assignments",
+  "/online-classes",
+  "/certificates",
+  "/fees",
+  "/expenses",
+  "/donations",
+  "/investments",
+  "/payroll",
+  "/scholarships",
+  "/notices",
+  "/messaging",
+  "/library",
+  "/transport",
+  "/hostel",
+  "/inventory",
+  "/tickets",
+  "/reports",
+  "/insights",
+  "/audit-logs",
+  "/settings",
+  "/madrasa",
+  "/admission-inquiry",
+];
+
+function isDashboardPath(pathname: string): boolean {
+  return DASHBOARD_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
+/**
  * Primary platform hostname. Requests from other hostnames are treated as
  * potential custom domains for a school (Scale plan), rewritten to /s/[slug].
  * Configure via PLATFORM_HOST env; defaults cover local dev + shikkha.app.
@@ -135,7 +180,7 @@ export async function proxy(request: NextRequest) {
   // Marketing pages, public school pages, webhooks, etc. don't need us to
   // hit Supabase to validate the session on every navigation.
   const requiresAuth =
-    pathname.startsWith("/admin") ||
+    isDashboardPath(pathname) ||
     pathname.startsWith("/teacher") ||
     pathname.startsWith("/portal") ||
     pathname.startsWith("/school/") ||       // legacy URLs still auth-gated

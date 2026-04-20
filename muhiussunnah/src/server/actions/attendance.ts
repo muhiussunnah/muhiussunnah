@@ -70,6 +70,6 @@ export async function saveAttendanceAction(input: {
   });
 
   revalidatePath(`/teacher/attendance`);
-  revalidatePath(`/admin/attendance`);
+  revalidatePath(`/attendance`);
   return ok({ saved: rows.length }, `${rows.length} জনের attendance সংরক্ষণ করা হয়েছে।`);
 }

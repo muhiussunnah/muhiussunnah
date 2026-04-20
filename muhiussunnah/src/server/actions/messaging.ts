@@ -65,7 +65,7 @@ export async function startConversationAction(
       .eq("conversation_id", row.conversation_id);
     const otherIds = ((others ?? []) as { user_id: string }[]).map((r) => r.user_id);
     if (otherIds.includes(parsed.other_user_id) && otherIds.length === 2) {
-      return ok({ id: row.conversation_id }, "", `/admin/messaging/${row.conversation_id}`);
+      return ok({ id: row.conversation_id }, "", `/messaging/${row.conversation_id}`);
     }
   }
 

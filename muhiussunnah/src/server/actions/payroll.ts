@@ -92,7 +92,7 @@ export async function generateMonthlyPayrollAction(
     meta: { month, year, created, skipped },
   });
 
-  revalidatePath(`/admin/payroll`);
+  revalidatePath(`/payroll`);
   return ok({ created, skipped }, `${created} টি draft salary তৈরি, ${skipped} টি আগে থেকে ছিল।`);
 }
 
@@ -134,6 +134,6 @@ export async function markSalaryPaidAction(
     .eq("id", parsed.id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/admin/payroll`);
+  revalidatePath(`/payroll`);
   return ok(undefined, "বেতন পরিশোধ সম্পন্ন।");
 }

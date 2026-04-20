@@ -66,7 +66,7 @@ export async function addTemplateAction(
   });
   if (error) return fail(error.message);
 
-  revalidatePath(`/admin/certificates/templates`);
+  revalidatePath(`/certificates/templates`);
   return ok(undefined, "টেমপ্লেট যোগ হয়েছে।");
 }
 
@@ -128,10 +128,10 @@ export async function issueCertificateAction(
     meta: { serial, student_id: parsed.student_id },
   });
 
-  revalidatePath(`/admin/certificates`);
+  revalidatePath(`/certificates`);
   return ok(
     { id: data.id, serial },
     `সার্টিফিকেট ইস্যু হয়েছে (${serial})`,
-    `/admin/certificates/${data.id}`,
+    `/certificates/${data.id}`,
   );
 }

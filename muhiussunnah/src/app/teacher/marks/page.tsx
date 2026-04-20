@@ -82,7 +82,7 @@ export default async function TeacherMarksIndexPage() {
           {filtered.map((es) => (
             <Link
               key={es.id}
-              href={`/admin/exams/${es.exams.id}/marks/${es.id}`}
+              href={`/exams/${es.exams.id}/marks/${es.id}`}
               className="group"
             >
               <Card className="transition hover:shadow-hover">

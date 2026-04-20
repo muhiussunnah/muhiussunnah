@@ -187,7 +187,7 @@ export async function addBranchAction(
     meta: { name: parsed.name },
   });
 
-  revalidatePath(`/admin/branches`);
+  revalidatePath(`/branches`);
   return ok(undefined, "শাখা যোগ হয়েছে।");
 }
 
@@ -216,6 +216,6 @@ export async function deleteBranchAction(
 
   if (error) return fail(error.message);
 
-  revalidatePath(`/admin/branches`);
+  revalidatePath(`/branches`);
   return ok(undefined, "শাখা মুছে ফেলা হয়েছে।");
 }

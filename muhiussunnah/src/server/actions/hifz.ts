@@ -78,7 +78,7 @@ export async function recordHifzAction(
     meta: { para_no: parsed.para_no, status: parsed.status },
   });
 
-  revalidatePath(`/admin/madrasa/hifz`);
-  revalidatePath(`/admin/madrasa/hifz/${parsed.student_id}`);
+  revalidatePath(`/madrasa/hifz`);
+  revalidatePath(`/madrasa/hifz/${parsed.student_id}`);
   return ok(undefined, `পারা ${parsed.para_no} — ${parsed.status}`);
 }

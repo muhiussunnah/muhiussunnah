@@ -67,8 +67,8 @@ export async function createTicketAction(
     meta: { subject: parsed.subject, priority: parsed.priority },
   });
 
-  revalidatePath(`/admin/support`);
-  return ok({ id: ticket.id }, "টিকেট তৈরি হয়েছে।", `/admin/support/${ticket.id}`);
+  revalidatePath(`/tickets`);
+  return ok({ id: ticket.id }, "টিকেট তৈরি হয়েছে।", `/tickets/${ticket.id}`);
 }
 
 // -----------------------------------------------------------------
@@ -121,7 +121,7 @@ export async function replyTicketAction(
       .eq("id", parsed.ticket_id);
   }
 
-  revalidatePath(`/admin/support/${parsed.ticket_id}`);
+  revalidatePath(`/tickets/${parsed.ticket_id}`);
   revalidatePath(`/portal/support/${parsed.ticket_id}`);
   return ok(undefined, "উত্তর পাঠানো হয়েছে।");
 }
@@ -162,7 +162,7 @@ export async function updateTicketStatusAction(
     .eq("school_id", auth.active.school_id);
   if (error) return fail(error.message);
 
-  revalidatePath(`/admin/support`);
-  revalidatePath(`/admin/support/${parsed.ticket_id}`);
+  revalidatePath(`/tickets`);
+  revalidatePath(`/tickets/${parsed.ticket_id}`);
   return ok(undefined, "স্ট্যাটাস আপডেট হয়েছে।");
 }

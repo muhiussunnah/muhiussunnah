@@ -9,8 +9,8 @@ type PageProps = { params: Promise<{ schoolSlug: string }> };
 /**
  * Backwards-compatible entry point for old `/school/[slug]` bookmarks.
  *
- * URL structure moved from `/school/[slug]/admin/...` to clean root-level
- * `/admin/...` paths with the active school stored in a cookie. This page
+ * URL structure moved from `/school/[slug]/...` to clean root-level
+ * `/...` paths with the active school stored in a cookie. This page
  * preserves old links by:
  *   1. Validating the user has a membership in the requested slug.
  *   2. Setting the active_school_id cookie to that school.
