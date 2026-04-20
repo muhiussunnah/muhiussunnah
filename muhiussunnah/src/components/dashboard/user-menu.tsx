@@ -15,9 +15,13 @@ import { signOutAction } from "@/server/actions/auth";
 
 /**
  * Avatar + name trigger that opens a dropdown with Profile, Support
- * Ticket, Logout. Replaces the bare Logout button so users have one
- * predictable "me" menu in the top-right (a pattern every major SaaS
- * — GitHub, Vercel, Notion, Linear — uses).
+ * Ticket, Logout — the "me menu" pattern every major SaaS uses.
+ *
+ * Implementation note: base-ui's Menu.Item MUST be rendered as its own
+ * element (or via the `render` prop). Wrapping <DropdownMenuItem> in a
+ * <Link> or <button> puts the Menu.Item inside someone else's DOM node,
+ * which breaks focus management and throws at runtime. Use `render` to
+ * swap the underlying element instead.
  */
 export function UserMenu({
   name,
@@ -31,7 +35,7 @@ export function UserMenu({
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger className="group/user flex items-center gap-2 rounded-full border border-border/60 bg-card/70 px-1.5 py-1 pe-3 backdrop-blur transition-all hover:border-primary/40 hover:bg-primary/5 hover:shadow-md hover:shadow-primary/10">
+      <DropdownMenuTrigger className="group/user flex cursor-pointer items-center gap-2 rounded-full border border-border/60 bg-card/70 px-1.5 py-1 pe-3 backdrop-blur transition-all hover:border-primary/40 hover:bg-primary/5 hover:shadow-md hover:shadow-primary/10">
         <span className="relative inline-flex size-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-primary/20 to-accent/20 ring-2 ring-background">
           {photoUrl ? (
             <Image
@@ -58,34 +62,38 @@ export function UserMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-        <DropdownMenuLabel className="flex flex-col gap-0.5">
+        <DropdownMenuLabel className="flex flex-col gap-0.5 px-2 py-1.5">
           <span className="text-xs text-muted-foreground">লগইন রয়েছেন</span>
           <span className="font-semibold truncate">{displayName}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
 
-        <Link href="/settings">
-          <DropdownMenuItem>
-            <UserCircle2 className="me-2 size-4" />
-            প্রোফাইল
-          </DropdownMenuItem>
-        </Link>
-        <Link href="/tickets">
-          <DropdownMenuItem>
-            <LifeBuoy className="me-2 size-4" />
-            সাপোর্ট টিকেট
-          </DropdownMenuItem>
-        </Link>
+        <DropdownMenuItem
+          className="cursor-pointer px-2 py-2"
+          render={<Link href="/settings" />}
+        >
+          <UserCircle2 className="me-2 size-4" />
+          প্রোফাইল
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer px-2 py-2"
+          render={<Link href="/tickets" />}
+        >
+          <LifeBuoy className="me-2 size-4" />
+          সাপোর্ট টিকেট
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 
         <form action={signOutAction}>
-          <button type="submit" className="w-full">
-            <DropdownMenuItem className="w-full text-destructive focus-visible:bg-destructive/10 focus-visible:text-destructive">
-              <LogOut className="me-2 size-4" />
-              লগআউট
-            </DropdownMenuItem>
-          </button>
+          <DropdownMenuItem
+            variant="destructive"
+            className="cursor-pointer px-2 py-2 w-full"
+            render={<button type="submit" />}
+          >
+            <LogOut className="me-2 size-4" />
+            লগআউট
+          </DropdownMenuItem>
         </form>
       </DropdownMenuContent>
     </DropdownMenu>
