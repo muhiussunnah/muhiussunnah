@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
-import Script from "next/script";
 import {
   Hind_Siliguri,
   Inter,
@@ -214,16 +213,22 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script
-          id="ld-organization"
+        {/*
+          Plain inline <script> tags for JSON-LD — NOT next/script.
+          Structured data is a pure crawler signal: Google reads the HTML
+          directly. Using next/script with `beforeInteractive` hoists
+          these into the critical path and was adding measurable TBT on
+          mobile. Rendering as inline <script type="application/ld+json">
+          is still SSR'd, zero runtime cost, and identical for crawlers.
+        */}
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
         />
-        <Script
-          id="ld-website"
+        <script
           type="application/ld+json"
-          strategy="beforeInteractive"
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteLd) }}
         />
       </head>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
  * Premium cursor trail — decorative layer that trails the native cursor.
@@ -17,10 +17,21 @@ import { useEffect, useRef } from "react";
  */
 export function CustomCursor() {
   const ringRef = useRef<HTMLDivElement>(null);
+  const [enabled, setEnabled] = useState(false);
 
+  // Gate the entire component on a fine-pointer device. Rendering the
+  // div at all (plus the rAF loop and event listeners) costs real TBT
+  // on mobile — this short-circuit returns null on touch screens so
+  // no JS runs and no DOM node is created there.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (window.matchMedia("(hover: none)").matches) return;
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      setEnabled(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
 
     const ring = ringRef.current;
     if (!ring) return;
@@ -80,7 +91,9 @@ export function CustomCursor() {
       window.removeEventListener("mouseover", onOver);
       document.removeEventListener("mouseleave", onLeave);
     };
-  }, []);
+  }, [enabled]);
+
+  if (!enabled) return null;
 
   return (
     <div
