@@ -44,6 +44,11 @@ const studentSchema = z.object({
   address_permanent: z.string().trim().max(500).optional().or(z.literal("").transform(() => undefined)),
   previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   photo_data_url: z.string().optional(),
+  session_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
+  rf_id_card: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
+  admission_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
+  tuition_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
+  transport_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
 });
 
 /** Generate a unique student code: STU-YYYYMM-XXXX. */
@@ -84,33 +89,60 @@ export async function addStudentAction(
       ? parsed.photo_data_url
       : null;
 
+  // Build the insert payload. Extended fields from migration 0019
+  // (session_id, rf_id_card, admission_fee, tuition_fee, transport_fee) are
+  // optional on the type — if that migration hasn't been applied to the
+  // target project yet we retry without them so the core insert still
+  // succeeds.
+  const baseInsert = {
+    school_id: auth.active.school_id,
+    branch_id: parsed.branch_id ?? auth.active.branch_id,
+    student_code: code,
+    name_bn: parsed.name_bn,
+    name_en: parsed.name_en ?? null,
+    name_ar: parsed.name_ar ?? null,
+    roll: parsed.roll ?? null,
+    section_id: parsed.section_id ?? null,
+    admission_date: parsed.admission_date ?? null,
+    date_of_birth: parsed.date_of_birth ?? null,
+    gender: parsed.gender ?? null,
+    blood_group: parsed.blood_group ?? null,
+    religion: parsed.religion ?? null,
+    nid_birth_cert: parsed.nid_birth_cert ?? null,
+    guardian_phone: parsed.guardian_phone ?? parsed.mother_phone ?? null,
+    photo_url: photoUrl,
+    address_present: parsed.address_present ?? null,
+    address_permanent: parsed.address_permanent ?? null,
+    previous_school: parsed.previous_school ?? null,
+    status: "active" as const,
+  };
+  const extended: Record<string, unknown> = {};
+  if (parsed.session_id) extended.session_id = parsed.session_id;
+  if (parsed.rf_id_card) extended.rf_id_card = parsed.rf_id_card;
+  if (parsed.admission_fee !== undefined) extended.admission_fee = parsed.admission_fee;
+  if (parsed.tuition_fee !== undefined) extended.tuition_fee = parsed.tuition_fee;
+  if (parsed.transport_fee !== undefined) extended.transport_fee = parsed.transport_fee;
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { data: studentRow, error } = await (supabase as any)
+  let res = await (supabase as any)
     .from("students")
-    .insert({
-      school_id: auth.active.school_id,
-      branch_id: parsed.branch_id ?? auth.active.branch_id,
-      student_code: code,
-      name_bn: parsed.name_bn,
-      name_en: parsed.name_en ?? null,
-      name_ar: parsed.name_ar ?? null,
-      roll: parsed.roll ?? null,
-      section_id: parsed.section_id ?? null,
-      admission_date: parsed.admission_date ?? null,
-      date_of_birth: parsed.date_of_birth ?? null,
-      gender: parsed.gender ?? null,
-      blood_group: parsed.blood_group ?? null,
-      religion: parsed.religion ?? null,
-      nid_birth_cert: parsed.nid_birth_cert ?? null,
-      guardian_phone: parsed.guardian_phone ?? parsed.mother_phone ?? null,
-      photo_url: photoUrl,
-      address_present: parsed.address_present ?? null,
-      address_permanent: parsed.address_permanent ?? null,
-      previous_school: parsed.previous_school ?? null,
-      status: "active",
-    })
+    .insert({ ...baseInsert, ...extended })
     .select("id")
     .single();
+
+  // Retry without the 0019 fields if that migration isn't applied yet.
+  if (
+    res.error &&
+    /column .*(session_id|rf_id_card|admission_fee|tuition_fee|transport_fee)/i.test(res.error.message ?? "")
+  ) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    res = await (supabase as any)
+      .from("students")
+      .insert(baseInsert)
+      .select("id")
+      .single();
+  }
+  const { data: studentRow, error } = res;
   if (error || !studentRow) return fail(error?.message ?? "শিক্ষার্থী যোগ করা যায়নি।");
 
   // Father / primary guardian record

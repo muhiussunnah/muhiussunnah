@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Camera, Upload, X, Printer, FileDown, Sparkles } from "lucide-react";
+import { Camera, Upload, X, Printer, FileDown, Sparkles, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,11 +21,18 @@ type ClassOption = {
   sections: { id: string; name: string }[];
 };
 
-/**
- * FieldLabel — small wrapper that renders a Label with a tiny
- * "(আবশ্যক)" or "(ঐচ্ছিক)" suffix so users always know which fields
- * they must fill in.
- */
+type YearOption = { id: string; name: string; is_active: boolean };
+
+type Props = {
+  schoolSlug: string;
+  classes: ClassOption[];
+  years: YearOption[];
+  nameSuggestionsBn: string[];
+  nameSuggestionsEn: string[];
+  fatherSuggestions: string[];
+  motherSuggestions: string[];
+};
+
 function FieldLabel({
   htmlFor,
   children,
@@ -39,13 +46,9 @@ function FieldLabel({
     <Label htmlFor={htmlFor} className="flex items-baseline gap-1.5">
       <span>{children}</span>
       {required ? (
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-destructive">
-          আবশ্যক
-        </span>
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-destructive">আবশ্যক</span>
       ) : (
-        <span className="text-[10px] font-normal uppercase tracking-wide text-muted-foreground/70">
-          ঐচ্ছিক
-        </span>
+        <span className="text-[10px] font-normal uppercase tracking-wide text-muted-foreground/70">ঐচ্ছিক</span>
       )}
     </Label>
   );
@@ -62,6 +65,10 @@ type FormValues = {
   nid_birth_cert: string;
   admission_date: string;
   student_code: string;
+  rf_id_card: string;
+  admission_fee: string;
+  tuition_fee: string;
+  transport_fee: string;
   guardian_name: string;
   guardian_relation: string;
   guardian_phone: string;
@@ -72,7 +79,7 @@ type FormValues = {
   previous_school: string;
 };
 
-const emptyForm: FormValues = {
+const makeEmpty = (): FormValues => ({
   name_bn: "",
   name_en: "",
   roll: "",
@@ -83,6 +90,10 @@ const emptyForm: FormValues = {
   nid_birth_cert: "",
   admission_date: new Date().toISOString().slice(0, 10),
   student_code: "",
+  rf_id_card: "",
+  admission_fee: "",
+  tuition_fee: "",
+  transport_fee: "",
   guardian_name: "",
   guardian_relation: "father",
   guardian_phone: "",
@@ -91,25 +102,29 @@ const emptyForm: FormValues = {
   address_present: "",
   address_permanent: "",
   previous_school: "",
-};
+});
 
 export function NewStudentForm({
   schoolSlug,
   classes,
-}: {
-  schoolSlug: string;
-  classes: ClassOption[];
-}) {
+  years,
+  nameSuggestionsBn,
+  nameSuggestionsEn,
+  fatherSuggestions,
+  motherSuggestions,
+}: Props) {
   const router = useRouter();
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     addStudentAction,
     null,
   );
 
-  // Fully controlled form values so validation errors never wipe input.
-  const [values, setValues] = useState<FormValues>(emptyForm);
+  const [values, setValues] = useState<FormValues>(makeEmpty());
   const [classId, setClassId] = useState<string>("");
   const [sectionId, setSectionId] = useState<string>("");
+  const [sessionId, setSessionId] = useState<string>(
+    () => years.find((y) => y.is_active)?.id ?? years[0]?.id ?? "",
+  );
   const [photoDataUrl, setPhotoDataUrl] = useState<string>("");
 
   const fieldErrors: Record<string, string[]> =
@@ -123,8 +138,7 @@ export function NewStudentForm({
     () => classes.find((c) => c.id === classId),
     [classes, classId],
   );
-  const resolvedSectionId =
-    sectionId || selectedClass?.sections[0]?.id || "";
+  const resolvedSectionId = sectionId || selectedClass?.sections[0]?.id || "";
   const multipleSections = (selectedClass?.sections.length ?? 0) > 1;
 
   useEffect(() => {
@@ -137,7 +151,7 @@ export function NewStudentForm({
     }
   }, [state, router]);
 
-  // -------------------- photo capture / upload --------------------
+  // -------------------- photo --------------------
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -161,13 +175,11 @@ export function NewStudentForm({
       toast.error("ক্যামেরা অনুমতি দিন অথবা ফাইল আপলোড ব্যবহার করুন।");
     }
   }
-
   function closeCamera() {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
     setCameraOpen(false);
   }
-
   function capture() {
     const video = videoRef.current;
     if (!video) return;
@@ -177,16 +189,13 @@ export function NewStudentForm({
     canvas.height = size;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    // Center-crop to square
     const src = Math.min(video.videoWidth, video.videoHeight);
     const sx = (video.videoWidth - src) / 2;
     const sy = (video.videoHeight - src) / 2;
     ctx.drawImage(video, sx, sy, src, src, 0, 0, size, size);
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-    setPhotoDataUrl(dataUrl);
+    setPhotoDataUrl(canvas.toDataURL("image/jpeg", 0.82));
     closeCamera();
   }
-
   function onPickFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -198,18 +207,17 @@ export function NewStudentForm({
     reader.onload = () => setPhotoDataUrl(reader.result as string);
     reader.readAsDataURL(file);
   }
-
   useEffect(() => () => closeCamera(), []);
 
   // -------------------- print / export --------------------
   function printForm() {
     window.print();
   }
-
   function exportJson() {
-    const blob = new Blob([JSON.stringify({ ...values, classId, sectionId: resolvedSectionId }, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob(
+      [JSON.stringify({ ...values, classId, sectionId: resolvedSectionId, sessionId }, null, 2)],
+      { type: "application/json" },
+    );
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -218,13 +226,11 @@ export function NewStudentForm({
     URL.revokeObjectURL(url);
   }
 
-  // -------------------- submit validation --------------------
   const canSubmit =
     values.name_bn.trim().length >= 2 && classId !== "" && resolvedSectionId !== "";
 
   return (
     <>
-      {/* Top toolbar — Print / Export */}
       <div className="mb-4 flex items-center justify-end gap-2 print:hidden">
         <Button type="button" size="sm" variant="outline" onClick={printForm}>
           <Printer className="size-3.5" />
@@ -236,9 +242,32 @@ export function NewStudentForm({
         </Button>
       </div>
 
+      {/* Shared datalists — used by the name inputs below for autocomplete */}
+      <datalist id="datalist-names-bn">
+        {nameSuggestionsBn.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
+      <datalist id="datalist-names-en">
+        {nameSuggestionsEn.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
+      <datalist id="datalist-fathers">
+        {fatherSuggestions.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
+      <datalist id="datalist-mothers">
+        {motherSuggestions.map((n) => (
+          <option key={n} value={n} />
+        ))}
+      </datalist>
+
       <form action={action} className="grid gap-5">
         <input type="hidden" name="schoolSlug" value={schoolSlug} />
         <input type="hidden" name="section_id" value={resolvedSectionId} />
+        <input type="hidden" name="session_id" value={sessionId} />
         <input type="hidden" name="photo_data_url" value={photoDataUrl} />
 
         {/* ========== Photo ========== */}
@@ -291,7 +320,6 @@ export function NewStudentForm({
             </div>
           </div>
 
-          {/* Webcam modal */}
           {cameraOpen ? (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
@@ -317,6 +345,37 @@ export function NewStudentForm({
           ) : null}
         </div>
 
+        {/* ========== Session (Academic year) ========== */}
+        {years.length > 0 ? (
+          <div className="rounded-2xl border border-border/60 bg-card p-4">
+            <h3 className="mb-3 text-sm font-semibold text-muted-foreground">📅 শিক্ষাবর্ষ</h3>
+            <div className="max-w-sm">
+              <FieldLabel htmlFor="session_picker" required>
+                ভর্তির সেশন
+              </FieldLabel>
+              <Select value={sessionId} onValueChange={(v) => setSessionId(v ?? "")}>
+                <SelectTrigger id="session_picker">
+                  <SelectValue placeholder="সেশন বাছাই করুন">
+                    {(v: unknown) => {
+                      const id = typeof v === "string" ? v : "";
+                      const y = years.find((x) => x.id === id);
+                      return y ? `${y.name}${y.is_active ? " · সক্রিয়" : ""}` : "সেশন বাছাই করুন";
+                    }}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((y) => (
+                    <SelectItem key={y.id} value={y.id}>
+                      {y.name}
+                      {y.is_active ? " · সক্রিয়" : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ) : null}
+
         {/* ========== Student info ========== */}
         <fieldset className="grid gap-4 md:grid-cols-2">
           <legend className="col-span-full text-sm font-semibold text-muted-foreground">
@@ -330,10 +389,12 @@ export function NewStudentForm({
             <Input
               id="name_bn"
               name="name_bn"
+              list="datalist-names-bn"
               value={values.name_bn}
               onChange={(e) => set("name_bn", e.target.value)}
               className={cn(hasError("name_bn") && "border-destructive")}
               required
+              autoComplete="off"
             />
           </div>
           <div className="flex flex-col gap-1.5">
@@ -341,12 +402,13 @@ export function NewStudentForm({
             <Input
               id="name_en"
               name="name_en"
+              list="datalist-names-en"
               value={values.name_en}
               onChange={(e) => set("name_en", e.target.value)}
+              autoComplete="off"
             />
           </div>
 
-          {/* CLASS (required) */}
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="class_id" required>ক্লাস</FieldLabel>
             <Select value={classId} onValueChange={(v) => { setClassId(v ?? ""); setSectionId(""); }}>
@@ -432,53 +494,87 @@ export function NewStudentForm({
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="blood_group">রক্তের গ্রুপ</FieldLabel>
-            <Input
-              id="blood_group"
-              name="blood_group"
-              placeholder="A+"
-              value={values.blood_group}
-              onChange={(e) => set("blood_group", e.target.value)}
-            />
+            <Input id="blood_group" name="blood_group" placeholder="A+" value={values.blood_group} onChange={(e) => set("blood_group", e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="religion">ধর্ম</FieldLabel>
-            <Input
-              id="religion"
-              name="religion"
-              placeholder="ইসলাম"
-              value={values.religion}
-              onChange={(e) => set("religion", e.target.value)}
-            />
+            <Input id="religion" name="religion" placeholder="ইসলাম" value={values.religion} onChange={(e) => set("religion", e.target.value)} />
           </div>
 
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <FieldLabel htmlFor="nid_birth_cert">NID / জন্মসনদ নম্বর</FieldLabel>
-            <Input
-              id="nid_birth_cert"
-              name="nid_birth_cert"
-              value={values.nid_birth_cert}
-              onChange={(e) => set("nid_birth_cert", e.target.value)}
-            />
+            <Input id="nid_birth_cert" name="nid_birth_cert" value={values.nid_birth_cert} onChange={(e) => set("nid_birth_cert", e.target.value)} />
           </div>
 
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="admission_date">ভর্তির তারিখ</FieldLabel>
-            <Input
-              id="admission_date"
-              name="admission_date"
-              type="date"
-              value={values.admission_date}
-              onChange={(e) => set("admission_date", e.target.value)}
-            />
+            <Input id="admission_date" name="admission_date" type="date" value={values.admission_date} onChange={(e) => set("admission_date", e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="student_code">ছাত্র কোড</FieldLabel>
+            <Input id="student_code" name="student_code" placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে" value={values.student_code} onChange={(e) => set("student_code", e.target.value)} />
+          </div>
+
+          <div className="flex flex-col gap-1.5 md:col-span-2">
+            <FieldLabel htmlFor="rf_id_card">
+              <CreditCard className="size-3.5 inline-block me-1" />
+              RF ID Card নম্বর
+            </FieldLabel>
             <Input
-              id="student_code"
-              name="student_code"
-              placeholder="স্বয়ংক্রিয়ভাবে তৈরি হবে"
-              value={values.student_code}
-              onChange={(e) => set("student_code", e.target.value)}
+              id="rf_id_card"
+              name="rf_id_card"
+              placeholder="স্মার্ট কার্ড থাকলে এখানে লিখুন"
+              value={values.rf_id_card}
+              onChange={(e) => set("rf_id_card", e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              💡 গেট অ্যাটেনডেন্স ও ক্যান্টিন ওয়ালেটের জন্য।
+            </p>
+          </div>
+        </fieldset>
+
+        {/* ========== Fees ========== */}
+        <fieldset className="grid gap-4 md:grid-cols-3 border-t border-border/60 pt-5">
+          <legend className="col-span-full text-sm font-semibold text-muted-foreground">
+            💳 ফি বিবরণ
+          </legend>
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel htmlFor="admission_fee">ভর্তি ফি (৳)</FieldLabel>
+            <Input
+              id="admission_fee"
+              name="admission_fee"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="0"
+              value={values.admission_fee}
+              onChange={(e) => set("admission_fee", e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel htmlFor="tuition_fee">টিউশন ফি (৳/মাস)</FieldLabel>
+            <Input
+              id="tuition_fee"
+              name="tuition_fee"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="0"
+              value={values.tuition_fee}
+              onChange={(e) => set("tuition_fee", e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <FieldLabel htmlFor="transport_fee">ট্রান্সপোর্ট ফি (৳/মাস)</FieldLabel>
+            <Input
+              id="transport_fee"
+              name="transport_fee"
+              type="number"
+              min={0}
+              step="0.01"
+              placeholder="0"
+              value={values.transport_fee}
+              onChange={(e) => set("transport_fee", e.target.value)}
             />
           </div>
         </fieldset>
@@ -494,20 +590,15 @@ export function NewStudentForm({
             <Input
               id="guardian_name"
               name="guardian_name"
+              list="datalist-fathers"
               value={values.guardian_name}
               onChange={(e) => set("guardian_name", e.target.value)}
+              autoComplete="off"
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="guardian_phone">পিতার মোবাইল</FieldLabel>
-            <Input
-              id="guardian_phone"
-              name="guardian_phone"
-              type="tel"
-              inputMode="tel"
-              value={values.guardian_phone}
-              onChange={(e) => set("guardian_phone", e.target.value)}
-            />
+            <Input id="guardian_phone" name="guardian_phone" type="tel" inputMode="tel" value={values.guardian_phone} onChange={(e) => set("guardian_phone", e.target.value)} />
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -515,20 +606,15 @@ export function NewStudentForm({
             <Input
               id="mother_name"
               name="mother_name"
+              list="datalist-mothers"
               value={values.mother_name}
               onChange={(e) => set("mother_name", e.target.value)}
+              autoComplete="off"
             />
           </div>
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="mother_phone">মাতার মোবাইল</FieldLabel>
-            <Input
-              id="mother_phone"
-              name="mother_phone"
-              type="tel"
-              inputMode="tel"
-              value={values.mother_phone}
-              onChange={(e) => set("mother_phone", e.target.value)}
-            />
+            <Input id="mother_phone" name="mother_phone" type="tel" inputMode="tel" value={values.mother_phone} onChange={(e) => set("mother_phone", e.target.value)} />
           </div>
 
           <div className="flex flex-col gap-1.5 md:col-span-2">
@@ -552,32 +638,15 @@ export function NewStudentForm({
           </legend>
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <FieldLabel htmlFor="address_present">বর্তমান ঠিকানা</FieldLabel>
-            <Textarea
-              id="address_present"
-              name="address_present"
-              rows={2}
-              value={values.address_present}
-              onChange={(e) => set("address_present", e.target.value)}
-            />
+            <Textarea id="address_present" name="address_present" rows={2} value={values.address_present} onChange={(e) => set("address_present", e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <FieldLabel htmlFor="address_permanent">স্থায়ী ঠিকানা</FieldLabel>
-            <Textarea
-              id="address_permanent"
-              name="address_permanent"
-              rows={2}
-              value={values.address_permanent}
-              onChange={(e) => set("address_permanent", e.target.value)}
-            />
+            <Textarea id="address_permanent" name="address_permanent" rows={2} value={values.address_permanent} onChange={(e) => set("address_permanent", e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5 md:col-span-2">
             <FieldLabel htmlFor="previous_school">পূর্ববর্তী স্কুল</FieldLabel>
-            <Input
-              id="previous_school"
-              name="previous_school"
-              value={values.previous_school}
-              onChange={(e) => set("previous_school", e.target.value)}
-            />
+            <Input id="previous_school" name="previous_school" value={values.previous_school} onChange={(e) => set("previous_school", e.target.value)} />
           </div>
         </fieldset>
 
@@ -588,14 +657,7 @@ export function NewStudentForm({
         ) : null}
 
         <div className="flex items-center gap-3 print:hidden">
-          <Button
-            type="submit"
-            disabled={pending || !canSubmit}
-            className={cn(
-              "bg-gradient-primary text-white min-w-36",
-              !canSubmit && "opacity-60",
-            )}
-          >
+          <Button type="submit" disabled={pending || !canSubmit} className={cn("bg-gradient-primary text-white min-w-36", !canSubmit && "opacity-60")}>
             {pending ? "ভর্তি হচ্ছে..." : "ভর্তি করুন"}
           </Button>
           {!canSubmit ? (
