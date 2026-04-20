@@ -140,7 +140,7 @@ export const metadata: Metadata = {
     ],
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google: "VG1jkZu8OrkljCx5KmlWyAcGCkowXrHMX_AV3HtnQ7M",
     yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION,
   },
   category: "education",
