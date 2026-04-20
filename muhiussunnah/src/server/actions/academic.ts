@@ -22,7 +22,26 @@ import {
 
 const yearSchema = z.object({
   schoolSlug: z.string().min(1),
-  name: z.string().trim().min(2).max(50),
+  name: z
+    .string()
+    .trim()
+    .min(2)
+    .max(50)
+    // Guard against the "2025-12026" style concatenation bug. Any time the
+    // admin types a four-digit/four-digit pattern separated by a dash we
+    // also accept Bengali variations. If the "end" segment is >= 5 digits
+    // we normalise it by stripping a leading 1.
+    .transform((raw) => {
+      const m = /^(\d{4})[-–](\d{5})$/.exec(raw);
+      if (m && m[2].startsWith("1")) {
+        return `${m[1]}-${m[2].slice(1)}`;
+      }
+      return raw;
+    })
+    .refine(
+      (n) => !/^\d{4}-\d{5,}$/.test(n),
+      "অবৈধ শিক্ষাবর্ষ নাম। 2025-2026 ফরম্যাটে লিখুন।",
+    ),
   start_date: z.string().min(1),
   end_date: z.string().min(1),
   is_active: z

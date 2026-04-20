@@ -49,7 +49,19 @@ const studentSchema = z.object({
   previous_school: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
   photo_data_url: z.string().optional(),
   session_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
-  session_name_new: z.string().trim().max(60).optional().or(z.literal("").transform(() => undefined)),
+  session_name_new: z
+    .string()
+    .trim()
+    .max(60)
+    // Normalise the "2025-12026" concatenation bug if it ever slips through.
+    .transform((raw) => {
+      if (!raw) return raw;
+      const m = /^(\d{4})[-–](\d{5})$/.exec(raw);
+      if (m && m[2].startsWith("1")) return `${m[1]}-${m[2].slice(1)}`;
+      return raw;
+    })
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   rf_id_card: z.string().trim().max(100).optional().or(z.literal("").transform(() => undefined)),
   admission_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),
   tuition_fee: z.coerce.number().min(0).max(10_000_000).optional().or(z.literal("").transform(() => undefined)),

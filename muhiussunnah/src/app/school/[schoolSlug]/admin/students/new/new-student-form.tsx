@@ -130,20 +130,34 @@ export function NewStudentForm({
   const [sectionId, setSectionId] = useState<string>("");
   // Session is captured as a name-string. We convert it into an existing
   // academic_year id on submit (server side) — or ask the server to create
-  // one if the name is new.
-  const initialYear = years.find((y) => y.is_active) ?? years[0];
+  // one if the name is new. `sanitizeYear` repairs any "2025-12026" rows
+  // that may linger from before the validation landed.
+  const sanitizeYear = (raw: string): string => {
+    if (!raw) return raw;
+    const m = /^(\d{4})[-–](\d{5})$/.exec(raw);
+    if (m && m[2].startsWith("1")) return `${m[1]}-${m[2].slice(1)}`;
+    return raw;
+  };
+  const cleanedYears = useMemo(
+    () =>
+      years
+        .map((y) => ({ ...y, name: sanitizeYear(y.name) }))
+        .filter((y) => y.name.length > 0),
+    [years],
+  );
+  const initialYear = cleanedYears.find((y) => y.is_active) ?? cleanedYears[0];
   const [sessionName, setSessionName] = useState<string>(initialYear?.name ?? "");
 
   const resolvedSession = useMemo(() => {
-    const typed = sessionName.trim();
+    const typed = sanitizeYear(sessionName.trim());
     if (!typed) return { id: "", name: "" };
-    const existing = years.find(
+    const existing = cleanedYears.find(
       (y) => y.name.trim().toLowerCase() === typed.toLowerCase(),
     );
     return existing
       ? { id: existing.id, name: existing.name }
       : { id: "", name: typed };
-  }, [sessionName, years]);
+  }, [sessionName, cleanedYears]);
   const [photoDataUrl, setPhotoDataUrl] = useState<string>("");
 
   const fieldErrors: Record<string, string[]> =
@@ -405,16 +419,14 @@ export function NewStudentForm({
               autoComplete="off"
             />
             <datalist id="datalist-sessions">
-              {/* Existing years take priority — marked with "সক্রিয়" for active */}
-              {years.map((y) => (
+              {cleanedYears.map((y) => (
                 <option key={y.id} value={y.name}>
                   {y.is_active ? "সক্রিয় সেশন" : "সংরক্ষিত সেশন"}
                 </option>
               ))}
-              {/* Common next-year suggestions in BD format */}
               {(() => {
                 const now = new Date().getFullYear();
-                const existing = new Set(years.map((y) => y.name));
+                const existing = new Set(cleanedYears.map((y) => y.name));
                 const suggestions = [
                   `${now}-${now + 1}`,
                   `${now + 1}-${now + 2}`,
