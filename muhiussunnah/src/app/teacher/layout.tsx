@@ -29,6 +29,7 @@ export default async function TeacherLayout({ children }: { children: ReactNode 
       subtitle="শিক্ষক ড্যাশবোর্ড"
       nav={nav}
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}
+      userPhotoUrl={membership.photo_url}
     >
       {children}
     </DashboardShell>

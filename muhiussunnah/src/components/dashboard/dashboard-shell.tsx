@@ -2,15 +2,16 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
-import { LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { LiveIndicator } from "@/components/ui/live-indicator";
 import { LanguageSwitcher } from "@/components/marketing/language-switcher";
 import { ThemeToggle } from "@/components/marketing/theme-toggle";
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { SidebarNav } from "./sidebar-nav";
-import { signOutAction } from "@/server/actions/auth";
+import { SidebarProvider } from "./sidebar-state";
+import { SidebarToggle } from "./sidebar-toggle";
+import { SidebarShell, SidebarFooter } from "./sidebar-shell";
+import { UserMenu } from "./user-menu";
 
 type NavItem = {
   href: string;
@@ -39,6 +40,8 @@ type Props = {
   userLabel?: ReactNode;
   /** Optional institution logo URL (from settings). Falls back to the م mark. */
   logoUrl?: string | null;
+  /** User's profile photo URL (from membership.photo_url). */
+  userPhotoUrl?: string | null;
   children: ReactNode;
 };
 
@@ -54,6 +57,7 @@ export async function DashboardShell({
   nav,
   userLabel,
   logoUrl,
+  userPhotoUrl,
   children,
 }: Props) {
   const jar = await cookies();
@@ -69,6 +73,7 @@ export async function DashboardShell({
   const secondary = visibleFields.filter((f) => f !== primary);
 
   return (
+    <SidebarProvider>
     <div className="relative flex min-h-screen flex-col bg-background">
       {/* Ambient gradient wash behind the whole dashboard — gives a "branded"
           feel without costing GPU on scroll (no animation, no blur on big
@@ -97,8 +102,10 @@ export async function DashboardShell({
           aria-hidden
         />
         <div className="relative grid grid-cols-3 items-center gap-4 px-4 py-3.5 md:px-6">
-          {/* Left — institution logo with animated gradient ring */}
-          <Link href="/" className="group/brand flex items-center gap-3 justify-self-start">
+          {/* Left — hamburger toggle + institution logo */}
+          <div className="flex items-center gap-3 justify-self-start">
+            <SidebarToggle />
+          <Link href="/" className="group/brand flex items-center gap-3">
             <span className="relative inline-flex size-12 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-accent/15 shadow-lg shadow-primary/15 transition-all group-hover/brand:scale-105 group-hover/brand:shadow-primary/25">
               {/* Rotating gradient halo on hover */}
               <span
@@ -121,6 +128,7 @@ export async function DashboardShell({
               )}
             </span>
           </Link>
+          </div>
 
           {/* Center — institution identity with gradient accent */}
           <div className="min-w-0 text-center justify-self-center w-full">
@@ -151,70 +159,28 @@ export async function DashboardShell({
             )}
           </div>
 
-          {/* Right — theme + language + live indicator + user + logout */}
+          {/* Right — theme + language + live indicator + user avatar menu */}
           <div className="flex items-center gap-1.5 justify-self-end">
             <div className="hidden md:inline-flex items-center gap-1.5">
               <LanguageSwitcher current={locale} compact />
               <ThemeToggle />
             </div>
             <LiveIndicator />
-            {userLabel ? (
-              <span className="hidden rounded-full border border-border/60 bg-card/60 px-3 py-1 text-xs font-medium text-foreground/80 backdrop-blur md:inline">
-                {userLabel}
-              </span>
-            ) : null}
-            <form action={signOutAction}>
-              <Button
-                type="submit"
-                variant="outline"
-                size="sm"
-                className="gap-2 hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
-              >
-                <LogOut className="size-4" />
-                <span className="hidden md:inline">লগআউট</span>
-              </Button>
-            </form>
+            <UserMenu
+              name={typeof userLabel === "string" ? userLabel : null}
+              photoUrl={userPhotoUrl}
+            />
           </div>
         </div>
       </header>
 
       <div className="relative flex flex-1">
-        {/* Sidebar — glass panel with gradient accents top + bottom */}
-        <aside className="relative sticky top-[74px] hidden h-[calc(100vh-74px)] w-60 shrink-0 flex-col overflow-y-auto bg-sidebar/70 backdrop-blur-md px-3 py-5 md:flex">
-          {/* Left edge gradient border — subtle brand rail */}
-          <div
-            className="pointer-events-none absolute end-0 inset-y-0 w-px bg-gradient-to-b from-primary/20 via-primary/40 to-accent/20"
-            aria-hidden
-          />
-          {/* Top-corner glow to match marketing aesthetic */}
-          <div
-            className="pointer-events-none absolute -top-8 -start-8 size-40 rounded-full bg-primary/10 blur-3xl"
-            aria-hidden
-          />
-
+        <SidebarShell>
           <div className="relative">
             <SidebarNav items={nav} />
           </div>
-
-          {/* Muhius Sunnah wordmark — premium gradient footer */}
-          <div className="relative mt-auto pt-4">
-            <div
-              className="pointer-events-none mb-3 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
-              aria-hidden
-            />
-            <div className="flex items-center gap-2 px-1 text-xs text-muted-foreground/80">
-              <span className="inline-flex size-6 items-center justify-center rounded-md bg-gradient-primary animate-gradient text-white font-bold text-[11px] shadow-sm shadow-primary/30">
-                م
-              </span>
-              <span className="font-medium">
-                Powered by{" "}
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-semibold">
-                  Muhius Sunnah
-                </span>
-              </span>
-            </div>
-          </div>
-        </aside>
+          <SidebarFooter />
+        </SidebarShell>
 
         {/* Content */}
         <main className="relative flex-1 p-5 md:p-8">
@@ -225,5 +191,6 @@ export async function DashboardShell({
         </main>
       </div>
     </div>
+    </SidebarProvider>
   );
 }

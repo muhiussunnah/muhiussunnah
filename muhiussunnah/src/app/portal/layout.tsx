@@ -34,6 +34,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
       subtitle={membership.role === "PARENT" ? "অভিভাবক পোর্টাল" : "ছাত্র পোর্টাল"}
       nav={nav}
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}
+      userPhotoUrl={membership.photo_url}
     >
       {children}
     </DashboardShell>

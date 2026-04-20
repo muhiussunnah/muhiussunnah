@@ -79,6 +79,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
       logoUrl={logoUrl}
       nav={nav}
       userLabel={membership.full_name_bn ?? membership.full_name_en ?? undefined}
+      userPhotoUrl={membership.photo_url}
     >
       {children}
       <OnlineStatus />

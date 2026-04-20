@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "./sidebar-state";
 
 type NavItem = {
   href: string;
@@ -17,6 +18,7 @@ type NavItem = {
  */
 export function SidebarNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const { collapsed } = useSidebar();
 
   /**
    * Pick exactly ONE "active" item — the one whose href best matches the
@@ -70,20 +72,25 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
             prefetch={true}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group/nav relative flex items-center gap-2.5 rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-all duration-200",
+              "group/nav relative flex items-center rounded-xl border text-sm font-medium transition-all duration-200",
+              collapsed
+                ? "justify-center size-12 mx-auto"
+                : "gap-3 px-3.5 py-2.5",
               active
                 ? "border-primary/40 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent text-primary shadow-md shadow-primary/15 font-semibold"
-                : "border-transparent text-sidebar-foreground/80 hover:translate-x-0.5 hover:border-primary/30 hover:bg-primary/5 hover:text-primary hover:shadow-sm hover:shadow-primary/10",
+                : "border-transparent text-sidebar-foreground/80 hover:border-primary/30 hover:bg-primary/5 hover:text-primary hover:shadow-sm hover:shadow-primary/10",
+              !collapsed && !active && "hover:translate-x-0.5",
+              !collapsed && active && "",
             )}
+            title={collapsed ? item.label : undefined}
           >
-            {/* Active rail on the start edge — gradient + glow */}
-            {active ? (
+            {/* Active rail on the start edge — gradient + glow (hide in collapsed mode) */}
+            {active && !collapsed ? (
               <>
                 <span
                   className="pointer-events-none absolute start-0 top-1/2 h-7 w-[3px] -translate-y-1/2 rounded-e-full bg-gradient-primary animate-gradient shadow-[0_0_8px_rgba(124,92,255,0.6)]"
                   aria-hidden
                 />
-                {/* Soft radial glow behind active item */}
                 <span
                   className="pointer-events-none absolute inset-0 rounded-xl bg-gradient-to-r from-primary/5 to-transparent"
                   aria-hidden
@@ -92,13 +99,14 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
             ) : null}
             <span
               className={cn(
-                "flex size-5 items-center justify-center transition-colors [&_svg]:size-4",
+                "flex items-center justify-center transition-colors shrink-0",
+                collapsed ? "size-6 [&_svg]:size-5" : "size-6 [&_svg]:size-5",
                 active ? "text-primary" : "text-muted-foreground group-hover/nav:text-primary",
               )}
             >
               {item.icon}
             </span>
-            <span className="truncate">{item.label}</span>
+            {!collapsed ? <span className="truncate">{item.label}</span> : null}
           </Link>
         );
       })}
