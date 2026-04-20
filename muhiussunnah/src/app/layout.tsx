@@ -56,7 +56,7 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
   display: "swap",
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

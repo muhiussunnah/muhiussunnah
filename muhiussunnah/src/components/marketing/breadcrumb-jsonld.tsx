@@ -1,6 +1,6 @@
 import Script from "next/script";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.app";
 
 /**
  * Emits a BreadcrumbList JSON-LD block only (no visible UI). Use when the

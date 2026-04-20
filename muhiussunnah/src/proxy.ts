@@ -37,7 +37,7 @@ const PUBLIC_PATHS = new Set([
  * Configure via PLATFORM_HOST env; defaults cover local dev + shikkha.app.
  */
 const PLATFORM_HOSTS = new Set(
-  (process.env.PLATFORM_HOSTS ?? "shikkha.app,www.shikkha.app,localhost:3000,localhost,shikkha.vercel.app")
+  (process.env.PLATFORM_HOSTS ?? "muhiussunnah.app,www.muhiussunnah.app,muhiussunnah.vercel.app,shikkha.app,www.shikkha.app,localhost:3000,localhost,shikkha.vercel.app")
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean),

@@ -2,7 +2,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { ChevronRight, Home } from "lucide-react";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.app";
 
 export interface BreadcrumbItem {
   label: string;

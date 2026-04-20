@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.vercel.app";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || "https://muhiussunnah.app";
 
 /**
  * Dynamic sitemap.xml generator. Enumerates every indexable public route

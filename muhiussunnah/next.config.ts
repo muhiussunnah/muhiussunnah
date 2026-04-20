@@ -44,6 +44,24 @@ const nextConfig: NextConfig = {
         headers: [{ key: "Content-Type", value: "application/manifest+json" }],
       },
       {
+        // Explicit XML Content-Type for sitemap.xml — guards against
+        // intermediaries or stale service-worker caches that might
+        // otherwise serve it as text/plain or text/html, which makes
+        // browsers render raw text instead of a proper XML tree.
+        source: "/sitemap.xml",
+        headers: [
+          { key: "Content-Type", value: "application/xml; charset=utf-8" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
+        source: "/robots.txt",
+        headers: [
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
         source: "/(features|pricing|about|contact|support|refund-policy|terms|privacy)",
         headers: [
           {

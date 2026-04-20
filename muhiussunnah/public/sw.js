@@ -14,7 +14,7 @@
  *     { id (auto), url, method, body (JSON string), timestamp, retries }
  */
 
-const CACHE = "shikkha-v2";
+const CACHE = "shikkha-v3";
 const OFFLINE_URL = "/offline";
 const SYNC_PATHS = ["/api/sync/attendance", "/api/sync/marks"];
 const DB_NAME = "shikkha-offline";
@@ -144,6 +144,20 @@ self.addEventListener("fetch", (event) => {
     url.hostname.includes("supabase") ||
     url.pathname.startsWith("/api/") ||
     url.pathname.startsWith("/_next/data/")
+  ) {
+    return;
+  }
+
+  // Never intercept crawler-facing endpoints — they must hit the origin so
+  // the correct Content-Type (application/xml, text/plain, image/*) is
+  // preserved. Caching an HTML error response here permanently corrupts
+  // how Google sees the sitemap.
+  if (
+    url.pathname === "/sitemap.xml" ||
+    url.pathname === "/robots.txt" ||
+    url.pathname === "/opengraph-image" ||
+    url.pathname.startsWith("/opengraph-image/") ||
+    url.pathname === "/manifest.webmanifest"
   ) {
     return;
   }
