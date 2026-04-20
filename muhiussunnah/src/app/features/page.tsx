@@ -19,8 +19,16 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getFeaturesPageCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Features — Muhius Sunnah",
-  description: "Complete feature set — student management to AI insights to madrasa modules.",
+  title: "Features",
+  description:
+    "32+ features for schools & madrasas — student management, attendance, exams, fees, AI insights, hifz & kitab tracking. Everything you need, in 4 languages.",
+  alternates: { canonical: "/features" },
+  openGraph: {
+    title: "Features — Muhius Sunnah",
+    description:
+      "32+ features for schools & madrasas — admissions, attendance, fees, hifz/kitab tracking, AI insights.",
+    url: "/features",
+  },
 };
 
 const iconMap: Record<string, typeof Users> = {

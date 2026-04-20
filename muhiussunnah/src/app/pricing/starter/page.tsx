@@ -4,8 +4,14 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Starter প্যাকেজ — Muhius Sunnah",
+  title: "Starter Package",
   description: "৳1,000/মাস — ৫০০ ছাত্র পর্যন্ত, SMS নোটিফিকেশন, offline mode। বৃদ্ধিমান প্রতিষ্ঠানের জন্য।",
+  alternates: { canonical: "/pricing/starter" },
+  openGraph: {
+    title: "Starter প্যাকেজ — Muhius Sunnah",
+    description: "৳1,000/month — up to 500 students, SMS notifications, offline mode.",
+    url: "/pricing/starter",
+  },
 };
 
 export default async function Page() {

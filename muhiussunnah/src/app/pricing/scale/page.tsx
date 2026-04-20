@@ -4,8 +4,14 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Scale প্যাকেজ — Muhius Sunnah",
+  title: "Scale Package",
   description: "৳4,000/মাস — মাল্টি-ব্রাঞ্চ, কাস্টম ডোমেইন, ২৪/৭ সাপোর্ট। এন্টারপ্রাইজ চেইন প্রতিষ্ঠানের জন্য।",
+  alternates: { canonical: "/pricing/scale" },
+  openGraph: {
+    title: "Scale প্যাকেজ — Muhius Sunnah",
+    description: "৳4,000/month — multi-branch, custom domain, 24/7 support.",
+    url: "/pricing/scale",
+  },
 };
 
 export default async function Page() {

@@ -18,8 +18,15 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 
 export const metadata = {
-  title: "Contact — Muhius Sunnah",
-  description: "Get in touch for demos, support, or partnerships. Available in 4 languages.",
+  title: "Contact",
+  description:
+    "Talk to Muhius Sunnah — demos, partnerships, support. Call +880 1767-682381 or email us. Bangla, English, Arabic, Urdu support available.",
+  alternates: { canonical: "/contact" },
+  openGraph: {
+    title: "Contact Muhius Sunnah",
+    description: "Talk to us — demos, partnerships, support. Multi-language support team.",
+    url: "/contact",
+  },
 };
 
 export default async function ContactPage() {

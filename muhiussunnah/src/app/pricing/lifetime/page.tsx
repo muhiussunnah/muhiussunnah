@@ -4,8 +4,14 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Lifetime Basic প্যাকেজ — Muhius Sunnah",
+  title: "Lifetime Basic Package",
   description: "৳20,000 একবার পরিশোধে সারাজীবন ব্যবহার। ২০০ জন পর্যন্ত শিক্ষার্থী। সব মূল feature।",
+  alternates: { canonical: "/pricing/lifetime" },
+  openGraph: {
+    title: "Lifetime Basic প্যাকেজ — Muhius Sunnah",
+    description: "৳20,000 once for lifetime access. Up to 200 students. All core features.",
+    url: "/pricing/lifetime",
+  },
 };
 
 export default async function Page() {

@@ -4,8 +4,14 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Growth প্যাকেজ — Muhius Sunnah",
+  title: "Growth Package",
   description: "৳2,000/মাস — সীমাহীন ছাত্র, অনলাইন পেমেন্ট, AI, WhatsApp। বেশিরভাগ প্রতিষ্ঠানের জন্য সেরা।",
+  alternates: { canonical: "/pricing/growth" },
+  openGraph: {
+    title: "Growth প্যাকেজ — Muhius Sunnah",
+    description: "৳2,000/month — unlimited students, online payments, AI, WhatsApp.",
+    url: "/pricing/growth",
+  },
 };
 
 export default async function Page() {

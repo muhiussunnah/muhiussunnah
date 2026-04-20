@@ -15,8 +15,16 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getAboutPageCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "About — Muhius Sunnah",
-  description: "Our mission: modernize Bangladesh's schools and madrasas with local-first technology.",
+  title: "About",
+  description:
+    "Our mission: modernize Bangladesh's schools & madrasas with local-first technology. Built by educators, for educators. 120+ institutions trust us.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About Muhius Sunnah",
+    description:
+      "Local-first school & madrasa management built for Bangladesh. Trusted by 120+ institutions.",
+    url: "/about",
+  },
 };
 
 const valueIcons = [Heart, Users, Zap];

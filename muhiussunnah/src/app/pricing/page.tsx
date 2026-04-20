@@ -15,8 +15,16 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 
 export const metadata = {
-  title: "Pricing — Muhius Sunnah",
-  description: "Transparent pricing for schools and madrasas. Lifetime deal ৳20,000 one-time. No hidden costs.",
+  title: "Pricing",
+  description:
+    "Transparent pricing for schools & madrasas in Bangladesh. Lifetime deal ৳20,000 one-time, or monthly plans from ৳1,000. No hidden costs, 15-day free trial.",
+  alternates: { canonical: "/pricing" },
+  openGraph: {
+    title: "Pricing — Muhius Sunnah",
+    description:
+      "Lifetime deal ৳20,000 one-time, or monthly from ৳1,000. 15-day free trial, no credit card required.",
+    url: "/pricing",
+  },
 };
 
 export default async function PricingPage() {

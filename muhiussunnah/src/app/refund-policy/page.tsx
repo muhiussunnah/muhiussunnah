@@ -14,8 +14,15 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getRefundPageCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Refund Policy — Muhius Sunnah",
-  description: "30-day full money-back guarantee, no questions asked.",
+  title: "Refund Policy",
+  description:
+    "30-day full money-back guarantee from Muhius Sunnah — no questions asked. Simple, fair refund process for all plans.",
+  alternates: { canonical: "/refund-policy" },
+  openGraph: {
+    title: "Refund Policy — Muhius Sunnah",
+    description: "30-day full money-back guarantee, no questions asked.",
+    url: "/refund-policy",
+  },
 };
 
 const stepIcons = [MessageCircle, CalendarClock, CreditCard];

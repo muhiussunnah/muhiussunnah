@@ -15,8 +15,15 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getSupportPageCopy } from "@/lib/i18n/pages";
 
 export const metadata = {
-  title: "Support — Muhius Sunnah",
-  description: "Multi-channel support: video tutorials, live calls, WhatsApp, email.",
+  title: "Support",
+  description:
+    "24/7 multi-channel support from Muhius Sunnah — video tutorials, live calls, WhatsApp, email. Get help in Bangla, English, Arabic, or Urdu.",
+  alternates: { canonical: "/support" },
+  openGraph: {
+    title: "Support — Muhius Sunnah",
+    description: "24/7 support — video tutorials, WhatsApp, live calls, email.",
+    url: "/support",
+  },
 };
 
 const channelIcons = { Video, Phone, MessageCircle, BookOpen } as const;
