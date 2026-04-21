@@ -1,16 +1,21 @@
 import Link from "next/link";
+import { getTranslations, getLocale } from "next-intl/server";
 import { BookOpenText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { formatDualDate } from "@/lib/utils/date";
+import type { Locale } from "@/lib/i18n/config";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveMadrasaRole } from "@/lib/auth/require-madrasa";
 import { ADMIN_ROLES, TEACHER_ROLES } from "@/lib/auth/roles";
 
 export default async function DailySabaqIndexPage() {
   const { active } = await requireActiveMadrasaRole([...ADMIN_ROLES, "ACCOUNTANT", ...TEACHER_ROLES, "MADRASA_USTADH"]);
+  const t = await getTranslations("madrasa");
+  const locale = (await getLocale()) as Locale;
+  const dateLocale = locale === "ur" ? "en" : locale;
 
   const schoolSlug = active.school_slug;
   const supabase = await supabaseServer();
@@ -21,26 +26,26 @@ export default async function DailySabaqIndexPage() {
     .select("id, name, classes!inner(name_bn, school_id, stream)")
     .eq("classes.school_id", active.school_id);
 
-  // Prefer hifz/kitab streams; fall back to all if none
   const all = (sections ?? []) as Array<{ id: string; name: string; classes: { name_bn: string; stream: string } }>;
   const madrasa = all.filter((s) => ["hifz", "kitab", "nazera"].includes(s.classes.stream));
   const display = madrasa.length > 0 ? madrasa : all;
 
   const today = new Date().toISOString().slice(0, 10);
+  const todayLabel = formatDualDate(today, { withWeekday: true, withHijri: true, locale: dateLocale });
 
   return (
     <>
       <PageHeader
-        title="দৈনিক সবক-সবকী-মানজিল"
-        subtitle={`আজকের তারিখ: ${formatDualDate(today, { withWeekday: true, withHijri: true })} · সেকশন বেছে নিয়ে এন্ট্রি শুরু করুন।`}
-        impact={[{ label: <>সেকশন · <BanglaDigit value={display.length} /></>, tone: "accent" }]}
+        title={t("sabaq_title")}
+        subtitle={t("sabaq_subtitle", { date: todayLabel })}
+        impact={[{ label: <>{t("sabaq_section_count")} · <BanglaDigit value={display.length} /></>, tone: "accent" }]}
       />
 
       {display.length === 0 ? (
         <EmptyState
           icon={<BookOpenText className="size-8" />}
-          title="কোন সেকশন নেই"
-          body="আগে ক্লাস + সেকশন তৈরি করুন, তারপর এখানে সবক এন্ট্রি করতে পারবেন।"
+          title={t("sabaq_empty_title")}
+          body={t("sabaq_empty_body")}
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -52,8 +57,8 @@ export default async function DailySabaqIndexPage() {
             >
               <Card className="transition hover:shadow-hover">
                 <CardContent className="p-5">
-                  <h3 className="font-semibold">{s.classes.name_bn} — সেকশন {s.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">স্ট্রিম: {s.classes.stream}</p>
+                  <h3 className="font-semibold">{s.classes.name_bn} — {t("sabaq_section_prefix")} {s.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("sabaq_stream_label")}: {s.classes.stream}</p>
                 </CardContent>
               </Card>
             </Link>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +20,14 @@ type Props = {
 };
 
 export function ShiftForm({ schoolSlug, studentId, currentSectionId, sections }: Props) {
+  const t = useTranslations("studentsExtra");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(shiftStudentAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "স্থানান্তর সম্পন্ন");
+    if (state.ok) toast.success(state.message ?? t("shift_done"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
@@ -33,10 +36,10 @@ export function ShiftForm({ schoolSlug, studentId, currentSectionId, sections }:
       <input type="hidden" name="student_id" value={studentId} />
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="to_section_id">নতুন সেকশন</Label>
+        <Label htmlFor="to_section_id">{t("shift_new_section")}</Label>
         <Select name="to_section_id" required>
           <SelectTrigger id="to_section_id" className="w-60">
-            <SelectValue placeholder="সেকশন নির্বাচন" />
+            <SelectValue placeholder={t("shift_placeholder")} />
           </SelectTrigger>
           <SelectContent>
             {sections.filter((s) => s.id !== currentSectionId).map((s) => (
@@ -49,12 +52,12 @@ export function ShiftForm({ schoolSlug, studentId, currentSectionId, sections }:
       </div>
 
       <div className="flex flex-1 min-w-40 flex-col gap-1.5">
-        <Label htmlFor="reason">কারণ (ঐচ্ছিক)</Label>
-        <Input id="reason" name="reason" placeholder="যেমন: বদলি" />
+        <Label htmlFor="reason">{t("shift_reason_label")}</Label>
+        <Input id="reason" name="reason" placeholder={t("shift_reason_placeholder")} />
       </div>
 
       <Button type="submit" disabled={pending} className="bg-gradient-primary text-white">
-        {pending ? "..." : "স্থানান্তর"}
+        {pending ? "..." : t("shift_cta")}
       </Button>
     </form>
   );

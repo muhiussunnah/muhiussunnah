@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ type Entry = {
   sabaq_quality: Quality | "";
   sabqi_para: string;
   sabqi_quality: Quality | "";
-  manzil_paras: string;     // comma-separated
+  manzil_paras: string;
   manzil_quality: Quality | "";
   tajweed_notes: string;
 };
@@ -40,14 +41,8 @@ type Props = {
   initial: Record<string, InitEntry>;
 };
 
-const qualityOptions: { v: Quality; label: string; cls: string }[] = [
-  { v: "excellent", label: "চমৎকার", cls: "bg-success/20 text-success" },
-  { v: "good",      label: "ভাল",     cls: "bg-primary/20 text-primary" },
-  { v: "average",   label: "মাঝারি",  cls: "bg-warning/20 text-warning-foreground dark:text-warning" },
-  { v: "weak",      label: "দুর্বল",   cls: "bg-destructive/20 text-destructive" },
-];
-
 export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Props) {
+  const t = useTranslations("madrasa");
   const [entries, setEntries] = useState<Record<string, Entry>>(() => {
     const out: Record<string, Entry> = {};
     for (const s of students) {
@@ -67,6 +62,13 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
     return out;
   });
   const [pending, startTransition] = useTransition();
+
+  const qualityOptions: { v: Quality; label: string }[] = [
+    { v: "excellent", label: t("entry_quality_excellent") },
+    { v: "good",      label: t("entry_quality_good") },
+    { v: "average",   label: t("entry_quality_average") },
+    { v: "weak",      label: t("entry_quality_weak") },
+  ];
 
   function setField<K extends keyof Entry>(studentId: string, key: K, value: Entry[K]) {
     setEntries((e) => ({ ...e, [studentId]: { ...e[studentId], [key]: value } }));
@@ -95,7 +97,7 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
     startTransition(async () => {
       void sectionId;
       const res = await saveDailySabaqAction({ schoolSlug, date, entries: payload });
-      if (res.ok) toast.success(res.message ?? "সংরক্ষিত");
+      if (res.ok) toast.success(res.message ?? t("entry_saved"));
       else toast.error(res.error);
     });
   }
@@ -105,11 +107,11 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
       <Card className="sticky top-14 z-10 mb-4 border-primary/30">
         <CardContent className="flex items-center justify-between p-3">
           <span className="text-xs text-muted-foreground">
-            <BanglaDigit value={students.length} /> জন ছাত্র · {date}
+            {t("entry_date_count", { count: students.length, date })}
           </span>
           <Button size="sm" onClick={save} disabled={pending} className="bg-gradient-primary text-white">
             <Save className="me-1 size-3.5" />
-            {pending ? "সংরক্ষণ..." : "সব সংরক্ষণ"}
+            {pending ? t("entry_saving") : t("entry_save_all")}
           </Button>
         </CardContent>
       </Card>
@@ -119,23 +121,23 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
           <table className="w-full text-xs">
             <thead className="bg-muted/50">
               <tr>
-                <th className="sticky left-0 bg-muted/50 p-2 text-left min-w-40">ছাত্র</th>
-                <th className="p-2 text-left" colSpan={4}>সবক (নতুন পাঠ)</th>
-                <th className="p-2 text-left" colSpan={2}>সবকী (গতকাল)</th>
-                <th className="p-2 text-left" colSpan={2}>মানজিল (সমষ্টি)</th>
-                <th className="p-2 text-left">তাজওয়ীদ</th>
+                <th className="sticky left-0 bg-muted/50 p-2 text-left min-w-40">{t("entry_col_student")}</th>
+                <th className="p-2 text-left" colSpan={4}>{t("entry_col_sabaq")}</th>
+                <th className="p-2 text-left" colSpan={2}>{t("entry_col_sabqi")}</th>
+                <th className="p-2 text-left" colSpan={2}>{t("entry_col_manzil")}</th>
+                <th className="p-2 text-left">{t("entry_col_tajweed")}</th>
               </tr>
               <tr className="border-t border-border/40 text-[10px] text-muted-foreground">
                 <th className="sticky left-0 bg-muted/50 p-2"></th>
-                <th className="p-1">পারা</th>
-                <th className="p-1">থেকে</th>
-                <th className="p-1">পর্যন্ত</th>
-                <th className="p-1">মান</th>
-                <th className="p-1">পারা</th>
-                <th className="p-1">মান</th>
-                <th className="p-1">পারাসমূহ</th>
-                <th className="p-1">মান</th>
-                <th className="p-1">মন্তব্য</th>
+                <th className="p-1">{t("entry_col_para")}</th>
+                <th className="p-1">{t("entry_col_from")}</th>
+                <th className="p-1">{t("entry_col_to")}</th>
+                <th className="p-1">{t("entry_col_quality")}</th>
+                <th className="p-1">{t("entry_col_para")}</th>
+                <th className="p-1">{t("entry_col_quality")}</th>
+                <th className="p-1">{t("entry_col_paras")}</th>
+                <th className="p-1">{t("entry_col_quality")}</th>
+                <th className="p-1">{t("entry_col_notes")}</th>
               </tr>
             </thead>
             <tbody>
@@ -146,7 +148,7 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
                     <td className="sticky left-0 bg-background p-2">
                       <div className="font-medium">{s.name_bn}</div>
                       <div className="text-[10px] text-muted-foreground">
-                        {s.roll ? <>রোল: <BanglaDigit value={s.roll} /></> : s.student_code}
+                        {s.roll ? <>{t("entry_roll")} <BanglaDigit value={s.roll} /></> : s.student_code}
                       </div>
                     </td>
                     <td className="p-1">
@@ -158,15 +160,15 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
                     <td className="p-1">
                       <Input value={e.sabaq_to} onChange={(ev) => setField(s.id, "sabaq_to", ev.target.value)} className="h-7 w-20 text-xs" />
                     </td>
-                    <td className="p-1"><QualitySelect value={e.sabaq_quality} onChange={(v) => setField(s.id, "sabaq_quality", v)} /></td>
+                    <td className="p-1"><QualitySelect value={e.sabaq_quality} onChange={(v) => setField(s.id, "sabaq_quality", v)} options={qualityOptions} /></td>
                     <td className="p-1">
                       <Input type="number" min={1} max={30} value={e.sabqi_para} onChange={(ev) => setField(s.id, "sabqi_para", ev.target.value)} className="h-7 w-14 text-center text-xs" />
                     </td>
-                    <td className="p-1"><QualitySelect value={e.sabqi_quality} onChange={(v) => setField(s.id, "sabqi_quality", v)} /></td>
+                    <td className="p-1"><QualitySelect value={e.sabqi_quality} onChange={(v) => setField(s.id, "sabqi_quality", v)} options={qualityOptions} /></td>
                     <td className="p-1">
                       <Input value={e.manzil_paras} onChange={(ev) => setField(s.id, "manzil_paras", ev.target.value)} placeholder="1,2,3" className="h-7 w-24 text-xs" />
                     </td>
-                    <td className="p-1"><QualitySelect value={e.manzil_quality} onChange={(v) => setField(s.id, "manzil_quality", v)} /></td>
+                    <td className="p-1"><QualitySelect value={e.manzil_quality} onChange={(v) => setField(s.id, "manzil_quality", v)} options={qualityOptions} /></td>
                     <td className="p-1">
                       <Input value={e.tajweed_notes} onChange={(ev) => setField(s.id, "tajweed_notes", ev.target.value)} className="h-7 w-32 text-xs" />
                     </td>
@@ -181,12 +183,12 @@ export function SabaqGrid({ schoolSlug, sectionId, date, students, initial }: Pr
   );
 }
 
-function QualitySelect({ value, onChange }: { value: Quality | ""; onChange: (v: Quality | "") => void }) {
+function QualitySelect({ value, onChange, options }: { value: Quality | ""; onChange: (v: Quality | "") => void; options: { v: Quality; label: string }[] }) {
   return (
     <Select value={value || undefined} onValueChange={(v: string | null) => onChange((v as Quality) ?? "")}>
       <SelectTrigger className="h-7 w-20 text-xs"><SelectValue placeholder="—" /></SelectTrigger>
       <SelectContent>
-        {qualityOptions.map((q) => (
+        {options.map((q) => (
           <SelectItem key={q.v} value={q.v}>{q.label}</SelectItem>
         ))}
       </SelectContent>

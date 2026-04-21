@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { BulkImportUploader } from "./uploader";
 
 export default async function BulkImportPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("studentsExtra");
   const schoolSlug = membership.school_slug;
 
   return (
@@ -15,14 +17,14 @@ export default async function BulkImportPage() {
       <PageHeader
         breadcrumbs={
           <Link href={`/students`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> ছাত্র/ছাত্রী তালিকা
+            <ArrowLeft className="size-3.5" /> {t("bulk_back")}
           </Link>
         }
-        title="Excel থেকে বাল্ক import"
-        subtitle="একটা ফাইলে ১০০+ ছাত্র ভর্তি করুন ৩০ সেকেন্ডে। ক্লাস/সেকশন আগেই তৈরি থাকতে হবে।"
+        title={t("bulk_page_title")}
+        subtitle={t("bulk_page_subtitle")}
         impact={[
-          { label: "⚡ একসাথে ২,০০০ ছাত্র", tone: "accent" },
-          { label: "✓ সেকশনের নাম দিয়ে ম্যাচ হবে", tone: "default" },
+          { label: t("bulk_impact_batch"), tone: "accent" },
+          { label: t("bulk_impact_match"), tone: "default" },
         ]}
       />
 
@@ -36,29 +38,29 @@ export default async function BulkImportPage() {
         <aside className="flex flex-col gap-3">
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-3 text-base font-semibold">📋 Excel format</h2>
+              <h2 className="mb-3 text-base font-semibold">{t("bulk_format_heading")}</h2>
               <p className="text-xs text-muted-foreground mb-3">
-                প্রথম সারিতে column header রাখুন। সাপোর্টেড columns:
+                {t("bulk_format_body")}
               </p>
               <ul className="text-xs font-mono space-y-1">
-                <li><strong>name_bn</strong> — নাম (আবশ্যক)</li>
-                <li><strong>name_en</strong> — English name</li>
-                <li><strong>roll</strong> — রোল নম্বর</li>
-                <li><strong>class_name</strong> — ক্লাসের নাম (name_bn)</li>
-                <li><strong>section_name</strong> — সেকশন (যেমন: ক)</li>
-                <li><strong>date_of_birth</strong> — YYYY-MM-DD</li>
-                <li><strong>gender</strong> — male / female / other</li>
+                <li><strong>name_bn</strong> — {t("bulk_name_bn")}</li>
+                <li><strong>name_en</strong> — {t("bulk_name_en")}</li>
+                <li><strong>roll</strong> — {t("bulk_roll")}</li>
+                <li><strong>class_name</strong> — {t("bulk_class_name")}</li>
+                <li><strong>section_name</strong> — {t("bulk_section_name")}</li>
+                <li><strong>date_of_birth</strong> — {t("bulk_dob")}</li>
+                <li><strong>gender</strong> — {t("bulk_gender")}</li>
                 <li><strong>guardian_phone</strong></li>
                 <li><strong>address_present</strong></li>
               </ul>
               <a href="/student-import-template.csv" className="mt-4 inline-block text-xs text-primary underline">
-                📥 Template ডাউনলোড
+                {t("bulk_template")}
               </a>
             </CardContent>
           </Card>
           <Card className="border-warning/30 bg-warning/5">
             <CardContent className="p-4 text-xs">
-              <strong>💡 Pro Tip:</strong> প্রতিটা ক্লাস-সেকশন আগে তৈরি করে নিন। Student কোড স্বয়ংক্রিয়ভাবে তৈরি হবে।
+              {t("bulk_tip")}
             </CardContent>
           </Card>
         </aside>

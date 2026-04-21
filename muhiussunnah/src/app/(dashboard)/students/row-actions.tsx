@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { AlertTriangle, Loader2, Pencil, Printer, Receipt, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,17 +13,6 @@ import {
 } from "@/server/actions/students";
 import type { ActionResult } from "@/server/actions/_helpers";
 
-/**
- * Per-row action icons for the students table.
- * Matches the competitor layout: Print admission / Admission invoice /
- * Edit / Delete — all with tooltips on hover.
- *
- * Delete opens a modal (React portal → document.body so it escapes any
- * transformed table ancestor) with TWO options:
- *   • "বাদ দিন (পুনরুদ্ধারযোগ্য)" — soft delete (status = dropped)
- *   • "স্থায়ীভাবে মুছুন" — hard delete from DB (admin-client, cascades
- *     student_guardians)
- */
 export function StudentRowActions({
   schoolSlug,
   studentId,
@@ -30,14 +20,11 @@ export function StudentRowActions({
   studentName,
 }: {
   schoolSlug: string;
-  /** DB UUID — used in the form's hidden input for reliable server action lookup. */
   studentId: string;
-  /** Human-readable code (e.g. "202601") — used in URL paths so the address bar stays clean. Falls back to UUID if empty. */
   studentCode?: string | null;
   studentName: string;
 }) {
-  // Prefer the short code in URLs; fall back to UUID for legacy rows
-  // whose code hasn't been backfilled yet.
+  const t = useTranslations("studentsExtra");
   const urlId = studentCode && studentCode.trim().length > 0 ? studentCode : studentId;
   const [confirming, setConfirming] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -55,21 +42,23 @@ export function StudentRowActions({
   useEffect(() => {
     if (!softState) return;
     if (softState.ok) {
-      toast.success(softState.message ?? "বাদ দেওয়া হয়েছে");
+      toast.success(softState.message ?? t("row_soft_deleted"));
       setConfirming(false);
     } else {
       toast.error(softState.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [softState]);
 
   useEffect(() => {
     if (!hardState) return;
     if (hardState.ok) {
-      toast.success(hardState.message ?? "স্থায়ীভাবে মুছে ফেলা হয়েছে");
+      toast.success(hardState.message ?? t("row_hard_deleted"));
       setConfirming(false);
     } else {
       toast.error(hardState.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hardState]);
 
   const pending = softPending || hardPending;
@@ -78,21 +67,21 @@ export function StudentRowActions({
     <div className="flex items-center justify-end gap-0.5">
       <IconLink
         href={`/students/${urlId}/print?type=admission`}
-        tooltip="ভর্তি প্রিন্ট"
+        tooltip={t("row_print_admission")}
         icon={<Printer className="size-4" />}
         tone="primary"
         target="_blank"
       />
       <IconLink
         href={`/students/${urlId}/print?type=invoice`}
-        tooltip="ভর্তি ইনভয়েস"
+        tooltip={t("row_invoice")}
         icon={<Receipt className="size-4" />}
         tone="accent"
         target="_blank"
       />
       <IconLink
         href={`/students/${urlId}/edit`}
-        tooltip="সম্পাদনা"
+        tooltip={t("row_edit")}
         icon={<Pencil className="size-4" />}
         tone="success"
       />
@@ -100,10 +89,10 @@ export function StudentRowActions({
         type="button"
         onClick={() => setConfirming(true)}
         className={iconButtonClasses("danger")}
-        aria-label="মুছে ফেলুন"
+        aria-label={t("row_delete")}
       >
         <Trash2 className="size-4" />
-        <Tooltip label="মুছে ফেলুন" />
+        <Tooltip label={t("row_delete")} />
       </button>
 
       {confirming && mounted
@@ -146,6 +135,7 @@ function ConfirmDeleteModal({
   hardPending: boolean;
   onCancel: () => void;
 }) {
+  const t = useTranslations("studentsExtra");
   const pending = softPending || hardPending;
 
   return (
@@ -165,15 +155,14 @@ function ConfirmDeleteModal({
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="text-lg font-bold leading-tight break-words">
-                {studentName} কে কীভাবে মুছবেন?
+                {t("row_modal_title", { name: studentName })}
               </h2>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed break-words">
-                দুটো অপশন আছে। ইতিহাস (উপস্থিতি, মার্ক, লেজার) দুইটাই ক্ষেত্রে সংরক্ষিত থাকে।
+                {t("row_modal_body")}
               </p>
             </div>
           </div>
 
-          {/* Options */}
           <div className="mt-5 grid gap-3">
             <form action={softAction}>
               <input type="hidden" name="schoolSlug" value={schoolSlug} />
@@ -189,11 +178,10 @@ function ConfirmDeleteModal({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold">
-                      বাদ দিন <span className="font-normal text-muted-foreground">(পুনরুদ্ধারযোগ্য)</span>
+                      {t("row_modal_soft_title")} <span className="font-normal text-muted-foreground">{t("row_modal_soft_label")}</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground leading-snug">
-                      স্ট্যাটাস <strong>dropped</strong> হবে। তালিকা থেকে সরে যাবে কিন্তু
-                      রেকর্ড থাকবে। পরে status পরিবর্তন করে আবার সক্রিয় করা যাবে।
+                      {t("row_modal_soft_body", { tag: t("row_modal_soft_status_tag") })}
                     </p>
                   </div>
                 </div>
@@ -214,11 +202,10 @@ function ConfirmDeleteModal({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-destructive">
-                      স্থায়ীভাবে মুছুন <span className="font-normal text-destructive/70">(অপরিবর্তনীয়)</span>
+                      {t("row_modal_hard_title")} <span className="font-normal text-destructive/70">{t("row_modal_hard_label")}</span>
                     </div>
                     <p className="mt-1 text-xs text-destructive/80 leading-snug">
-                      শিক্ষার্থীর মূল রেকর্ড ডেটাবেস থেকে একেবারে মুছে যাবে।
-                      ⚠️ এটি আর পুনরুদ্ধার করা যাবে না।
+                      {t("row_modal_hard_body")}
                     </p>
                   </div>
                 </div>
@@ -233,7 +220,7 @@ function ConfirmDeleteModal({
               disabled={pending}
               className="rounded-md border border-border/60 bg-card px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
             >
-              বাতিল
+              {t("row_modal_cancel")}
             </button>
           </div>
         </div>

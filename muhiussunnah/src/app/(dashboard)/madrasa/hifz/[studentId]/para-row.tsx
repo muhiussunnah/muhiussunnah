@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ type Props = {
 };
 
 export function ParaRow({ schoolSlug, studentId, paraNo, initial }: Props) {
+  const t = useTranslations("madrasa");
   const [status, setStatus] = useState(initial.status);
   const [mark, setMark] = useState(initial.mark !== null ? String(initial.mark) : "");
   const [mistakes, setMistakes] = useState(String(initial.mistakes_count));
@@ -30,8 +32,9 @@ export function ParaRow({ schoolSlug, studentId, paraNo, initial }: Props) {
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "আপডেট");
+    if (state.ok) toast.success(state.message ?? t("hifz_row_updated"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
@@ -42,10 +45,10 @@ export function ParaRow({ schoolSlug, studentId, paraNo, initial }: Props) {
       <Select name="status" value={status} onValueChange={(v: string | null) => v && setStatus(v as Props["initial"]["status"])}>
         <SelectTrigger className="h-7 w-28 text-xs"><SelectValue /></SelectTrigger>
         <SelectContent>
-          <SelectItem value="learning">শিখছে</SelectItem>
-          <SelectItem value="revising">রিভিশন</SelectItem>
-          <SelectItem value="completed">সম্পন্ন</SelectItem>
-          <SelectItem value="tested">পরীক্ষিত</SelectItem>
+          <SelectItem value="learning">{t("hifz_status_learning")}</SelectItem>
+          <SelectItem value="revising">{t("hifz_status_revising")}</SelectItem>
+          <SelectItem value="completed">{t("hifz_status_completed")}</SelectItem>
+          <SelectItem value="tested">{t("hifz_status_tested")}</SelectItem>
         </SelectContent>
       </Select>
       <Input
@@ -53,7 +56,7 @@ export function ParaRow({ schoolSlug, studentId, paraNo, initial }: Props) {
         type="number"
         min={0}
         step="0.5"
-        placeholder="মার্ক"
+        placeholder={t("hifz_row_mark_placeholder")}
         value={mark}
         onChange={(e) => setMark(e.target.value)}
         className="h-7 w-16 text-xs text-right"
@@ -62,7 +65,7 @@ export function ParaRow({ schoolSlug, studentId, paraNo, initial }: Props) {
         name="mistakes_count"
         type="number"
         min={0}
-        placeholder="ভুল"
+        placeholder={t("hifz_row_mistakes_placeholder")}
         value={mistakes}
         onChange={(e) => setMistakes(e.target.value)}
         className="h-7 w-14 text-xs text-right"

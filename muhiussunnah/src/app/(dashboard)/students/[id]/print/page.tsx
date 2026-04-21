@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import { getTranslations } from "next-intl/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
@@ -18,7 +19,7 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
   const type = sp.type === "invoice" ? "invoice" : "admission";
 
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
-  // Resolve the URL segment to the real UUID (accepts either).
+  const t = await getTranslations("studentPrint");
   const id = await resolveStudentId(idOrCode, membership.school_id);
   if (!id) notFound();
   const supabase = await supabaseServer();
@@ -74,10 +75,6 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
     header_display_fields: string | null;
   } | null;
 
-  // Match the admin header: render the same field subset the principal
-  // chose in Settings → "Display name in header". Order matters — first
-  // selected field is the big headline, the rest are smaller sub-lines
-  // grouped like a letterhead.
   const headerFields = parseHeaderFields(branding);
 
   return (
@@ -85,8 +82,6 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
       <div className="mx-auto max-w-4xl px-4 py-6 print:p-0 print:max-w-none">
         <PrintActions />
 
-        {/* Letterhead — vertically centered so logo, text, and photo
-            all share the same midline instead of all top-aligned. */}
         <header className="flex items-center gap-5 border-b-2 border-black pb-4">
           {branding?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -111,32 +106,29 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
               unoptimized
             />
           ) : (
-            // Competitor-style passport-photo placeholder: upright
-            // rectangle, thin border, "ছবি" label inside.
             <div className="h-28 w-24 shrink-0 rounded border border-black/50 bg-white flex items-center justify-center text-sm text-gray-600">
-              ছবি
+              {t("photo_label")}
             </div>
           )}
         </header>
 
         <h2 className="mt-5 text-center text-xl font-bold">
-          {type === "invoice" ? "ভর্তি ইনভয়েস" : "শিক্ষার্থীর ভর্তি ফরম"}
+          {type === "invoice" ? t("heading_invoice") : t("heading_admission")}
         </h2>
 
         {type === "admission" ? (
-          <AdmissionDetails student={student} />
+          <AdmissionDetails student={student} t={t} />
         ) : (
-          <InvoiceDetails student={student} feeInvoices={feeInvoices ?? []} />
+          <InvoiceDetails student={student} feeInvoices={feeInvoices ?? []} t={t} />
         )}
 
-        {/* Signature row — only on admission form */}
         {type === "admission" ? (
           <div className="mt-12 grid grid-cols-2 gap-8 text-center text-sm">
             <div>
-              <div className="mx-auto w-2/3 border-t border-black/70 pt-1">মুহতামিমের স্বাক্ষর</div>
+              <div className="mx-auto w-2/3 border-t border-black/70 pt-1">{t("sign_muhtamim")}</div>
             </div>
             <div>
-              <div className="mx-auto w-2/3 border-t border-black/70 pt-1">পরিচালকের স্বাক্ষর</div>
+              <div className="mx-auto w-2/3 border-t border-black/70 pt-1">{t("sign_director")}</div>
             </div>
           </div>
         ) : null}
@@ -145,10 +137,12 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
   );
 }
 
-/* ────────────────────────────────────────────────────────────────── */
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+type TT = (key: string, values?: Record<string, string | number>) => string;
 
 function AdmissionDetails({
   student,
+  t,
 }: {
   student: {
     student_code: string; name_bn: string; name_en: string | null; name_ar: string | null;
@@ -160,46 +154,49 @@ function AdmissionDetails({
     sections: { name: string; classes: { name_bn: string } } | null;
     student_guardians: { name_bn: string; phone: string | null; relation: string; is_primary: boolean }[];
   };
+  t: TT;
 }) {
   const father = student.student_guardians.find((g) => g.relation === "father");
   const mother = student.student_guardians.find((g) => g.relation === "mother");
   const primary = student.student_guardians.find((g) => g.is_primary);
 
+  const genderLabel = student.gender === "male" ? t("gender_male") : student.gender === "female" ? t("gender_female") : "—";
+
   return (
     <>
-      <Section title="ছাত্রের তথ্য">
-        <Row label="শিক্ষার্থী আইডি" value={student.student_code} />
-        <Row label="নাম (বাংলা)" value={student.name_bn} />
-        {student.name_en ? <Row label="Name (English)" value={student.name_en} /> : null}
-        {student.name_ar ? <Row label="নাম (عربي)" value={student.name_ar} /> : null}
-        <Row label="শ্রেণি / শাখা" value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
-        <Row label="রোল" value={student.roll ? <BanglaDigit value={student.roll} /> : "—"} />
-        <Row label="জন্ম তারিখ" value={student.date_of_birth ?? "—"} />
-        <Row label="লিঙ্গ" value={student.gender === "male" ? "পুরুষ" : student.gender === "female" ? "মহিলা" : "—"} />
-        <Row label="ধর্ম" value={student.religion ?? "—"} />
-        <Row label="রক্তের গ্রুপ" value={student.blood_group ?? "—"} />
-        <Row label="ভর্তির তারিখ" value={student.admission_date ?? "—"} />
+      <Section title={t("sec_student")}>
+        <Row label={t("field_student_id")} value={student.student_code} />
+        <Row label={t("field_name_bn")} value={student.name_bn} />
+        {student.name_en ? <Row label={t("field_name_en")} value={student.name_en} /> : null}
+        {student.name_ar ? <Row label={t("field_name_ar")} value={student.name_ar} /> : null}
+        <Row label={t("field_class")} value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
+        <Row label={t("field_roll")} value={student.roll ? <BanglaDigit value={student.roll} /> : "—"} />
+        <Row label={t("field_dob")} value={student.date_of_birth ?? "—"} />
+        <Row label={t("field_gender")} value={genderLabel} />
+        <Row label={t("field_religion")} value={student.religion ?? "—"} />
+        <Row label={t("field_blood")} value={student.blood_group ?? "—"} />
+        <Row label={t("field_admission_date")} value={student.admission_date ?? "—"} />
       </Section>
 
-      <Section title="ঠিকানা">
-        <Row label="বর্তমান ঠিকানা" value={student.address_present ?? "—"} full />
-        <Row label="স্থায়ী ঠিকানা" value={student.address_permanent ?? "—"} full />
-        <Row label="পূর্ববর্তী বিদ্যালয়" value={student.previous_school ?? "—"} full />
+      <Section title={t("sec_address")}>
+        <Row label={t("field_present_address")} value={student.address_present ?? "—"} full />
+        <Row label={t("field_permanent_address")} value={student.address_permanent ?? "—"} full />
+        <Row label={t("field_previous_school")} value={student.previous_school ?? "—"} full />
       </Section>
 
-      <Section title="অভিভাবকের তথ্য">
-        <Row label="পিতার নাম" value={father?.name_bn ?? "—"} />
-        <Row label="পিতার মোবাইল" value={father?.phone ?? "—"} />
-        <Row label="মাতার নাম" value={mother?.name_bn ?? "—"} />
-        <Row label="মাতার মোবাইল" value={mother?.phone ?? "—"} />
-        <Row label="প্রধান অভিভাবক" value={primary ? `${primary.name_bn} (${primary.relation})` : "—"} />
-        <Row label="অভিভাবক ফোন" value={primary?.phone ?? "—"} />
+      <Section title={t("sec_guardian")}>
+        <Row label={t("field_father_name")} value={father?.name_bn ?? "—"} />
+        <Row label={t("field_father_phone")} value={father?.phone ?? "—"} />
+        <Row label={t("field_mother_name")} value={mother?.name_bn ?? "—"} />
+        <Row label={t("field_mother_phone")} value={mother?.phone ?? "—"} />
+        <Row label={t("field_primary_guardian")} value={primary ? `${primary.name_bn} (${primary.relation})` : "—"} />
+        <Row label={t("field_guardian_phone")} value={primary?.phone ?? "—"} />
       </Section>
 
-      <Section title="ফি তথ্য">
-        <Row label="ভর্তি ফি" value={student.admission_fee != null ? <>৳ <BanglaDigit value={student.admission_fee} /></> : "—"} />
-        <Row label="মাসিক টিউশন ফি" value={student.tuition_fee != null ? <>৳ <BanglaDigit value={student.tuition_fee} /></> : "—"} />
-        <Row label="পরিবহন ফি" value={student.transport_fee != null ? <>৳ <BanglaDigit value={student.transport_fee} /></> : "—"} />
+      <Section title={t("sec_fees")}>
+        <Row label={t("field_admission_fee")} value={student.admission_fee != null ? <>৳ <BanglaDigit value={student.admission_fee} /></> : "—"} />
+        <Row label={t("field_tuition_fee")} value={student.tuition_fee != null ? <>৳ <BanglaDigit value={student.tuition_fee} /></> : "—"} />
+        <Row label={t("field_transport_fee")} value={student.transport_fee != null ? <>৳ <BanglaDigit value={student.transport_fee} /></> : "—"} />
       </Section>
     </>
   );
@@ -208,6 +205,7 @@ function AdmissionDetails({
 function InvoiceDetails({
   student,
   feeInvoices,
+  t,
 }: {
   student: {
     student_code: string; name_bn: string;
@@ -216,6 +214,7 @@ function InvoiceDetails({
     admission_date: string | null;
   };
   feeInvoices: Array<{ id: string; invoice_no: string; total_amount: number; paid_amount: number; issue_date: string; status: string }>;
+  t: TT;
 }) {
   const admissionFee = student.admission_fee ?? 0;
   const tuitionFee = student.tuition_fee ?? 0;
@@ -224,36 +223,36 @@ function InvoiceDetails({
 
   return (
     <>
-      <Section title="শিক্ষার্থী তথ্য">
-        <Row label="শিক্ষার্থী আইডি" value={student.student_code} />
-        <Row label="নাম" value={student.name_bn} />
-        <Row label="শ্রেণি / শাখা" value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
-        <Row label="ভর্তির তারিখ" value={student.admission_date ?? "—"} />
+      <Section title={t("sec_student_invoice")}>
+        <Row label={t("field_student_id")} value={student.student_code} />
+        <Row label={t("field_name_bn")} value={student.name_bn} />
+        <Row label={t("field_class")} value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
+        <Row label={t("field_admission_date")} value={student.admission_date ?? "—"} />
       </Section>
 
       <section className="mt-5 border border-black">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-black text-white">
-              <th className="border border-black px-3 py-2 text-start">বিবরণ</th>
-              <th className="border border-black px-3 py-2 text-end w-32">পরিমাণ (৳)</th>
+              <th className="border border-black px-3 py-2 text-start">{t("invoice_col_desc")}</th>
+              <th className="border border-black px-3 py-2 text-end w-32">{t("invoice_col_amount")}</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className="border border-black px-3 py-2">ভর্তি ফি</td>
+              <td className="border border-black px-3 py-2">{t("invoice_admission_fee")}</td>
               <td className="border border-black px-3 py-2 text-end tabular-nums"><BanglaDigit value={admissionFee} /></td>
             </tr>
             <tr>
-              <td className="border border-black px-3 py-2">মাসিক টিউশন ফি (প্রথম মাস)</td>
+              <td className="border border-black px-3 py-2">{t("invoice_tuition_fee")}</td>
               <td className="border border-black px-3 py-2 text-end tabular-nums"><BanglaDigit value={tuitionFee} /></td>
             </tr>
             <tr>
-              <td className="border border-black px-3 py-2">পরিবহন ফি</td>
+              <td className="border border-black px-3 py-2">{t("invoice_transport_fee")}</td>
               <td className="border border-black px-3 py-2 text-end tabular-nums"><BanglaDigit value={transportFee} /></td>
             </tr>
             <tr className="bg-gray-100 font-bold">
-              <td className="border border-black px-3 py-2">মোট</td>
+              <td className="border border-black px-3 py-2">{t("invoice_total")}</td>
               <td className="border border-black px-3 py-2 text-end tabular-nums">৳ <BanglaDigit value={total} /></td>
             </tr>
           </tbody>
@@ -261,15 +260,15 @@ function InvoiceDetails({
       </section>
 
       {feeInvoices.length > 0 ? (
-        <Section title="পূর্ববর্তী ইনভয়েস">
+        <Section title={t("sec_previous_invoices")}>
           <table className="col-span-2 w-full border-collapse text-xs">
             <thead>
               <tr className="border-b border-black">
-                <th className="py-1 text-start">ইনভয়েস</th>
-                <th className="py-1 text-start">তারিখ</th>
-                <th className="py-1 text-end">মোট</th>
-                <th className="py-1 text-end">পরিশোধ</th>
-                <th className="py-1 text-end">বাকি</th>
+                <th className="py-1 text-start">{t("invoice_col_invoice")}</th>
+                <th className="py-1 text-start">{t("invoice_col_date")}</th>
+                <th className="py-1 text-end">{t("invoice_col_total")}</th>
+                <th className="py-1 text-end">{t("invoice_col_paid")}</th>
+                <th className="py-1 text-end">{t("invoice_col_due")}</th>
               </tr>
             </thead>
             <tbody>
@@ -289,10 +288,10 @@ function InvoiceDetails({
 
       <div className="mt-16 grid grid-cols-2 gap-8 text-center text-sm">
         <div>
-          <div className="mx-auto w-2/3 border-t border-black/70 pt-1">অভিভাবকের স্বাক্ষর</div>
+          <div className="mx-auto w-2/3 border-t border-black/70 pt-1">{t("sign_guardian")}</div>
         </div>
         <div>
-          <div className="mx-auto w-2/3 border-t border-black/70 pt-1">হিসাবরক্ষকের স্বাক্ষর</div>
+          <div className="mx-auto w-2/3 border-t border-black/70 pt-1">{t("sign_accountant")}</div>
         </div>
       </div>
     </>
@@ -320,12 +319,6 @@ function Row({ label, value, full }: { label: string; value: React.ReactNode; fu
   );
 }
 
-/**
- * Parse the admin's chosen header field list + resolve each key to its
- * actual value from the branding row. Returns an ordered list of
- * `{ key, value }` — first field is the "primary" (big), rest are
- * secondary (grouped into address / phone / email / website lines).
- */
 type HeaderField = { key: string; value: string };
 
 function parseHeaderFields(
@@ -364,11 +357,6 @@ function parseHeaderFields(
     .filter((f) => f.value.length > 0);
 }
 
-/**
- * Renders the admin's chosen header fields in the same letterhead
- * shape we use on the dashboard top bar — matches their branding exactly
- * so every printed receipt carries the institution identity consistently.
- */
 function PrintHeaderText({
   fields,
   fallbackName,

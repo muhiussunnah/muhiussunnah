@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Video, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,6 +13,7 @@ import { ScheduleClassForm } from "./schedule-form";
 
 export default async function OnlineClassesPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "CLASS_TEACHER", "SUBJECT_TEACHER"]);
+  const t = await getTranslations("onlineClassesAdmin");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -51,16 +53,16 @@ export default async function OnlineClassesPage() {
     id: s.id, name_bn: s.name_bn, class_bn: s.classes?.name_bn ?? "",
   }));
 
-  const providerLabel = (p: string) => ({ zoom: "Zoom", google_meet: "Meet", teams: "Teams", other: "অন্যান্য" }[p] ?? p);
+  const providerLabel = (p: string) => ({ zoom: "Zoom", google_meet: "Meet", teams: "Teams", other: t("provider_other") }[p] ?? p);
 
   return (
     <>
       <PageHeader
-        title="অনলাইন ক্লাস"
-        subtitle="Zoom / Google Meet / Teams ক্লাস শিডিউল করুন। ছাত্ররা portal থেকে যোগ দিতে পারবে।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>আসন্ন · <BanglaDigit value={upcoming.length} /></>, tone: "accent" },
-          { label: <>সম্পন্ন · <BanglaDigit value={past.length} /></>, tone: "default" },
+          { label: <>{t("tally_upcoming")} · <BanglaDigit value={upcoming.length} /></>, tone: "accent" },
+          { label: <>{t("tally_past")} · <BanglaDigit value={past.length} /></>, tone: "default" },
         ]}
       />
 
@@ -68,26 +70,26 @@ export default async function OnlineClassesPage() {
         <section className="space-y-6">
           {upcoming.length > 0 && (
             <>
-              <h2 className="text-base font-semibold">আসন্ন ক্লাস</h2>
+              <h2 className="text-base font-semibold">{t("upcoming_heading")}</h2>
               <div className="space-y-2">
                 {upcoming.map((c) => (
                   <Card key={c.id}>
                     <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
                       <div className="flex-1">
-                        <h3 className="font-medium">{c.title ?? c.subjects?.name_bn ?? "ক্লাস"}</h3>
+                        <h3 className="font-medium">{c.title ?? c.subjects?.name_bn ?? t("class_fallback")}</h3>
                         <div className="text-xs text-muted-foreground mt-1">
                           {c.sections ? `${c.sections.classes?.name_bn} — ${c.sections.name_bn}` : "—"} · {c.subjects?.name_bn ?? "—"}
                         </div>
                         <div className="text-xs text-muted-foreground mt-1">
-                          🗓️ {new Date(c.scheduled_at).toLocaleString("bn-BD")}
-                          {c.duration_mins && <> · <BanglaDigit value={c.duration_mins} /> মিনিট</>}
+                          🗓️ {new Date(c.scheduled_at).toLocaleString()}
+                          {c.duration_mins && <> · <BanglaDigit value={c.duration_mins} /> {t("minutes")}</>}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline">{providerLabel(c.provider)}</Badge>
                         <a href={c.meet_url} target="_blank" rel="noreferrer" className={buttonVariants({ size: "sm" })}>
                           <ExternalLink className="me-1.5 size-3.5" />
-                          যোগ দিন
+                          {t("join")}
                         </a>
                       </div>
                     </CardContent>
@@ -99,7 +101,7 @@ export default async function OnlineClassesPage() {
 
           {past.length > 0 && (
             <>
-              <h2 className="text-base font-semibold text-muted-foreground">অতীত ক্লাস</h2>
+              <h2 className="text-base font-semibold text-muted-foreground">{t("past_heading")}</h2>
               <div className="space-y-2">
                 {past.slice(0, 20).map((c) => (
                   <Card key={c.id} className="opacity-75">
@@ -107,12 +109,12 @@ export default async function OnlineClassesPage() {
                       <div className="flex-1">
                         <div className="text-sm">{c.title ?? c.subjects?.name_bn}</div>
                         <div className="text-xs text-muted-foreground">
-                          {c.sections ? `${c.sections.classes?.name_bn} — ${c.sections.name_bn}` : "—"} · {new Date(c.scheduled_at).toLocaleDateString("bn-BD")}
+                          {c.sections ? `${c.sections.classes?.name_bn} — ${c.sections.name_bn}` : "—"} · {new Date(c.scheduled_at).toLocaleDateString()}
                         </div>
                       </div>
                       {c.recording_url && (
                         <a href={c.recording_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">
-                          📹 রেকর্ডিং
+                          {t("recording")}
                         </a>
                       )}
                     </CardContent>
@@ -125,8 +127,8 @@ export default async function OnlineClassesPage() {
           {list.length === 0 && (
             <EmptyState
               icon={<Video className="size-8" />}
-              title="কোন অনলাইন ক্লাস নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম ক্লাস শিডিউল করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           )}
         </section>
@@ -134,7 +136,7 @@ export default async function OnlineClassesPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">ক্লাস শিডিউল</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("new_heading")}</h2>
               <ScheduleClassForm
                 sections={sectionOpts}
                 subjects={(subjects ?? []) as Array<{ id: string; name_bn: string }>}

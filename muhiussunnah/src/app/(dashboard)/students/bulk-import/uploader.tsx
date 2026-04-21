@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import * as XLSX from "xlsx";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { bulkImportStudentsAction } from "@/server/actions/students";
 
 export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
+  const t = useTranslations("studentsExtra");
   const [preview, setPreview] = useState<Record<string, unknown>[] | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<{ inserted: number; skipped: number; errors: string[] } | null>(null);
@@ -27,15 +28,15 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
     const rows = XLSX.utils.sheet_to_json(ws) as Record<string, unknown>[];
 
     if (rows.length === 0) {
-      toast.error("ফাইলে কোন সারি নেই");
+      toast.error(t("uploader_no_rows"));
       return;
     }
     if (rows.length > 2000) {
-      toast.error("সর্বাধিক ২,০০০ সারি");
+      toast.error(t("uploader_max_rows"));
       return;
     }
     setPreview(rows);
-    toast.success(`${rows.length} সারি পাওয়া গেছে — পর্যালোচনা করুন তারপর upload করুন`);
+    toast.success(t("uploader_rows_found", { count: rows.length }));
   }
 
   function submitImport() {
@@ -45,7 +46,7 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
       const res = await bulkImportStudentsAction(schoolSlug, preview as any);
       if (res.ok && res.data) {
         setResult(res.data);
-        toast.success(res.message ?? "সফল");
+        toast.success(res.message ?? t("uploader_success"));
       } else if (!res.ok) {
         toast.error(res.error);
       }
@@ -55,13 +56,13 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="file">Excel ফাইল নির্বাচন করুন</Label>
+        <Label htmlFor="file">{t("uploader_file_label")}</Label>
         <Input id="file" type="file" accept=".xlsx,.xls,.csv" onChange={handleFile} />
       </div>
 
       {file ? (
         <p className="text-sm text-muted-foreground">
-          📄 {file.name} — <BanglaDigit value={preview?.length ?? 0} /> সারি
+          {t("uploader_file_count", { name: file.name, count: preview?.length ?? 0 })}
         </p>
       ) : null}
 
@@ -88,7 +89,7 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
             </table>
           </div>
           {preview.length > 10 ? (
-            <p className="text-xs text-muted-foreground">প্রথম ১০ সারি দেখানো হলো — বাকি <BanglaDigit value={preview.length - 10} /> সারি import হবে।</p>
+            <p className="text-xs text-muted-foreground">{t("uploader_preview_note", { count: preview.length - 10 })}</p>
           ) : null}
 
           <Button
@@ -97,7 +98,7 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
             disabled={pending}
             className="bg-gradient-primary text-white"
           >
-            {pending ? "Import হচ্ছে..." : `🚀 ${preview.length} জন Import করুন`}
+            {pending ? t("uploader_importing") : t("uploader_cta", { count: preview.length })}
           </Button>
         </>
       ) : null}
@@ -105,11 +106,11 @@ export function BulkImportUploader({ schoolSlug }: { schoolSlug: string }) {
       {result ? (
         <div className="rounded-md border border-success/30 bg-success/5 p-4">
           <p className="text-sm font-semibold">
-            ✓ <BanglaDigit value={result.inserted} /> জন ভর্তি হয়েছে, <BanglaDigit value={result.skipped} /> জন বাদ পড়েছে
+            {t("uploader_result", { inserted: result.inserted, skipped: result.skipped })}
           </p>
           {result.errors.length > 0 ? (
             <details className="mt-2">
-              <summary className="cursor-pointer text-xs text-muted-foreground">ত্রুটির তালিকা দেখুন</summary>
+              <summary className="cursor-pointer text-xs text-muted-foreground">{t("uploader_errors_heading")}</summary>
               <ul className="mt-2 list-disc pl-5 text-xs text-destructive">
                 {result.errors.map((e, i) => <li key={i}>{e}</li>)}
               </ul>

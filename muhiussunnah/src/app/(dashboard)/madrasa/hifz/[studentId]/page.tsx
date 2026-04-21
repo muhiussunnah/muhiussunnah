@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,11 +21,11 @@ export default async function HifzStudentPage({ params, searchParams }: PageProp
   const { studentId } = await params;
   const { para: paraParam } = await searchParams;
   const { active } = await requireActiveMadrasaRole([...ADMIN_ROLES, ...TEACHER_ROLES, "MADRASA_USTADH"]);
+  const t = await getTranslations("madrasa");
 
   const schoolSlug = active.school_slug;
   const supabase = await supabaseServer();
 
-  // Independent — both keyed off studentId (from URL params).
   const [studentRes, progressRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -59,12 +60,20 @@ export default async function HifzStudentPage({ params, searchParams }: PageProp
 
   const highlightPara = paraParam ? Number(paraParam) : null;
 
+  const statusMap: Record<string, { label: string; cls: string }> = {
+    learning:  { label: t("hifz_status_learning"),  cls: "bg-warning/20 text-warning-foreground dark:text-warning" },
+    revising:  { label: t("hifz_status_revising"),  cls: "bg-info/20 text-info" },
+    completed: { label: t("hifz_status_completed"), cls: "bg-primary/20 text-primary" },
+    tested:    { label: t("hifz_status_tested"),    cls: "bg-success/20 text-success" },
+    none:      { label: t("hifz_legend_none"),      cls: "bg-muted text-muted-foreground" },
+  };
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/madrasa/hifz`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> হিফজ
+            <ArrowLeft className="size-3.5" /> {t("hifz_detail_back")}
           </Link>
         }
         title={
@@ -83,8 +92,8 @@ export default async function HifzStudentPage({ params, searchParams }: PageProp
           </>
         }
         impact={[
-          { label: <>সম্পন্ন · <BanglaDigit value={completed} />/<BanglaDigit value={30} /></>, tone: "success" },
-          { label: <>অগ্রগতি · <BanglaDigit value={pct} />%</>, tone: "accent" },
+          { label: <>{t("hifz_detail_completed")} · <BanglaDigit value={completed} />/<BanglaDigit value={30} /></>, tone: "success" },
+          { label: <>{t("hifz_detail_progress")} · <BanglaDigit value={pct} />%</>, tone: "accent" },
         ]}
       />
 
@@ -93,22 +102,24 @@ export default async function HifzStudentPage({ params, searchParams }: PageProp
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-xs">
               <tr>
-                <th className="p-2 text-left">পারা</th>
-                <th className="p-2 text-left">স্ট্যাটাস</th>
-                <th className="p-2 text-right">মার্ক</th>
-                <th className="p-2 text-center">ভুল</th>
-                <th className="p-2 text-left">পরীক্ষিত</th>
-                <th className="p-2 text-left">মন্তব্য</th>
-                <th className="p-2 text-right">আপডেট</th>
+                <th className="p-2 text-left">{t("hifz_col_para")}</th>
+                <th className="p-2 text-left">{t("hifz_col_status")}</th>
+                <th className="p-2 text-right">{t("hifz_col_mark")}</th>
+                <th className="p-2 text-center">{t("hifz_col_mistakes")}</th>
+                <th className="p-2 text-left">{t("hifz_col_tested")}</th>
+                <th className="p-2 text-left">{t("hifz_col_note")}</th>
+                <th className="p-2 text-right">{t("hifz_col_update")}</th>
               </tr>
             </thead>
             <tbody>
               {paras.map((n) => {
                 const p = progressMap.get(n);
+                const statusKey = p?.status ?? "none";
+                const m = statusMap[statusKey] ?? statusMap.none;
                 return (
                   <tr key={n} className={`border-t border-border/40 ${highlightPara === n ? "bg-primary/5" : ""}`}>
                     <td className="p-2 font-semibold"><BanglaDigit value={n} /></td>
-                    <td className="p-2"><StatusPill status={p?.status ?? "none"} /></td>
+                    <td className="p-2"><span className={`rounded-full px-2 py-0.5 text-xs ${m.cls}`}>{m.label}</span></td>
                     <td className="p-2 text-right">{p?.mark !== null && p?.mark !== undefined ? <BanglaDigit value={p.mark} /> : "—"}</td>
                     <td className="p-2 text-center">{p?.mistakes_count ? <BanglaDigit value={p.mistakes_count} /> : "—"}</td>
                     <td className="p-2 text-xs">{p?.tested_on ? <BengaliDate value={p.tested_on} /> : "—"}</td>
@@ -136,16 +147,4 @@ export default async function HifzStudentPage({ params, searchParams }: PageProp
       </Card>
     </>
   );
-}
-
-function StatusPill({ status }: { status: string }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    learning:  { label: "শিখছে",   cls: "bg-warning/20 text-warning-foreground dark:text-warning" },
-    revising:  { label: "রিভিশন",  cls: "bg-info/20 text-info" },
-    completed: { label: "সম্পন্ন",  cls: "bg-primary/20 text-primary" },
-    tested:    { label: "পরীক্ষিত", cls: "bg-success/20 text-success" },
-    none:      { label: "শুরু হয়নি", cls: "bg-muted text-muted-foreground" },
-  };
-  const m = map[status] ?? map.none;
-  return <span className={`rounded-full px-2 py-0.5 text-xs ${m.cls}`}>{m.label}</span>;
 }

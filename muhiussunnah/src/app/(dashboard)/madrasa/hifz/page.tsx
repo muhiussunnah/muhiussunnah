@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { BookOpenText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -18,12 +19,11 @@ const statusColor: Record<string, string> = {
 
 export default async function HifzIndexPage() {
   const { active } = await requireActiveMadrasaRole([...ADMIN_ROLES, "ACCOUNTANT", ...TEACHER_ROLES, "MADRASA_USTADH"]);
+  const t = await getTranslations("madrasa");
 
   const schoolSlug = active.school_slug;
   const supabase = await supabaseServer();
 
-  // Only hifz-stream students (or all active; filter light)
-  // Independent — both keyed off school_id.
   const [studentsRes, progressRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -56,7 +56,6 @@ export default async function HifzIndexPage() {
   }
 
   const hifzStudents = studentList.filter((s) => s.sections?.classes.stream === "hifz");
-  // If no hifz-stream students, show all
   const displayStudents = hifzStudents.length > 0 ? hifzStudents : studentList;
 
   const completedTotal = progressList.filter((p) => p.status === "completed" || p.status === "tested").length;
@@ -66,23 +65,22 @@ export default async function HifzIndexPage() {
   return (
     <>
       <PageHeader
-        title="হিফজ অগ্রগতি"
-        subtitle="প্রতিটি ছাত্রের ৩০ পারার হিফজ অবস্থা heatmap-এ দেখুন। Cell-এ ক্লিক করে ছাত্র-ডিটেইল পেইজে যান।"
+        title={t("hifz_page_title")}
+        subtitle={t("hifz_page_subtitle")}
         impact={[
-          { label: <>ছাত্র · <BanglaDigit value={displayStudents.length} /></>, tone: "accent" },
-          { label: <>সম্পন্ন পারা · <BanglaDigit value={completedTotal} /></>, tone: "success" },
-          { label: <>সার্বিক · <BanglaDigit value={overallPct} />%</>, tone: "default" },
+          { label: <>{t("hifz_tally_students")} · <BanglaDigit value={displayStudents.length} /></>, tone: "accent" },
+          { label: <>{t("hifz_tally_completed")} · <BanglaDigit value={completedTotal} /></>, tone: "success" },
+          { label: <>{t("hifz_tally_overall")} · <BanglaDigit value={overallPct} />%</>, tone: "default" },
         ]}
       />
 
-      {/* Legend */}
       <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
         {([
-          ["none", "শুরু হয়নি"],
-          ["learning", "শিখছে"],
-          ["revising", "রিভিশন"],
-          ["completed", "সম্পন্ন"],
-          ["tested", "পরীক্ষিত"],
+          ["none", t("hifz_legend_none")],
+          ["learning", t("hifz_legend_learning")],
+          ["revising", t("hifz_legend_revising")],
+          ["completed", t("hifz_legend_completed")],
+          ["tested", t("hifz_legend_tested")],
         ] as const).map(([k, label]) => (
           <span key={k} className="inline-flex items-center gap-1.5">
             <span className={`inline-block size-3 rounded ${statusColor[k]}`} />
@@ -94,8 +92,8 @@ export default async function HifzIndexPage() {
       {displayStudents.length === 0 ? (
         <EmptyState
           icon={<BookOpenText className="size-8" />}
-          title="কোন হিফজ ছাত্র নেই"
-          body="যখন হিফজ স্ট্রিমে ছাত্র ভর্তি হবে, এখানে তাদের অগ্রগতি দেখা যাবে।"
+          title={t("hifz_empty_title")}
+          body={t("hifz_empty_body")}
         />
       ) : (
         <Card>
@@ -103,7 +101,7 @@ export default async function HifzIndexPage() {
             <table className="w-full text-xs">
               <thead className="bg-muted/50">
                 <tr>
-                  <th className="sticky left-0 bg-muted/50 p-2 text-left min-w-48">ছাত্র</th>
+                  <th className="sticky left-0 bg-muted/50 p-2 text-left min-w-48">{t("hifz_col_student")}</th>
                   {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => (
                     <th key={n} className="p-1 text-center min-w-7"><BanglaDigit value={n} /></th>
                   ))}
@@ -132,8 +130,8 @@ export default async function HifzIndexPage() {
                             <Link
                               href={`/madrasa/hifz/${s.id}?para=${n}`}
                               className={`block size-6 rounded ${statusColor[st]} hover:ring-2 hover:ring-primary transition`}
-                              aria-label={`পারা ${n} · ${st}`}
-                              title={`পারা ${n} · ${st}`}
+                              aria-label={t("hifz_para_alt", { n, status: st })}
+                              title={t("hifz_para_alt", { n, status: st })}
                             />
                           </td>
                         );

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations, getLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { formatDualDate } from "@/lib/utils/date";
+import type { Locale } from "@/lib/i18n/config";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveMadrasaRole } from "@/lib/auth/require-madrasa";
 import { ADMIN_ROLES, TEACHER_ROLES } from "@/lib/auth/roles";
@@ -19,11 +21,13 @@ export default async function SabaqGridPage({ params, searchParams }: PageProps)
   const { sectionId } = await params;
   const { date = new Date().toISOString().slice(0, 10) } = await searchParams;
   const { active } = await requireActiveMadrasaRole([...ADMIN_ROLES, ...TEACHER_ROLES, "MADRASA_USTADH"]);
+  const t = await getTranslations("madrasa");
+  const locale = (await getLocale()) as Locale;
+  const dateLocale = locale === "ur" ? "en" : locale;
   const schoolSlug = active.school_slug;
 
   const supabase = await supabaseServer();
 
-  // Section + students are independent (both keyed off sectionId). Existing sabaq entries depend on students' ids.
   const [sectionRes, studentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -74,18 +78,18 @@ export default async function SabaqGridPage({ params, searchParams }: PageProps)
       <PageHeader
         breadcrumbs={
           <Link href={`/madrasa/daily-sabaq`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> দৈনিক সবক
+            <ArrowLeft className="size-3.5" /> {t("entry_back")}
           </Link>
         }
-        title={<>{(section as { classes: { name_bn: string } }).classes.name_bn} — সেকশন {(section as { name: string }).name}</>}
-        subtitle={formatDualDate(date, { withWeekday: true, withHijri: true })}
-        impact={[{ label: <>ছাত্র · <BanglaDigit value={studentList.length} /></>, tone: "accent" }]}
+        title={<>{(section as { classes: { name_bn: string } }).classes.name_bn} — {t("sabaq_section_prefix")} {(section as { name: string }).name}</>}
+        subtitle={formatDualDate(date, { withWeekday: true, withHijri: true, locale: dateLocale })}
+        impact={[{ label: <>{t("entry_student_count")} · <BanglaDigit value={studentList.length} /></>, tone: "accent" }]}
       />
 
       {studentList.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            এই সেকশনে কোন সক্রিয় শিক্ষার্থী নেই।
+            {t("entry_empty_section")}
           </CardContent>
         </Card>
       ) : (
