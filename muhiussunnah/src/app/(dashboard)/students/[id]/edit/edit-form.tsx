@@ -79,11 +79,19 @@ export function EditStudentForm({
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Class / section — controlled selects so changing class resets the
-  // section list to that class's sections.
+  // section list to that class's sections. Section is optional for 90% of
+  // institutes, so we hide it behind an "Advanced" toggle unless the student
+  // is already in a non-default section or the class actually has multiple.
   const [classId, setClassId] = useState<string>(student.sections?.classes?.id ?? "");
   const [sectionId, setSectionId] = useState<string>(student.section_id ?? "");
   const availableSections =
     classes.find((c) => c.id === classId)?.sections ?? [];
+  // Show section only if >1 section exists OR the current name isn't the
+  // auto-default "ক". Otherwise keep it collapsed — principal never sees it.
+  const hasMeaningfulSection =
+    availableSections.length > 1 ||
+    (student.sections && student.sections.name !== "ক");
+  const [showSection, setShowSection] = useState<boolean>(!!hasMeaningfulSection);
 
   useEffect(() => {
     if (!state) return;
@@ -178,7 +186,7 @@ export function EditStudentForm({
       <FieldGroup title="একাডেমিক">
         <input type="hidden" name="class_id" value={classId} />
         <input type="hidden" name="section_id" value={sectionId} />
-        <Field label="ক্লাস">
+        <Field label="ক্লাস" required>
           <select
             value={classId}
             onChange={(e) => {
@@ -192,24 +200,51 @@ export function EditStudentForm({
               <option key={c.id} value={c.id}>{c.name_bn}</option>
             ))}
           </select>
+          {!showSection ? (
+            <button
+              type="button"
+              onClick={() => setShowSection(true)}
+              className="mt-1 text-left text-xs text-primary hover:underline"
+            >
+              + সেকশন যোগ করুন (ঐচ্ছিক)
+            </button>
+          ) : null}
         </Field>
-        <Field label="শাখা / সেকশন">
-          <select
-            value={sectionId}
-            onChange={(e) => setSectionId(e.target.value)}
-            disabled={!classId || availableSections.length === 0}
-            className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
-          >
-            <option value="">
-              {classId && availableSections.length === 0
-                ? "— সেকশন নেই (অটো-তৈরি হবে) —"
-                : "— সেকশন বাছাই করুন —"}
-            </option>
-            {availableSections.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
-        </Field>
+        {showSection ? (
+          <Field label="শাখা / সেকশন">
+            <div className="flex items-center gap-2">
+              <select
+                value={sectionId}
+                onChange={(e) => setSectionId(e.target.value)}
+                disabled={!classId || availableSections.length === 0}
+                className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm disabled:opacity-50"
+              >
+                <option value="">
+                  {classId && availableSections.length === 0
+                    ? "— কোন সেকশন নেই —"
+                    : "— সেকশন বাছাই করুন —"}
+                </option>
+                {availableSections.map((s) => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => {
+                  setSectionId("");
+                  setShowSection(false);
+                }}
+                className="text-xs text-muted-foreground hover:text-destructive"
+                title="সেকশন সরান"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              💡 খালি রাখলে auto-তৈরি হবে — সমস্যা নেই।
+            </p>
+          </Field>
+        ) : null}
       </FieldGroup>
 
       {/* Identity */}

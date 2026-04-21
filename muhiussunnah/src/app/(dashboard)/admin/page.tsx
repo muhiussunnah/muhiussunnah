@@ -18,7 +18,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { MetricCard } from "@/components/ui/metric-card";
 import { RealtimeDashboardIndicator } from "@/components/dashboard/realtime-dashboard-indicator";
 import { ClassDonut } from "@/components/dashboard/class-donut";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES, isTeacherRole, type UserRole } from "@/lib/auth/roles";
 import { formatDualDate } from "@/lib/utils/date";
@@ -33,7 +33,10 @@ export default async function SchoolAdminDashboardPage() {
   // Any failing query returns null; the UI falls back to 0 so the
   // dashboard never breaks on a missing migration.
   // ───────────────────────────────────────────────────────────
-  const supabase = await supabaseServer();
+  // Admin client: requireActiveRole() already authorized the user, every
+  // query below is scoped by school_id. Needed because RLS on `sections`
+  // blocks nested joins (same cause that broke class name on students list).
+  const supabase = supabaseAdmin();
   const schoolId = membership.school_id;
   const todayIso = new Date().toISOString().slice(0, 10);
   const monthStartIso = new Date(new Date().getFullYear(), new Date().getMonth(), 1)

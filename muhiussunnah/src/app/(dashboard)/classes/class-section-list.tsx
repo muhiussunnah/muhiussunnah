@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { Trash2, Plus, X, Pencil, Check } from "lucide-react";
+import { Trash2, Plus, X, Pencil, Check, Info, ChevronDown, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,16 +42,29 @@ export function ClassSectionList({
   sectionStudentCounts = {},
 }: Props) {
   return (
-    <div className="grid gap-3">
-      {classes.map((c) => (
-        <ClassCard
-          key={c.id}
-          data={c}
-          schoolSlug={schoolSlug}
-          classStudentCount={classStudentCounts[c.id] ?? 0}
-          sectionStudentCounts={sectionStudentCounts}
-        />
-      ))}
+    <div className="flex flex-col gap-4">
+      {/* Helpful hint — 90% of institutes don't need sections */}
+      <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5 p-3.5 text-sm">
+        <Info className="mt-0.5 size-4 shrink-0 text-primary" />
+        <div className="flex-1">
+          <p className="font-medium text-foreground">সেকশন ঐচ্ছিক — শুধু ক্লাস দিলেই চলবে।</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            বেশিরভাগ প্রতিষ্ঠানে সেকশন লাগে না। আপনার প্রতিষ্ঠানে একাধিক সেকশন থাকলে (যেমন Class 7 - A, B, C) নিচে &ldquo;সেকশন ব্যবস্থাপনা&rdquo; বাটন থেকে যোগ করতে পারেন।
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        {classes.map((c) => (
+          <ClassCard
+            key={c.id}
+            data={c}
+            schoolSlug={schoolSlug}
+            classStudentCount={classStudentCounts[c.id] ?? 0}
+            sectionStudentCounts={sectionStudentCounts}
+          />
+        ))}
+      </div>
     </div>
   );
 }
@@ -69,6 +82,13 @@ function ClassCard({
 }) {
   const [showAddSection, setShowAddSection] = useState(false);
   const [editing, setEditing] = useState(false);
+  // Default: show sections only if there are actually custom sections
+  // (more than 1, or 1 that isn't the auto-default "ক"). Otherwise keep
+  // the UI clean — principals never think about sections.
+  const hasMeaningfulSections =
+    data.sections.length > 1 ||
+    (data.sections.length === 1 && data.sections[0]?.name !== "ক");
+  const [showSections, setShowSections] = useState<boolean>(hasMeaningfulSections);
   return (
     <Card>
       <CardContent className="flex flex-col gap-3 p-4">
@@ -99,7 +119,12 @@ function ClassCard({
                 </span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                স্ট্রিম: {streamLabel[data.stream] ?? data.stream} · সেকশন: <BanglaDigit value={data.sections.length} />
+                স্ট্রিম: {streamLabel[data.stream] ?? data.stream}
+                {hasMeaningfulSections ? (
+                  <>
+                    {" "}· সেকশন: <BanglaDigit value={data.sections.length} />
+                  </>
+                ) : null}
               </p>
             </div>
             <div className="flex items-center gap-1">
@@ -118,34 +143,61 @@ function ClassCard({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          {data.sections.map((s) => {
-            const n = sectionStudentCounts[s.id] ?? 0;
-            return (
-              <span key={s.id} className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs">
-                <span className="font-medium">{s.name}</span>
-                <span className="text-muted-foreground">
-                  · <BanglaDigit value={n} /> জন
-                </span>
-                {s.capacity !== null ? (
-                  <span className="text-muted-foreground">
-                    / <BanglaDigit value={s.capacity} />
-                  </span>
-                ) : null}
-              </span>
-            );
-          })}
-          <button
-            type="button"
-            onClick={() => setShowAddSection((v) => !v)}
-            className="inline-flex items-center gap-1 rounded-full border border-dashed border-primary/40 px-3 py-1 text-xs text-primary transition hover:bg-primary/5"
-          >
-            {showAddSection ? <X className="size-3" /> : <Plus className="size-3" />}
-            {showAddSection ? "বাতিল" : "সেকশন যোগ"}
-          </button>
-        </div>
+        {/* Section management — collapsed by default for institutes that
+            don't use sections. Principal sees a clean card. */}
+        <button
+          type="button"
+          onClick={() => setShowSections((v) => !v)}
+          className="flex items-center gap-1.5 self-start rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-muted/60 hover:text-foreground"
+        >
+          {showSections ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />}
+          সেকশন ব্যবস্থাপনা
+          {hasMeaningfulSections ? (
+            <span className="ml-1 rounded-full bg-primary/10 px-1.5 text-[10px] font-semibold text-primary">
+              <BanglaDigit value={data.sections.length} />
+            </span>
+          ) : (
+            <span className="ml-1 text-[10px] text-muted-foreground/70">(ঐচ্ছিক)</span>
+          )}
+        </button>
 
-        {showAddSection ? <AddSectionInline classId={data.id} onDone={() => setShowAddSection(false)} schoolSlug={schoolSlug} /> : null}
+        {showSections ? (
+          <div className="flex flex-col gap-2 rounded-lg border border-dashed border-border/50 bg-muted/20 p-3">
+            {data.sections.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                এই ক্লাসে এখনও কোন সেকশন যোগ করা হয়নি। নিচের বাটনে ক্লিক করে যোগ করুন।
+              </p>
+            ) : (
+              <div className="flex flex-wrap items-center gap-2">
+                {data.sections.map((s) => {
+                  const n = sectionStudentCounts[s.id] ?? 0;
+                  return (
+                    <span key={s.id} className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-3 py-1 text-xs">
+                      <span className="font-medium">{s.name}</span>
+                      <span className="text-muted-foreground">
+                        · <BanglaDigit value={n} /> জন
+                      </span>
+                      {s.capacity !== null ? (
+                        <span className="text-muted-foreground">
+                          / <BanglaDigit value={s.capacity} />
+                        </span>
+                      ) : null}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowAddSection((v) => !v)}
+              className="inline-flex items-center gap-1 self-start rounded-full border border-dashed border-primary/40 px-3 py-1 text-xs text-primary transition hover:bg-primary/5"
+            >
+              {showAddSection ? <X className="size-3" /> : <Plus className="size-3" />}
+              {showAddSection ? "বাতিল" : "নতুন সেকশন যোগ"}
+            </button>
+            {showAddSection ? <AddSectionInline classId={data.id} onDone={() => setShowAddSection(false)} schoolSlug={schoolSlug} /> : null}
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   );
