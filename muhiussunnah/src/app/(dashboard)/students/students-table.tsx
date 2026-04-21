@@ -12,6 +12,7 @@ import {
   Clipboard,
   Download,
   Printer,
+  Search,
   Trash2,
   X,
 } from "lucide-react";
@@ -63,12 +64,29 @@ export function StudentsTable({
   const [sortKey, setSortKey] = useState<SortKey | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>("asc");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [query, setQuery] = useState<string>("");
   const [pending, startTransition] = useTransition();
+
+  // ── Real-time name/ID filter ──────────────────────────────
+  // Matches substring in either Bangla name, English name, or the
+  // student_code / UUID id. Case-insensitive. Resets page whenever
+  // the query changes so users don't get stuck on an empty page.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return students;
+    return students.filter(
+      (s) =>
+        s.name_bn.toLowerCase().includes(q) ||
+        (s.name_en ?? "").toLowerCase().includes(q) ||
+        (s.student_code ?? "").toLowerCase().includes(q) ||
+        s.id.toLowerCase().includes(q),
+    );
+  }, [students, query]);
 
   // ── Sorting ───────────────────────────────────────────────
   const sorted = useMemo(() => {
-    if (!sortKey) return students;
-    const arr = [...students];
+    if (!sortKey) return filtered;
+    const arr = [...filtered];
     const dir = sortDir === "asc" ? 1 : -1;
     const keyFns: Record<SortKey, (s: Student) => string | number> = {
       name: (s) => s.name_bn.toLowerCase(),
@@ -87,7 +105,7 @@ export function StudentsTable({
       return 0;
     });
     return arr;
-  }, [students, sortKey, sortDir]);
+  }, [filtered, sortKey, sortDir]);
 
   function toggleSort(key: SortKey) {
     if (sortKey === key) {
@@ -318,7 +336,7 @@ export function StudentsTable({
           </div>
         ) : null}
 
-        {/* Toolbar — page size + export actions */}
+        {/* Toolbar — page size + real-time search + export actions */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 p-3">
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>Show</span>
@@ -338,6 +356,34 @@ export function StudentsTable({
             </select>
             <span>entries</span>
           </label>
+
+          {/* Real-time search — filters instantly as user types, no server trip */}
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
+              placeholder="আইডি বা নাম লিখে খুঁজুন..."
+              className="h-9 w-full rounded-md border border-border/60 bg-card ps-9 pe-9 text-sm outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
+            />
+            {query ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setPage(1);
+                }}
+                className="absolute end-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="সার্চ মুছুন"
+              >
+                <X className="size-3.5" />
+              </button>
+            ) : null}
+          </div>
 
           <div className="flex items-center gap-1">
             <IconToolbarButton
@@ -417,6 +463,28 @@ export function StudentsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
+            {visible.length === 0 && query.trim() ? (
+              <TableRow>
+                <TableCell colSpan={9} className="py-12 text-center">
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <Search className="size-8 opacity-40" />
+                    <p className="text-sm font-medium">
+                      &ldquo;{query}&rdquo; অনুসন্ধানে কোন শিক্ষার্থী পাওয়া যায়নি
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setQuery("");
+                        setPage(1);
+                      }}
+                      className="mt-1 text-xs text-primary hover:underline"
+                    >
+                      সার্চ মুছুন
+                    </button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : null}
             {visible.map((s) => {
               const isSel = selected.has(s.id);
               const urlId =

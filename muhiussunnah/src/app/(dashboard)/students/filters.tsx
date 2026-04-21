@@ -1,8 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup, SelectLabel } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectGroup } from "@/components/ui/select";
 
 type ClassWithSections = { id: string; name_bn: string; sections: { id: string; name: string }[] };
 
@@ -54,26 +53,10 @@ export function StudentsFilters({ schoolSlug, classes, initial }: Props) {
     router.push(`/students?${next.toString()}`);
   }
 
-  function updateQuery(value: string | null) {
-    const next = new URLSearchParams(params);
-    if (value) next.set("q", value);
-    else next.delete("q");
-    router.push(`/students?${next.toString()}`);
-  }
-
   return (
     <div className="mt-2 flex flex-wrap items-center gap-2">
-      <Input
-        placeholder="নামে খুঁজুন..."
-        defaultValue={initial.q ?? ""}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            updateQuery((e.target as HTMLInputElement).value || null);
-          }
-        }}
-        className="h-10 w-56"
-      />
-
+      {/* Name/ID search moved into the StudentsTable for real-time filtering.
+          Class + status filters stay here because they trigger a server query. */}
       <Select value={currentValue} onValueChange={updateFilter}>
         <SelectTrigger className="h-10 w-60">
           <SelectValue placeholder="সকল ক্লাস">
