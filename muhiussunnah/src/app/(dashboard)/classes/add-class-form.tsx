@@ -47,7 +47,21 @@ export function AddClassForm({ schoolSlug, branches }: Props) {
           <Label htmlFor="stream">স্ট্রিম</Label>
           <Select name="stream" defaultValue="general">
             <SelectTrigger id="stream">
-              <SelectValue />
+              <SelectValue>
+                {(v: unknown) => {
+                  const key = typeof v === "string" ? v : "general";
+                  const labels: Record<string, string> = {
+                    general: "সাধারণ",
+                    science: "বিজ্ঞান",
+                    commerce: "ব্যবসায়",
+                    arts: "মানবিক",
+                    hifz: "হিফজ",
+                    kitab: "কিতাব",
+                    nazera: "নাজেরা",
+                  };
+                  return labels[key] ?? key;
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="general">সাধারণ</SelectItem>

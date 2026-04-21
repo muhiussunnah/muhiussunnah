@@ -287,7 +287,12 @@ function EditClassInline({
           <Label htmlFor={`edit-stream-${cls.id}`} className="text-xs">স্ট্রিম</Label>
           <Select name="stream" defaultValue={cls.stream}>
             <SelectTrigger id={`edit-stream-${cls.id}`} className="h-9">
-              <SelectValue />
+              <SelectValue>
+                {(v: unknown) => {
+                  const key = typeof v === "string" ? v : cls.stream;
+                  return streamLabel[key] ?? key;
+                }}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="general">সাধারণ</SelectItem>

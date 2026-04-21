@@ -27,8 +27,6 @@ type Props = {
   schoolSlug: string;
   classes: ClassOption[];
   years: YearOption[];
-  nameSuggestionsBn: string[];
-  nameSuggestionsEn: string[];
   fatherSuggestions: string[];
   motherSuggestions: string[];
 };
@@ -114,8 +112,6 @@ export function NewStudentForm({
   schoolSlug,
   classes,
   years,
-  nameSuggestionsBn,
-  nameSuggestionsEn,
   fatherSuggestions,
   motherSuggestions,
 }: Props) {
@@ -262,17 +258,10 @@ export function NewStudentForm({
         </Button>
       </div>
 
-      {/* Shared datalists — used by the name inputs below for autocomplete */}
-      <datalist id="datalist-names-bn">
-        {nameSuggestionsBn.map((n) => (
-          <option key={n} value={n} />
-        ))}
-      </datalist>
-      <datalist id="datalist-names-en">
-        {nameSuggestionsEn.map((n) => (
-          <option key={n} value={n} />
-        ))}
-      </datalist>
+      {/* Shared datalists — guardian-name + relation suggestions only. Student
+          name inputs intentionally don't use one: native browser datalist has
+          no filter/limit, so with 20+ existing students it rendered a massive
+          list. Admins will type fresh names for new admissions anyway. */}
       <datalist id="datalist-fathers">
         {fatherSuggestions.map((n) => (
           <option key={n} value={n} />
@@ -444,7 +433,6 @@ export function NewStudentForm({
             <Input
               id="name_bn"
               name="name_bn"
-              list="datalist-names-bn"
               value={values.name_bn}
               onChange={(e) => set("name_bn", e.target.value)}
               className={cn(hasError("name_bn") && "border-destructive")}
@@ -457,7 +445,6 @@ export function NewStudentForm({
             <Input
               id="name_en"
               name="name_en"
-              list="datalist-names-en"
               value={values.name_en}
               onChange={(e) => set("name_en", e.target.value)}
               autoComplete="off"
@@ -527,11 +514,19 @@ export function NewStudentForm({
           <div className="flex flex-col gap-1.5">
             <FieldLabel htmlFor="gender">লিঙ্গ</FieldLabel>
             <Select value={values.gender} onValueChange={(v) => set("gender", v ?? "")}>
-              <SelectTrigger id="gender"><SelectValue placeholder="নির্বাচন করুন" /></SelectTrigger>
+              <SelectTrigger id="gender">
+                <SelectValue placeholder="নির্বাচন করুন">
+                  {(v: unknown) => {
+                    const key = typeof v === "string" ? v : "";
+                    if (key === "male") return "ছেলে";
+                    if (key === "female") return "মেয়ে";
+                    return "নির্বাচন করুন";
+                  }}
+                </SelectValue>
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="male">ছেলে</SelectItem>
                 <SelectItem value="female">মেয়ে</SelectItem>
-                <SelectItem value="other">অন্যান্য</SelectItem>
               </SelectContent>
             </Select>
             <input type="hidden" name="gender" value={values.gender} />

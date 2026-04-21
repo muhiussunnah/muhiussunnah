@@ -271,9 +271,8 @@ export function EditStudentForm({
             className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
           >
             <option value="">— নির্বাচন করুন —</option>
-            <option value="male">পুরুষ</option>
-            <option value="female">মহিলা</option>
-            <option value="other">অন্যান্য</option>
+            <option value="male">ছেলে</option>
+            <option value="female">মেয়ে</option>
           </select>
         </Field>
         <Field label="ধর্ম">

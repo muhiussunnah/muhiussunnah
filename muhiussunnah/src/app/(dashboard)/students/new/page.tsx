@@ -34,31 +34,14 @@ export default async function NewStudentPage() {
   const classes = classesRes.data;
   const years = yearsRes.data;
 
-  // Existing student + guardian names — fuel for the autocomplete datalists.
-  // Run both queries in parallel and cap at 150 rows each; that's plenty of
-  // suggestions for any realistic school and keeps the page snappy.
-  const [existingRes, guardianRes] = await Promise.all([
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from("students")
-      .select("name_bn, name_en")
-      .eq("school_id", membership.school_id)
-      .order("created_at", { ascending: false })
-      .limit(150),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (supabase as any)
-      .from("student_guardians")
-      .select("name_bn, relation, students!inner(school_id)")
-      .eq("students.school_id", membership.school_id)
-      .limit(300),
-  ]);
-
-  const nameSetBn = new Set<string>();
-  const nameSetEn = new Set<string>();
-  for (const row of (existingRes.data ?? []) as { name_bn: string | null; name_en: string | null }[]) {
-    if (row.name_bn) nameSetBn.add(row.name_bn);
-    if (row.name_en) nameSetEn.add(row.name_en);
-  }
+  // Guardian-name suggestions for father/mother inputs. Student-name
+  // suggestions were removed — see new-student-form.tsx for rationale.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const guardianRes = await (supabase as any)
+    .from("student_guardians")
+    .select("name_bn, relation, students!inner(school_id)")
+    .eq("students.school_id", membership.school_id)
+    .limit(300);
 
   const fatherNames = new Set<string>();
   const motherNames = new Set<string>();
@@ -104,8 +87,6 @@ export default async function NewStudentPage() {
             <NewStudentForm
               classes={classList}
               years={academicYears}
-              nameSuggestionsBn={[...nameSetBn]}
-              nameSuggestionsEn={[...nameSetEn]}
               fatherSuggestions={[...fatherNames]}
               motherSuggestions={[...motherNames]} schoolSlug={schoolSlug}
             />
