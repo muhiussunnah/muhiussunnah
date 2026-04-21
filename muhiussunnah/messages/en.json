@@ -73,7 +73,15 @@
     "login_with_phone": "Login with phone",
     "send_otp": "Send OTP",
     "welcome_back": "Welcome back",
-    "welcome_back_subtitle": "Sign in to your school dashboard"
+    "welcome_back_subtitle": "Sign in to your dashboard",
+    "login_meta_title": "Login",
+    "login_meta_desc": "Sign in to your school dashboard.",
+    "email_placeholder": "principal@school.com",
+    "password_placeholder": "••••••••",
+    "login_button": "Sign in",
+    "login_pending": "Signing in...",
+    "new_institution": "New institution?",
+    "free_trial_cta": "Start your free trial →"
   },
   "marketing": {
     "hero_title": "Complete management for Bangladesh schools & madrasas",

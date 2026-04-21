@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { LoginForm } from "./login-form";
 
-export const metadata: Metadata = {
-  title: "লগইন",
-  description: "আপনার স্কুল ড্যাশবোর্ডে প্রবেশ করুন।",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("auth");
+  return {
+    title: t("login_meta_title"),
+    description: t("login_meta_desc"),
+  };
+}
 
 type PageProps = {
   searchParams: Promise<{ next?: string; error?: string }>;
@@ -14,6 +18,7 @@ type PageProps = {
 
 export default async function LoginPage({ searchParams }: PageProps) {
   const { next = "/" } = await searchParams;
+  const t = await getTranslations("auth");
 
   return (
     <div className="relative">
@@ -26,8 +31,8 @@ export default async function LoginPage({ searchParams }: PageProps) {
               <Sparkles className="size-5" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">আবার স্বাগতম</h1>
-              <p className="text-sm text-muted-foreground">আপনার ড্যাশবোর্ডে প্রবেশ করুন</p>
+              <h1 className="text-2xl font-bold tracking-tight">{t("welcome_back")}</h1>
+              <p className="text-sm text-muted-foreground">{t("welcome_back_subtitle")}</p>
             </div>
           </div>
 
@@ -35,19 +40,19 @@ export default async function LoginPage({ searchParams }: PageProps) {
 
           <div className="mt-6 flex flex-col gap-2 border-t border-border/40 pt-5 text-center text-sm">
             <span className="text-muted-foreground">
-              নতুন প্রতিষ্ঠান?{" "}
+              {t("new_institution")}{" "}
               <Link
                 href="/register-school"
                 className="font-semibold text-primary underline-offset-4 hover:underline"
               >
-                ফ্রি ট্রায়াল শুরু করুন →
+                {t("free_trial_cta")}
               </Link>
             </span>
             <Link
               href="/forgot-password"
               className="text-xs text-muted-foreground hover:text-foreground transition"
             >
-              পাসওয়ার্ড ভুলে গেছেন?
+              {t("forgot_password")}
             </Link>
           </div>
         </div>

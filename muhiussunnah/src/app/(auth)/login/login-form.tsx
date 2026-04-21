@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { useTranslations } from "next-intl";
 import { Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ const labelCls = "text-sm font-semibold text-foreground/90";
 const iconCls = "pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground";
 
 export function LoginForm({ next = "/" }: Props) {
+  const t = useTranslations("auth");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(
     signInAction,
     null,
@@ -27,7 +29,7 @@ export function LoginForm({ next = "/" }: Props) {
       <input type="hidden" name="next" value={next} />
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="email" className={labelCls}>ইমেইল</Label>
+        <Label htmlFor="email" className={labelCls}>{t("email")}</Label>
         <div className="relative">
           <Mail className={iconCls} />
           <Input
@@ -37,14 +39,14 @@ export function LoginForm({ next = "/" }: Props) {
             required
             autoComplete="email"
             inputMode="email"
-            placeholder="principal@school.com"
+            placeholder={t("email_placeholder")}
             className={inputCls}
           />
         </div>
       </div>
 
       <div className="flex flex-col gap-2">
-        <Label htmlFor="password" className={labelCls}>পাসওয়ার্ড</Label>
+        <Label htmlFor="password" className={labelCls}>{t("password")}</Label>
         <div className="relative">
           <Lock className={iconCls} />
           <Input
@@ -54,7 +56,7 @@ export function LoginForm({ next = "/" }: Props) {
             required
             autoComplete="current-password"
             minLength={6}
-            placeholder="••••••••"
+            placeholder={t("password_placeholder")}
             className={inputCls}
           />
         </div>
@@ -71,7 +73,7 @@ export function LoginForm({ next = "/" }: Props) {
         disabled={pending}
         className="mt-1 h-12 rounded-xl bg-gradient-primary animate-gradient text-white text-base font-semibold shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 transition-all"
       >
-        {pending ? "লগইন হচ্ছে..." : "লগইন করুন"}
+        {pending ? t("login_pending") : t("login_button")}
       </Button>
     </form>
   );

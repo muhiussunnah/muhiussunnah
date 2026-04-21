@@ -73,7 +73,15 @@
     "login_with_phone": "ফোন দিয়ে লগইন",
     "send_otp": "OTP পাঠান",
     "welcome_back": "আবার স্বাগতম",
-    "welcome_back_subtitle": "আপনার স্কুল ড্যাশবোর্ডে প্রবেশ করুন"
+    "welcome_back_subtitle": "আপনার ড্যাশবোর্ডে প্রবেশ করুন",
+    "login_meta_title": "লগইন",
+    "login_meta_desc": "আপনার স্কুল ড্যাশবোর্ডে প্রবেশ করুন।",
+    "email_placeholder": "principal@school.com",
+    "password_placeholder": "••••••••",
+    "login_button": "লগইন করুন",
+    "login_pending": "লগইন হচ্ছে...",
+    "new_institution": "নতুন প্রতিষ্ঠান?",
+    "free_trial_cta": "ফ্রি ট্রায়াল শুরু করুন →"
   },
   "marketing": {
     "hero_title": "বাংলাদেশের স্কুল ও মাদ্রাসার জন্য সম্পূর্ণ ব্যবস্থাপনা",
