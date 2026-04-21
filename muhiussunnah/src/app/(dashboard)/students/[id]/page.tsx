@@ -90,7 +90,7 @@ export default async function StudentDetailPage({ params }: PageProps) {
       <PageHeader
         breadcrumbs={
           <Link href={`/students`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> ছাত্র তালিকা
+            <ArrowLeft className="size-3.5" /> ছাত্র/ছাত্রী তালিকা
           </Link>
         }
         title={
