@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ScrollText } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,11 +10,6 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { AddExamForm } from "./add-exam-form";
-
-const typeLabel: Record<string, string> = {
-  term: "সাময়িক", annual: "বার্ষিক", model_test: "মডেল টেস্ট",
-  monthly: "মাসিক", other: "অন্যান্য",
-};
 
 export default async function ExamsListPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
@@ -47,15 +43,17 @@ export default async function ExamsListPage() {
   const yearList = (years ?? []) as { id: string; name: string; is_active: boolean }[];
 
   const published = list.filter((e) => e.is_published).length;
+  const t = await getTranslations("exams");
+  const typeText = (ty: string) => { try { return t(`type_${ty}`); } catch { return ty; } };
 
   return (
     <>
       <PageHeader
-        title="পরীক্ষা ব্যবস্থাপনা"
-        subtitle="সাময়িক, বার্ষিক, মডেল টেস্ট — সব পরীক্ষা এক জায়গায়। রুটিন → মার্ক্স এন্ট্রি → ফলাফল প্রকাশ, এক workflow।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>মোট · <BanglaDigit value={list.length} /></>, tone: "accent" },
-          { label: <>প্রকাশিত · <BanglaDigit value={published} /></>, tone: "success" },
+          { label: <>{t("impact_total")} · <BanglaDigit value={list.length} /></>, tone: "accent" },
+          { label: <>{t("impact_published")} · <BanglaDigit value={published} /></>, tone: "success" },
         ]}
       />
 
@@ -64,9 +62,9 @@ export default async function ExamsListPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<ScrollText className="size-8" />}
-              title="📝 প্রথম পরীক্ষা তৈরি করুন"
-              body="পরীক্ষা তৈরি করে রুটিন সেট করুন, তারপর শিক্ষকরা মার্ক্স এন্ট্রি করতে পারবে।"
-              proTip="প্রথমে একটি Academic Year তৈরি করুন, তারপর সেই বছরের অধীনে পরীক্ষা যোগ করুন।"
+              title={t("empty_title")}
+              body={t("empty_body")}
+              proTip={t("empty_tip")}
             />
           ) : (
             <div className="grid gap-3">
@@ -78,7 +76,7 @@ export default async function ExamsListPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="font-semibold">{e.name}</h3>
                           <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                            {typeLabel[e.type] ?? e.type}
+                            {typeText(e.type)}
                           </span>
                           {e.academic_years ? (
                             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
@@ -87,18 +85,18 @@ export default async function ExamsListPage() {
                           ) : null}
                           {e.is_published ? (
                             <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">
-                              ✓ প্রকাশিত
+                              {t("badge_published")}
                             </span>
                           ) : (
                             <span className="rounded-full bg-warning/10 px-2 py-0.5 text-xs text-warning-foreground dark:text-warning">
-                              Draft
+                              {t("badge_draft")}
                             </span>
                           )}
                         </div>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {e.start_date ? <><BengaliDate value={e.start_date} /> থেকে </> : null}
+                          {e.start_date ? <><BengaliDate value={e.start_date} /> {t("date_from_suffix")} </> : null}
                           {e.end_date ? <BengaliDate value={e.end_date} /> : null}
-                          {!e.start_date && !e.end_date ? "তারিখ সেট করা হয়নি" : null}
+                          {!e.start_date && !e.end_date ? t("date_not_set") : null}
                         </p>
                       </div>
                     </CardContent>
@@ -112,11 +110,11 @@ export default async function ExamsListPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন পরীক্ষা</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_new_title")}</h2>
               <AddExamForm years={yearList} schoolSlug={schoolSlug} />
               {yearList.length === 0 ? (
                 <p className="mt-3 rounded-md border border-warning/30 bg-warning/5 p-3 text-xs">
-                  ⚠ আগে Academic Year তৈরি করুন Settings থেকে।
+                  {t("no_year_warning")}
                 </p>
               ) : null}
             </CardContent>

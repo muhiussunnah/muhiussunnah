@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -52,20 +53,22 @@ export default async function AssignmentDetailPage({ params }: PageProps) {
   const submittedCount = subMap.size;
   const gradedCount = Array.from(subMap.values()).filter((s) => s.graded_at).length;
 
+  const t = await getTranslations("assignments");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/assignments`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> অ্যাসাইনমেন্ট
+            <ArrowLeft className="size-3.5" /> {t("back_link")}
           </Link>
         }
         title={assignment.title}
         subtitle={`${assignment.sections?.classes?.name_bn ?? ""} — ${assignment.sections?.name_bn ?? ""} · ${assignment.subjects?.name_bn ?? ""}`}
         impact={[
-          { label: <>জমা · <BanglaDigit value={submittedCount} /> / <BanglaDigit value={studentList.length} /></>, tone: "accent" },
-          { label: <>গ্রেড · <BanglaDigit value={gradedCount} /> / <BanglaDigit value={submittedCount} /></>, tone: gradedCount === submittedCount && submittedCount > 0 ? "success" : "default" },
-          ...(assignment.due_date ? [{ label: <>শেষ তারিখ: {new Date(assignment.due_date).toLocaleDateString("bn-BD")}</>, tone: "default" as const }] : []),
+          { label: <>{t("detail_impact_submitted")} · <BanglaDigit value={submittedCount} /> / <BanglaDigit value={studentList.length} /></>, tone: "accent" },
+          { label: <>{t("detail_impact_graded")} · <BanglaDigit value={gradedCount} /> / <BanglaDigit value={submittedCount} /></>, tone: gradedCount === submittedCount && submittedCount > 0 ? "success" : "default" },
+          ...(assignment.due_date ? [{ label: <>{t("detail_impact_due_date")} {new Date(assignment.due_date).toLocaleDateString("bn-BD")}</>, tone: "default" as const }] : []),
         ]}
       />
 
@@ -84,14 +87,14 @@ export default async function AssignmentDetailPage({ params }: PageProps) {
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div>
                     <div className="font-medium">{s.name_bn ?? s.name_en ?? "—"}</div>
-                    {s.roll_no && <div className="text-xs text-muted-foreground">Roll: <BanglaDigit value={s.roll_no} /></div>}
+                    {s.roll_no && <div className="text-xs text-muted-foreground">{t("roll_prefix")} <BanglaDigit value={s.roll_no} /></div>}
                   </div>
                   {sub ? (
                     sub.graded_at
-                      ? <Badge className="bg-success/10 text-success" variant="secondary">গ্রেড করা হয়েছে</Badge>
-                      : <Badge variant="default">জমা হয়েছে — গ্রেড দিন</Badge>
+                      ? <Badge className="bg-success/10 text-success" variant="secondary">{t("status_graded")}</Badge>
+                      : <Badge variant="default">{t("status_submitted_grade")}</Badge>
                   ) : (
-                    <Badge variant="outline">জমা দেয়নি</Badge>
+                    <Badge variant="outline">{t("status_not_submitted")}</Badge>
                   )}
                 </div>
 
@@ -102,7 +105,7 @@ export default async function AssignmentDetailPage({ params }: PageProps) {
                     )}
                     {sub.file_url && (
                       <a href={sub.file_url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-sm text-primary hover:underline">
-                        📎 জমা দেওয়া ফাইল দেখুন
+                        {t("submission_file_link")}
                       </a>
                     )}
                     <div className="mt-3">

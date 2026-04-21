@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar, ScrollText, Users2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -87,36 +88,38 @@ export default async function ExamDetailPage({ params }: PageProps) {
     students: { id: string; name_bn: string; student_code: string; roll: number | null; sections: { name: string; classes: { name_bn: string } } | null } | null;
   }>;
 
+  const t = await getTranslations("exams");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/exams`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> পরীক্ষা তালিকা
+            <ArrowLeft className="size-3.5" /> {t("detail_back")}
           </Link>
         }
         title={exam.name}
         subtitle={
           <>
-            {exam.start_date ? <><BengaliDate value={exam.start_date} /> থেকে </> : null}
+            {exam.start_date ? <><BengaliDate value={exam.start_date} /> {t("date_from_suffix")} </> : null}
             {exam.end_date ? <BengaliDate value={exam.end_date} /> : null}
           </>
         }
         impact={[
-          { label: <>রুটিন · <BanglaDigit value={routineRows.length} /></>, tone: "accent" },
-          { label: <>Report card · <BanglaDigit value={cards.length} /></>, tone: "default" },
+          { label: <>{t("detail_impact_routine")} · <BanglaDigit value={routineRows.length} /></>, tone: "accent" },
+          { label: <>{t("detail_impact_reports")} · <BanglaDigit value={cards.length} /></>, tone: "default" },
           exam.is_published
-            ? { label: "✓ প্রকাশিত", tone: "success" as const }
-            : { label: "Draft", tone: "warning" as const },
+            ? { label: t("badge_published"), tone: "success" as const }
+            : { label: t("badge_draft"), tone: "warning" as const },
         ]}
         actions={<PublishButton examId={id} published={exam.is_published} schoolSlug={schoolSlug} />}
       />
 
       <Tabs defaultValue="routine">
         <TabsList className="mb-4">
-          <TabsTrigger value="routine"><Calendar className="me-1.5 size-3.5" />রুটিন</TabsTrigger>
-          <TabsTrigger value="marks"><ScrollText className="me-1.5 size-3.5" />মার্ক্স</TabsTrigger>
-          <TabsTrigger value="results"><Users2 className="me-1.5 size-3.5" />ফলাফল</TabsTrigger>
+          <TabsTrigger value="routine"><Calendar className="me-1.5 size-3.5" />{t("detail_tab_routine")}</TabsTrigger>
+          <TabsTrigger value="marks"><ScrollText className="me-1.5 size-3.5" />{t("detail_tab_marks")}</TabsTrigger>
+          <TabsTrigger value="results"><Users2 className="me-1.5 size-3.5" />{t("detail_tab_results")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="routine">
@@ -125,17 +128,17 @@ export default async function ExamDetailPage({ params }: PageProps) {
               <CardContent className="p-0">
                 {routineRows.length === 0 ? (
                   <div className="p-8 text-center text-sm text-muted-foreground">
-                    এখনও কোন রুটিন এন্ট্রি নেই।
+                    {t("detail_routine_empty")}
                   </div>
                 ) : (
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>তারিখ</TableHead>
-                        <TableHead>সময়</TableHead>
-                        <TableHead>বিষয়</TableHead>
-                        <TableHead>ক্লাস/সেকশন</TableHead>
-                        <TableHead className="text-right">পূর্ণমান</TableHead>
+                        <TableHead>{t("detail_date_col")}</TableHead>
+                        <TableHead>{t("detail_time_col")}</TableHead>
+                        <TableHead>{t("detail_subject_col")}</TableHead>
+                        <TableHead>{t("detail_class_section_col")}</TableHead>
+                        <TableHead className="text-right">{t("detail_full_marks_col")}</TableHead>
                         <TableHead className="text-right"></TableHead>
                       </TableRow>
                     </TableHeader>
@@ -153,7 +156,7 @@ export default async function ExamDetailPage({ params }: PageProps) {
                             {r.sections.classes.name_bn} — {r.sections.name}
                           </TableCell>
                           <TableCell className="text-right text-xs">
-                            <BanglaDigit value={r.full_marks} /> · পাশ <BanglaDigit value={r.pass_marks} />
+                            <BanglaDigit value={r.full_marks} /> · {t("detail_pass_prefix")} <BanglaDigit value={r.pass_marks} />
                           </TableCell>
                           <TableCell className="text-right">
                             <DeleteRoutineButton examId={id} rowId={r.id} schoolSlug={schoolSlug} />
@@ -169,7 +172,7 @@ export default async function ExamDetailPage({ params }: PageProps) {
             <aside>
               <Card>
                 <CardContent className="p-5">
-                  <h3 className="mb-4 text-lg font-semibold">রুটিন যোগ</h3>
+                  <h3 className="mb-4 text-lg font-semibold">{t("routine_add_heading")}</h3>
                   <RoutineAddForm examId={id} subjects={subjectList} sections={sectionList} schoolSlug={schoolSlug} />
                 </CardContent>
               </Card>
@@ -180,9 +183,9 @@ export default async function ExamDetailPage({ params }: PageProps) {
         <TabsContent value="marks">
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">মার্ক্স এন্ট্রির জন্য একটি বিষয় নির্বাচন করুন</h3>
+              <h3 className="mb-3 text-sm font-semibold text-muted-foreground">{t("detail_marks_pick")}</h3>
               {routineRows.length === 0 ? (
-                <p className="text-sm text-muted-foreground">প্রথমে রুটিন সেট করুন।</p>
+                <p className="text-sm text-muted-foreground">{t("detail_marks_need_routine")}</p>
               ) : (
                 <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
                   {routineRows.map((r) => (
@@ -193,7 +196,7 @@ export default async function ExamDetailPage({ params }: PageProps) {
                     >
                       <div className="font-medium">{r.subjects.name_bn}</div>
                       <div className="text-xs text-muted-foreground">
-                        {r.sections.classes.name_bn} — {r.sections.name} · পূর্ণমান <BanglaDigit value={r.full_marks} />
+                        {r.sections.classes.name_bn} — {r.sections.name} · {t("detail_full_marks_col")} <BanglaDigit value={r.full_marks} />
                       </div>
                     </Link>
                   ))}
@@ -207,7 +210,7 @@ export default async function ExamDetailPage({ params }: PageProps) {
           {cards.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                এখনও কোন report card তৈরি হয়নি। মার্ক্স এন্ট্রির পর &ldquo;প্রকাশ করুন&rdquo; চাপুন।
+                {t("detail_results_empty")}
               </CardContent>
             </Card>
           ) : (
@@ -216,13 +219,13 @@ export default async function ExamDetailPage({ params }: PageProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>অবস্থান</TableHead>
-                      <TableHead>ছাত্র</TableHead>
-                      <TableHead>ক্লাস</TableHead>
-                      <TableHead className="text-right">মোট</TableHead>
-                      <TableHead className="text-right">GPA</TableHead>
-                      <TableHead>গ্রেড</TableHead>
-                      <TableHead className="text-right">উপস্থিতি</TableHead>
+                      <TableHead>{t("detail_col_position")}</TableHead>
+                      <TableHead>{t("detail_col_student")}</TableHead>
+                      <TableHead>{t("detail_col_class")}</TableHead>
+                      <TableHead className="text-right">{t("detail_col_total")}</TableHead>
+                      <TableHead className="text-right">{t("detail_col_gpa")}</TableHead>
+                      <TableHead>{t("detail_col_grade")}</TableHead>
+                      <TableHead className="text-right">{t("detail_col_attendance")}</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -255,7 +258,7 @@ export default async function ExamDetailPage({ params }: PageProps) {
                               href={`/exams/${id}/marksheet/${c.students.id}`}
                               className={buttonVariants({ variant: "outline", size: "sm" })}
                             >
-                              মার্কশিট
+                              {t("detail_view_marksheet")}
                             </Link>
                           ) : null}
                         </TableCell>

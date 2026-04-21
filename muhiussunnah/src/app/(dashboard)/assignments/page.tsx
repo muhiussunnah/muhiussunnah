@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ClipboardCheck } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,13 +49,15 @@ export default async function AssignmentsPage() {
     class_bn: s.classes?.name_bn ?? "",
   }));
 
+  const t = await getTranslations("assignments");
+
   return (
     <>
       <PageHeader
-        title="অ্যাসাইনমেন্ট"
-        subtitle="ছাত্রদের জন্য অ্যাসাইনমেন্ট তৈরি করুন, জমা দেখুন, গ্রেড দিন।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <><BanglaDigit value={list.length} /> অ্যাসাইনমেন্ট</>, tone: "default" },
+          { label: <><BanglaDigit value={list.length} /> {t("impact_count_suffix")}</>, tone: "default" },
         ]}
       />
 
@@ -63,8 +66,8 @@ export default async function AssignmentsPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<ClipboardCheck className="size-8" />}
-              title="কোন অ্যাসাইনমেন্ট নেই"
-              body="ডান পাশের ফর্ম থেকে প্রথম অ্যাসাইনমেন্ট তৈরি করুন। ছাত্ররা portal-এ দেখতে পাবে ও জমা দিতে পারবে।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <Card>
@@ -72,10 +75,10 @@ export default async function AssignmentsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>শিরোনাম</TableHead>
-                      <TableHead>শ্রেণি / বিষয়</TableHead>
-                      <TableHead>শেষ তারিখ</TableHead>
-                      <TableHead className="text-right">মার্কস</TableHead>
+                      <TableHead>{t("col_title")}</TableHead>
+                      <TableHead>{t("col_class_subject")}</TableHead>
+                      <TableHead>{t("col_due")}</TableHead>
+                      <TableHead className="text-right">{t("col_marks")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -110,7 +113,7 @@ export default async function AssignmentsPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-base font-semibold">নতুন অ্যাসাইনমেন্ট</h2>
+              <h2 className="mb-4 text-base font-semibold">{t("sidebar_title")}</h2>
               <AssignmentForm
                 sections={sectionOpts}
                 subjects={(subjects ?? []) as Array<{ id: string; name_bn: string }>}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CheckCircle2, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,21 +10,22 @@ import { publishExamAction, unpublishExamAction } from "@/server/actions/exams";
 type Props = { schoolSlug: string; examId: string; published: boolean };
 
 export function PublishButton({ schoolSlug, examId, published }: Props) {
+  const t = useTranslations("exams");
   const [pending, startTransition] = useTransition();
 
   function handleClick() {
     if (published) {
-      if (!confirm("ফলাফল unpublish করবেন? অভিভাবকরা আর দেখতে পাবে না।")) return;
+      if (!confirm(t("unpublish_confirm"))) return;
       startTransition(async () => {
         const res = await unpublishExamAction(schoolSlug, examId);
-        if (res.ok) toast.success(res.message ?? "Unpublished");
+        if (res.ok) toast.success(res.message ?? t("unpublish_done"));
         else toast.error(res.error);
       });
     } else {
-      if (!confirm("ফলাফল প্রকাশ করবেন? প্রতিটি ছাত্রের জন্য report card তৈরি হবে ও অভিভাবকরা দেখতে পাবে।")) return;
+      if (!confirm(t("publish_confirm_new"))) return;
       startTransition(async () => {
         const res = await publishExamAction(schoolSlug, examId);
-        if (res.ok) toast.success(res.message ?? "প্রকাশিত");
+        if (res.ok) toast.success(res.message ?? t("publish_done"));
         else toast.error(res.error);
       });
     }
@@ -39,11 +41,11 @@ export function PublishButton({ schoolSlug, examId, published }: Props) {
       variant={published ? "outline" : "default"}
     >
       {pending ? (
-        "..."
+        t("publish_pending_dots")
       ) : published ? (
-        <><EyeOff className="me-1 size-3.5" /> Unpublish</>
+        <><EyeOff className="me-1 size-3.5" /> {t("unpublish_btn_label")}</>
       ) : (
-        <><CheckCircle2 className="me-1 size-3.5" /> ফলাফল প্রকাশ করুন</>
+        <><CheckCircle2 className="me-1 size-3.5" /> {t("publish_btn_label")}</>
       )}
     </Button>
   );
