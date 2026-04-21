@@ -112,12 +112,12 @@ export async function DashboardShell({
           className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent"
           aria-hidden
         />
-        <div className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4 px-4 py-3.5 md:px-6">
+        <div className="relative flex items-center gap-3 px-3 py-2.5 md:grid md:grid-cols-[auto_minmax(0,1fr)_auto] md:gap-4 md:px-6 md:py-3.5">
           {/* Left — hamburger toggle + institution logo */}
-          <div className="flex items-center gap-3 justify-self-start">
+          <div className="flex items-center gap-2 md:gap-3 md:justify-self-start">
             <SidebarToggle />
           <Link href="/" className="group/brand flex items-center gap-3">
-            <span className="relative inline-flex size-16 items-center justify-center overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-accent/15 shadow-lg shadow-primary/15 transition-all group-hover/brand:scale-105 group-hover/brand:shadow-primary/25">
+            <span className="relative inline-flex size-11 md:size-16 items-center justify-center overflow-hidden rounded-xl md:rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/15 via-background to-accent/15 shadow-lg shadow-primary/15 transition-all group-hover/brand:scale-105 group-hover/brand:shadow-primary/25">
               {/* Rotating gradient halo on hover */}
               <span
                 className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-tr from-primary/0 via-primary/20 to-accent/0 opacity-0 transition-opacity duration-500 group-hover/brand:opacity-100"
@@ -142,8 +142,10 @@ export async function DashboardShell({
           </div>
 
           {/* Center — institution identity, letterhead-style stacking:
-              [big name] / [name_en] / [name_ar] / [address] / [phone · email] / [website] */}
-          <div className="min-w-0 text-center justify-self-center w-full">
+              [big name] / [name_en] / [name_ar] / [address] / [phone · email] / [website].
+              Hidden on mobile — space is precious and the identity is
+              already present in the sidebar drawer / page titles. */}
+          <div className="hidden md:block min-w-0 text-center justify-self-center w-full">
             {visibleFields.length > 0 ? (
               <>
                 {primary ? (
@@ -217,7 +219,7 @@ export async function DashboardShell({
           </div>
 
           {/* Right — theme + language + live indicator + user avatar menu */}
-          <div className="flex items-center gap-1.5 justify-self-end">
+          <div className="ms-auto flex items-center gap-1.5 md:justify-self-end">
             <div className="hidden md:inline-flex items-center gap-1.5">
               <LanguageSwitcher current={locale} compact />
               <ThemeToggle />
