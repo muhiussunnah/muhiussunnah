@@ -119,21 +119,36 @@ export default async function SchoolAdminDashboardPage() {
 
   const noticesCount = noticesRes.count ?? 0;
 
-  // Group students by class for the donut
+  // Group students by class for the donut. Students without a class
+  // go into an "অসংযুক্ত" (unassigned) bucket so the chart total
+  // always matches the hero "মোট ছাত্র-ছাত্রী" card — otherwise admins
+  // see "মোট ২" up top but an empty donut and get confused.
   type ClassBucket = { id: string; name: string; order: number; count: number };
   const classBuckets = new Map<string, ClassBucket>();
   const rawStudents = (studentsByClassRes.data ?? []) as Array<{
     id: string;
     sections: { id: string; class_id: string; classes: { id: string; name_bn: string; display_order: number | null } | null } | null;
   }>;
+  let unassigned = 0;
   for (const s of rawStudents) {
     const cls = s.sections?.classes;
-    if (!cls) continue;
+    if (!cls) {
+      unassigned++;
+      continue;
+    }
     const b = classBuckets.get(cls.id);
     if (b) b.count++;
     else classBuckets.set(cls.id, { id: cls.id, name: cls.name_bn, order: cls.display_order ?? 999, count: 1 });
   }
-  const donutSlices = [...classBuckets.values()].sort((a, b) => a.order - b.order);
+  const donutSlices: ClassBucket[] = [...classBuckets.values()].sort((a, b) => a.order - b.order);
+  if (unassigned > 0) {
+    donutSlices.push({
+      id: "__unassigned__",
+      name: "⚠️ ক্লাস নির্ধারিত নেই",
+      order: 9999,
+      count: unassigned,
+    });
+  }
 
   // ───────────────────────────────────────────────────────────
   return (
