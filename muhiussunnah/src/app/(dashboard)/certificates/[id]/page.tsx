@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Printer } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { buttonVariants } from "@/components/ui/button";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { BengaliDate } from "@/components/ui/bengali-date";
@@ -67,11 +68,13 @@ export default async function CertificatePrintPage({ params }: PageProps) {
 
   const html = template ? fillTemplate(template.html_template, vars) : "";
 
+  const t = await getTranslations("certificates");
+
   return (
     <>
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Link href={`/certificates`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-          <ArrowLeft className="size-3.5" /> সার্টিফিকেট তালিকা
+          <ArrowLeft className="size-3.5" /> {t("detail_back_text")}
         </Link>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="font-mono">{cert.serial_no}</span>
@@ -88,7 +91,7 @@ export default async function CertificatePrintPage({ params }: PageProps) {
       />
 
       <div className="mt-4 text-center text-xs text-muted-foreground print:hidden">
-        সিরিয়াল: <span className="font-mono">{cert.serial_no}</span> · ইস্যু তারিখ: <BengaliDate value={cert.issued_on} />
+        {t("detail_serial")} <span className="font-mono">{cert.serial_no}</span> · {t("detail_issue_date")} <BengaliDate value={cert.issued_on} />
       </div>
     </>
   );

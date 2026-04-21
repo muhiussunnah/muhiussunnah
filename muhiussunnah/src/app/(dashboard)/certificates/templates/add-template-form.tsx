@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,39 +23,47 @@ const sampleTemplate = `<div style="text-align:center;font-family:serif;padding:
 </div>`;
 
 export function AddTemplateForm({ schoolSlug }: { schoolSlug: string }) {
+  const t = useTranslations("certificates");
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(addTemplateAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) { toast.success(state.message ?? "যোগ হয়েছে"); formRef.current?.reset(); }
+    if (state.ok) { toast.success(state.message ?? t("templates_form_success")); formRef.current?.reset(); }
     else toast.error(state.error);
-  }, [state]);
+  }, [state, t]);
 
   return (
     <form ref={formRef} action={action} className="flex flex-col gap-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="name">নাম</Label>
-        <Input id="name" name="name" required placeholder="যেমন: প্রশংসাপত্র (বাংলা)" />
+        <Label htmlFor="name">{t("templates_form_name")}</Label>
+        <Input id="name" name="name" required placeholder={t("templates_form_name_placeholder_alt")} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="type">ধরন</Label>
+          <Label htmlFor="type">{t("templates_form_type")}</Label>
           <Select name="type" defaultValue="testimonial">
-            <SelectTrigger id="type"><SelectValue /></SelectTrigger>
+            <SelectTrigger id="type">
+              <SelectValue>
+                {(v: unknown) => {
+                  const k = typeof v === "string" ? v : "testimonial";
+                  try { return t(`type_${k}`); } catch { return k; }
+                }}
+              </SelectValue>
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="testimonial">প্রশংসাপত্র</SelectItem>
-              <SelectItem value="tc">ট্রান্সফার</SelectItem>
-              <SelectItem value="character">চরিত্র</SelectItem>
-              <SelectItem value="completion">কমপ্লিশন</SelectItem>
-              <SelectItem value="hifz_sanad">হিফজ সনদ</SelectItem>
-              <SelectItem value="other">অন্যান্য</SelectItem>
+              <SelectItem value="testimonial">{t("type_testimonial")}</SelectItem>
+              <SelectItem value="tc">{t("type_tc")}</SelectItem>
+              <SelectItem value="character">{t("type_character")}</SelectItem>
+              <SelectItem value="completion">{t("type_completion")}</SelectItem>
+              <SelectItem value="hifz_sanad">{t("type_hifz_sanad")}</SelectItem>
+              <SelectItem value="other">{t("type_other")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="orientation">অভিমুখ</Label>
+          <Label htmlFor="orientation">{t("templates_form_orientation")}</Label>
           <Select name="orientation" defaultValue="portrait">
             <SelectTrigger id="orientation"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -65,7 +74,7 @@ export function AddTemplateForm({ schoolSlug }: { schoolSlug: string }) {
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="paper_size">কাগজ</Label>
+        <Label htmlFor="paper_size">{t("templates_form_paper")}</Label>
         <Select name="paper_size" defaultValue="A4">
           <SelectTrigger id="paper_size"><SelectValue /></SelectTrigger>
           <SelectContent>
@@ -76,7 +85,7 @@ export function AddTemplateForm({ schoolSlug }: { schoolSlug: string }) {
         </Select>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="html_template">HTML টেমপ্লেট</Label>
+        <Label htmlFor="html_template">{t("templates_form_html")}</Label>
         <Textarea
           id="html_template"
           name="html_template"
@@ -86,11 +95,11 @@ export function AddTemplateForm({ schoolSlug }: { schoolSlug: string }) {
           className="font-mono text-xs"
         />
         <p className="text-xs text-muted-foreground">
-          Supported variables: <code>{`{{student_name}}`}</code>, <code>{`{{student_code}}`}</code>, <code>{`{{school_name}}`}</code>, <code>{`{{date}}`}</code>, <code>{`{{serial_no}}`}</code>
+          {t("templates_form_html_hint_short")}
         </p>
       </div>
       <Button type="submit" disabled={pending} className="mt-1 bg-gradient-primary text-white">
-        {pending ? "..." : "টেমপ্লেট যোগ"}
+        {pending ? t("templates_form_pending_short") : t("templates_form_submit_short")}
       </Button>
     </form>
   );

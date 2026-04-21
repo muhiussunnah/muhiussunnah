@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { PrintButton } from "@/components/ui/print-button";
 import { BengaliDate } from "@/components/ui/bengali-date";
@@ -68,11 +69,13 @@ export default async function AdmitCardPage({ params }: PageProps) {
     subjects: { name_bn: string; code: string | null };
   }>;
 
+  const t = await getTranslations("exams");
+
   return (
     <>
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Link href={`/exams/${examId}`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-          <ArrowLeft className="size-3.5" /> পরীক্ষা
+          <ArrowLeft className="size-3.5" /> {t("admit_back_text")}
         </Link>
         <PrintButton />
       </div>
@@ -99,7 +102,7 @@ export default async function AdmitCardPage({ params }: PageProps) {
         </header>
 
         <h2 className="my-4 text-center text-lg font-bold tracking-wide">
-          প্রবেশপত্র / Admit Card
+          {t("admit_title_bn_en")}
         </h2>
         <p className="mb-4 text-center text-sm font-semibold">{exam.name}</p>
 
@@ -111,28 +114,28 @@ export default async function AdmitCardPage({ params }: PageProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
-            <Row label="নাম" value={student.name_bn} />
+            <Row label={t("admit_row_name")} value={student.name_bn} />
             {student.name_en ? <Row label="Name" value={student.name_en} /> : <div />}
-            <Row label="শ্রেণি" value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
-            <Row label="রোল" value={student.roll ?? "—"} />
+            <Row label={t("admit_row_class")} value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
+            <Row label={t("admit_row_roll")} value={student.roll ?? "—"} />
             <Row label="ID" value={student.student_code} />
-            {student.date_of_birth ? <Row label="জন্মতারিখ" value={<BengaliDate value={student.date_of_birth} />} /> : <div />}
+            {student.date_of_birth ? <Row label={t("admit_row_dob")} value={<BengaliDate value={student.date_of_birth} />} /> : <div />}
             {seat ? (
-              <Row label="আসন" value={`${seat.exam_rooms?.name ?? "—"} · ${seat.seat_row}-${seat.seat_col}`} />
+              <Row label={t("admit_row_seat")} value={`${seat.exam_rooms?.name ?? "—"} · ${seat.seat_row}-${seat.seat_col}`} />
             ) : null}
           </div>
         </section>
 
         <section className="mb-4">
-          <h3 className="mb-2 text-sm font-semibold">রুটিন / Schedule</h3>
+          <h3 className="mb-2 text-sm font-semibold">{t("admit_sched_heading")}</h3>
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b border-primary/60">
-                <th className="p-2 text-left">তারিখ</th>
-                <th className="p-2 text-left">সময়</th>
-                <th className="p-2 text-left">বিষয়</th>
-                <th className="p-2 text-right">সময়কাল</th>
-                <th className="p-2 text-right">পূর্ণমান</th>
+                <th className="p-2 text-left">{t("admit_sched_col_date")}</th>
+                <th className="p-2 text-left">{t("admit_sched_col_time")}</th>
+                <th className="p-2 text-left">{t("admit_sched_col_subject")}</th>
+                <th className="p-2 text-right">{t("admit_sched_col_duration")}</th>
+                <th className="p-2 text-right">{t("admit_sched_col_max")}</th>
               </tr>
             </thead>
             <tbody>
@@ -141,7 +144,7 @@ export default async function AdmitCardPage({ params }: PageProps) {
                   <td className="p-2 text-xs">{s.date ? <BengaliDate value={s.date} /> : "—"}</td>
                   <td className="p-2 text-xs">{s.start_time ?? "—"}</td>
                   <td className="p-2">{s.subjects.name_bn}</td>
-                  <td className="p-2 text-right text-xs">{s.duration_mins ? `${s.duration_mins} মি` : "—"}</td>
+                  <td className="p-2 text-right text-xs">{s.duration_mins ? `${s.duration_mins} ${t("admit_duration_unit")}` : "—"}</td>
                   <td className="p-2 text-right"><BanglaDigit value={s.full_marks} /></td>
                 </tr>
               ))}
@@ -150,17 +153,17 @@ export default async function AdmitCardPage({ params }: PageProps) {
         </section>
 
         <section className="mt-6 rounded-md border border-border/60 bg-muted/30 p-3 text-xs">
-          <p className="font-semibold mb-1">গুরুত্বপূর্ণ নির্দেশনা:</p>
+          <p className="font-semibold mb-1">{t("admit_instructions_heading")}</p>
           <ol className="ml-4 list-decimal space-y-1 text-muted-foreground">
-            <li>পরীক্ষার হলে প্রবেশপত্র অবশ্যই আনতে হবে।</li>
-            <li>পরীক্ষা শুরুর ৩০ মিনিট আগে হলে উপস্থিত থাকতে হবে।</li>
-            <li>মোবাইল ফোন বা ইলেকট্রনিক ডিভাইস হলে নিষিদ্ধ।</li>
+            <li>{t("admit_inst_1")}</li>
+            <li>{t("admit_inst_2")}</li>
+            <li>{t("admit_inst_3")}</li>
           </ol>
         </section>
 
         <footer className="mt-10 flex items-end justify-between text-xs">
-          <div className="border-t border-border px-12 pt-1">ছাত্র/ছাত্রীর স্বাক্ষর</div>
-          <div className="border-t border-border px-12 pt-1">প্রধান শিক্ষক</div>
+          <div className="border-t border-border px-12 pt-1">{t("admit_sig_student")}</div>
+          <div className="border-t border-border px-12 pt-1">{t("admit_sig_principal")}</div>
         </footer>
       </article>
     </>

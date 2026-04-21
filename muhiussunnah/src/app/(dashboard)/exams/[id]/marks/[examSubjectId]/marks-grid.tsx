@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Lock, Unlock, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ function guessGrade(marks: number, full: number): string {
 }
 
 export function MarksGrid({ schoolSlug, examSubjectId, fullMarks, passMarks, students, initial, locked }: Props) {
+  const t = useTranslations("exams");
   const [entries, setEntries] = useState<Record<string, Entry>>(() => {
     const out: Record<string, Entry> = {};
     for (const s of students) {
@@ -106,7 +108,7 @@ export function MarksGrid({ schoolSlug, examSubjectId, fullMarks, passMarks, stu
     });
     startTransition(async () => {
       const res = await saveMarksAction({ schoolSlug, exam_subject_id: examSubjectId, entries: payload });
-      if (res.ok) toast.success(res.message ?? "সংরক্ষিত");
+      if (res.ok) toast.success(res.message ?? t("marks_grid_success"));
       else toast.error(res.error);
     });
   }
@@ -118,7 +120,7 @@ export function MarksGrid({ schoolSlug, examSubjectId, fullMarks, passMarks, stu
     fd.set("lock", String(lock));
     startLockTransition(async () => {
       const res = await toggleLockAction(null, fd);
-      if (res.ok) { toast.success(res.message ?? "সফল"); location.reload(); }
+      if (res.ok) { toast.success(res.message ?? t("marks_grid_lock_success")); location.reload(); }
       else toast.error(res.error);
     });
   }
@@ -128,25 +130,25 @@ export function MarksGrid({ schoolSlug, examSubjectId, fullMarks, passMarks, stu
       <Card className="sticky top-14 z-10 mb-4 border-primary/30">
         <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="flex flex-wrap gap-4 text-xs">
-            <span>এন্ট্রি: <span className="font-semibold text-success"><BanglaDigit value={counts.entered} /></span></span>
-            <span>অনুপস্থিত: <span className="font-semibold text-muted-foreground"><BanglaDigit value={counts.absent} /></span></span>
-            <span>পাশ: <span className="font-semibold text-success"><BanglaDigit value={counts.passed} /></span></span>
-            <span>ফেল: <span className="font-semibold text-destructive"><BanglaDigit value={counts.failed} /></span></span>
-            <span>বাকি: <span className="font-semibold text-warning-foreground dark:text-warning"><BanglaDigit value={counts.pending} /></span></span>
+            <span>{t("marks_grid_entered")} <span className="font-semibold text-success"><BanglaDigit value={counts.entered} /></span></span>
+            <span>{t("marks_grid_absent_count")} <span className="font-semibold text-muted-foreground"><BanglaDigit value={counts.absent} /></span></span>
+            <span>{t("marks_grid_passed_count")} <span className="font-semibold text-success"><BanglaDigit value={counts.passed} /></span></span>
+            <span>{t("marks_grid_failed_count")} <span className="font-semibold text-destructive"><BanglaDigit value={counts.failed} /></span></span>
+            <span>{t("marks_grid_pending_count")} <span className="font-semibold text-warning-foreground dark:text-warning"><BanglaDigit value={counts.pending} /></span></span>
           </div>
           <div className="flex items-center gap-2">
             {locked ? (
               <Button size="sm" variant="outline" onClick={() => toggleLock(false)} disabled={lockPending}>
-                <Unlock className="me-1 size-3.5" /> Unlock
+                <Unlock className="me-1 size-3.5" /> {t("marks_grid_unlock_btn")}
               </Button>
             ) : (
               <Button size="sm" variant="outline" onClick={() => toggleLock(true)} disabled={lockPending}>
-                <Lock className="me-1 size-3.5" /> লক করুন
+                <Lock className="me-1 size-3.5" /> {t("marks_grid_lock_btn")}
               </Button>
             )}
             <Button size="sm" onClick={save} disabled={pending || locked} className="bg-gradient-primary text-white">
               <Save className="me-1 size-3.5" />
-              {pending ? "সংরক্ষণ..." : "সংরক্ষণ করুন"}
+              {pending ? t("marks_grid_saving_btn") : t("marks_grid_save_btn")}
             </Button>
           </div>
         </CardContent>
@@ -158,10 +160,10 @@ export function MarksGrid({ schoolSlug, examSubjectId, fullMarks, passMarks, stu
             <thead className="sticky top-28 z-0 bg-muted/50 text-xs">
               <tr>
                 <th className="p-2 text-left">#</th>
-                <th className="p-2 text-left">ছাত্র</th>
-                <th className="p-2 text-right w-24">মার্ক্স</th>
-                <th className="p-2 text-center w-24">অনুপস্থিত</th>
-                <th className="p-2 text-center w-20">গ্রেড</th>
+                <th className="p-2 text-left">{t("marks_grid_row_col_student")}</th>
+                <th className="p-2 text-right w-24">{t("marks_grid_row_col_marks")}</th>
+                <th className="p-2 text-center w-24">{t("marks_grid_row_col_absent")}</th>
+                <th className="p-2 text-center w-20">{t("marks_grid_row_col_grade")}</th>
               </tr>
             </thead>
             <tbody>

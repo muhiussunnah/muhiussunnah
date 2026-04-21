@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Sparkles } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { PrintButton } from "@/components/ui/print-button";
 import { BengaliDate } from "@/components/ui/bengali-date";
@@ -77,11 +78,13 @@ export default async function MarksheetPage({ params }: PageProps) {
   const totalMarks = marksList.reduce((s, m) => s + (m.is_absent ? 0 : Number(m.marks_obtained ?? 0)), 0);
   const fullMarks = marksList.reduce((s, m) => s + Number(m.exam_subjects.full_marks), 0);
 
+  const t = await getTranslations("exams");
+
   return (
     <>
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Link href={`/exams/${examId}`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-          <ArrowLeft className="size-3.5" /> পরীক্ষা
+          <ArrowLeft className="size-3.5" /> {t("marksheet_back_text")}
         </Link>
         <div className="flex gap-2">
           <GenerateCommentButton examId={examId} studentId={studentId} schoolSlug={schoolSlug} />
@@ -112,7 +115,7 @@ export default async function MarksheetPage({ params }: PageProps) {
         </header>
 
         <h2 className="my-6 text-center text-xl font-bold tracking-wide">
-          মার্কশিট / Marksheet
+          {t("marksheet_title_bn_en")}
         </h2>
         <p className="mb-6 text-center text-sm">
           <span className="font-semibold">{exam.name}</span>
@@ -121,23 +124,23 @@ export default async function MarksheetPage({ params }: PageProps) {
 
         {/* Student info */}
         <section className="mb-6 grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
-          <Row label="নাম" value={student.name_bn} />
+          <Row label={t("marksheet_row_name")} value={student.name_bn} />
           {student.name_en ? <Row label="Name" value={student.name_en} /> : <div />}
-          <Row label="শ্রেণি" value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
-          <Row label="রোল" value={student.roll ?? "—"} />
+          <Row label={t("marksheet_row_class")} value={student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"} />
+          <Row label={t("marksheet_row_roll")} value={student.roll ?? "—"} />
           <Row label="ID" value={student.student_code} />
-          {student.date_of_birth ? <Row label="জন্মতারিখ" value={<BengaliDate value={student.date_of_birth} />} /> : <div />}
+          {student.date_of_birth ? <Row label={t("marksheet_row_dob")} value={<BengaliDate value={student.date_of_birth} />} /> : <div />}
         </section>
 
         {/* Marks table */}
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b-2 border-primary/60">
-              <th className="p-2 text-left">বিষয়</th>
-              <th className="p-2 text-right">পূর্ণমান</th>
-              <th className="p-2 text-right">পাশ</th>
-              <th className="p-2 text-right">প্রাপ্ত</th>
-              <th className="p-2 text-center">গ্রেড</th>
+              <th className="p-2 text-left">{t("admit_col_subject")}</th>
+              <th className="p-2 text-right">{t("marksheet_col_full")}</th>
+              <th className="p-2 text-right">{t("marksheet_col_pass")}</th>
+              <th className="p-2 text-right">{t("marksheet_col_obtained_bn")}</th>
+              <th className="p-2 text-center">{t("marksheet_col_grade")}</th>
             </tr>
           </thead>
           <tbody>
@@ -147,13 +150,13 @@ export default async function MarksheetPage({ params }: PageProps) {
                 <td className="p-2 text-right"><BanglaDigit value={m.exam_subjects.full_marks} /></td>
                 <td className="p-2 text-right"><BanglaDigit value={m.exam_subjects.pass_marks} /></td>
                 <td className="p-2 text-right font-medium">
-                  {m.is_absent ? "অ" : m.marks_obtained !== null ? <BanglaDigit value={Number(m.marks_obtained)} /> : "—"}
+                  {m.is_absent ? t("marksheet_absent_short") : m.marks_obtained !== null ? <BanglaDigit value={Number(m.marks_obtained)} /> : "—"}
                 </td>
                 <td className="p-2 text-center">{m.grade ?? "—"}</td>
               </tr>
             ))}
             <tr className="border-t-2 border-primary/60 font-bold">
-              <td className="p-2">মোট</td>
+              <td className="p-2">{t("marksheet_row_total_bn")}</td>
               <td className="p-2 text-right"><BanglaDigit value={fullMarks} /></td>
               <td className="p-2 text-right">—</td>
               <td className="p-2 text-right"><BanglaDigit value={totalMarks} /></td>
@@ -172,13 +175,13 @@ export default async function MarksheetPage({ params }: PageProps) {
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">অবস্থান</div>
+              <div className="text-xs text-muted-foreground">{t("marksheet_position")}</div>
               <div className="text-2xl font-bold">
                 {reportCard.position_in_class !== null ? <BanglaDigit value={reportCard.position_in_class} /> : "—"}
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">উপস্থিতি</div>
+              <div className="text-xs text-muted-foreground">{t("marksheet_attendance")}</div>
               <div className="text-2xl font-bold">
                 {reportCard.attendance_pct !== null ? (<><BanglaDigit value={Math.round(Number(reportCard.attendance_pct))} />%</>) : "—"}
               </div>
@@ -191,21 +194,21 @@ export default async function MarksheetPage({ params }: PageProps) {
           <section className="mt-6 border-t border-border/60 pt-4">
             {reportCard.teacher_comment ? (
               <div className="mb-3">
-                <div className="text-xs font-semibold text-muted-foreground">শিক্ষকের মন্তব্য</div>
+                <div className="text-xs font-semibold text-muted-foreground">{t("marksheet_comment_teacher")}</div>
                 <p className="text-sm">{reportCard.teacher_comment}</p>
               </div>
             ) : null}
             {reportCard.ai_generated_comment && !reportCard.teacher_comment ? (
               <div className="mb-3">
                 <div className="flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-                  <Sparkles className="size-3" /> AI-জেনারেটেড মন্তব্য
+                  <Sparkles className="size-3" /> {t("marksheet_comment_ai")}
                 </div>
                 <p className="text-sm">{reportCard.ai_generated_comment}</p>
               </div>
             ) : null}
             {reportCard.principal_remark ? (
               <div>
-                <div className="text-xs font-semibold text-muted-foreground">প্রধান শিক্ষকের মন্তব্য</div>
+                <div className="text-xs font-semibold text-muted-foreground">{t("marksheet_comment_principal")}</div>
                 <p className="text-sm">{reportCard.principal_remark}</p>
               </div>
             ) : null}
@@ -215,19 +218,19 @@ export default async function MarksheetPage({ params }: PageProps) {
         {/* Signatures */}
         <footer className="mt-12 grid grid-cols-3 gap-4 text-center text-xs">
           <div>
-            <div className="mb-1 border-t border-border pt-1">শ্রেণি শিক্ষক</div>
+            <div className="mb-1 border-t border-border pt-1">{t("marksheet_sig_class_teacher")}</div>
           </div>
           <div>
-            <div className="mb-1 border-t border-border pt-1">পরীক্ষা নিয়ন্ত্রক</div>
+            <div className="mb-1 border-t border-border pt-1">{t("marksheet_sig_controller")}</div>
           </div>
           <div>
-            <div className="mb-1 border-t border-border pt-1">প্রধান শিক্ষক</div>
+            <div className="mb-1 border-t border-border pt-1">{t("marksheet_sig_principal")}</div>
           </div>
         </footer>
 
         {exam.published_at ? (
           <p className="mt-4 text-center text-xs text-muted-foreground">
-            প্রকাশিত: <BengaliDate value={exam.published_at} />
+            {t("marksheet_published_prefix")} <BengaliDate value={exam.published_at} />
           </p>
         ) : null}
       </article>

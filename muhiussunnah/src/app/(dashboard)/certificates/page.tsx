@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FileCheck2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,15 +12,6 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { IssueCertificateForm } from "./issue-form";
-
-const typeLabel: Record<string, string> = {
-  testimonial: "প্রশংসাপত্র",
-  tc: "ট্রান্সফার সার্টিফিকেট",
-  character: "চরিত্র সনদ",
-  completion: "কমপ্লিশন",
-  hifz_sanad: "হিফজ সনদ",
-  other: "অন্যান্য",
-};
 
 export default async function CertificatesPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
@@ -66,21 +58,24 @@ export default async function CertificatesPage() {
   const templateList = (templates ?? []) as { id: string; name: string; type: string; is_active: boolean }[];
   const studentList = (students ?? []) as { id: string; name_bn: string; student_code: string }[];
 
+  const t = await getTranslations("certificates");
+  const typeText = (ty: string) => { try { return t(`type_${ty}`); } catch { return ty; } };
+
   return (
     <>
       <PageHeader
-        title="সার্টিফিকেট"
-        subtitle="প্রশংসাপত্র, TC, চরিত্র সনদ, হিফজ সনদ — টেমপ্লেট তৈরি করুন, তারপর ছাত্রকে ইস্যু করুন। প্রতিটির unique serial number হবে।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>ইস্যু হয়েছে · <BanglaDigit value={list.length} /></>, tone: "accent" },
-          { label: <>টেমপ্লেট · <BanglaDigit value={templateList.length} /></>, tone: "default" },
+          { label: <>{t("impact_issued")} · <BanglaDigit value={list.length} /></>, tone: "accent" },
+          { label: <>{t("impact_templates")} · <BanglaDigit value={templateList.length} /></>, tone: "default" },
         ]}
         actions={
           <Link
             href={`/certificates/templates`}
             className={buttonVariants({ variant: "outline", size: "sm" })}
           >
-            টেমপ্লেট ব্যবস্থাপনা
+            {t("manage_templates_btn")}
           </Link>
         }
       />
@@ -90,9 +85,9 @@ export default async function CertificatesPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<FileCheck2 className="size-8" />}
-              title="এখনও কোন সার্টিফিকেট ইস্যু হয়নি"
-              body="ডান পাশ থেকে ছাত্র ও টেমপ্লেট নির্বাচন করে সার্টিফিকেট ইস্যু করুন।"
-              proTip={templateList.length === 0 ? "আগে Templates page থেকে অন্তত একটি টেমপ্লেট তৈরি করুন।" : null}
+              title={t("empty_title")}
+              body={t("empty_body")}
+              proTip={templateList.length === 0 ? t("empty_tip_no_templates") : null}
             />
           ) : (
             <Card>
@@ -100,10 +95,10 @@ export default async function CertificatesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>সিরিয়াল</TableHead>
-                      <TableHead>ছাত্র</TableHead>
-                      <TableHead>ধরন</TableHead>
-                      <TableHead>তারিখ</TableHead>
+                      <TableHead>{t("col_serial")}</TableHead>
+                      <TableHead>{t("col_student")}</TableHead>
+                      <TableHead>{t("col_type")}</TableHead>
+                      <TableHead>{t("col_date")}</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
@@ -122,7 +117,7 @@ export default async function CertificatesPage() {
                         <TableCell className="text-xs">
                           {c.certificate_templates ? (
                             <span className="rounded-full bg-muted px-2 py-0.5">
-                              {typeLabel[c.certificate_templates.type] ?? c.certificate_templates.type}
+                              {typeText(c.certificate_templates.type)}
                             </span>
                           ) : "—"}
                         </TableCell>
@@ -132,7 +127,7 @@ export default async function CertificatesPage() {
                             href={`/certificates/${c.id}`}
                             className="text-xs text-primary hover:underline"
                           >
-                            দেখুন →
+                            {t("view_link")}
                           </Link>
                         </TableCell>
                       </TableRow>
@@ -147,7 +142,7 @@ export default async function CertificatesPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন সার্টিফিকেট</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_title")}</h2>
               <IssueCertificateForm templates={templateList} students={studentList} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>

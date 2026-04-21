@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function IssueCertificateForm({ schoolSlug, templates, students }: Props) {
+  const t = useTranslations("certificates");
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(issueCertificateAction, null);
@@ -23,18 +25,18 @@ export function IssueCertificateForm({ schoolSlug, templates, students }: Props)
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
-      toast.success(state.message ?? "ইস্যু হয়েছে");
+      toast.success(state.message ?? t("issue_form_success"));
       formRef.current?.reset();
       if (state.redirect) router.push(state.redirect);
     } else {
       toast.error(state.error);
     }
-  }, [state, router]);
+  }, [state, router, t]);
 
   if (templates.length === 0) {
     return (
       <p className="rounded-md border border-warning/30 bg-warning/5 p-3 text-sm">
-        ⚠ কোন টেমপ্লেট নেই। Templates পেইজ থেকে তৈরি করুন।
+        {t("issue_form_no_templates")}
       </p>
     );
   }
@@ -43,18 +45,18 @@ export function IssueCertificateForm({ schoolSlug, templates, students }: Props)
     <form ref={formRef} action={action} className="flex flex-col gap-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="template_id">টেমপ্লেট</Label>
+        <Label htmlFor="template_id">{t("issue_form_template")}</Label>
         <Select name="template_id" required>
-          <SelectTrigger id="template_id"><SelectValue placeholder="নির্বাচন" /></SelectTrigger>
+          <SelectTrigger id="template_id"><SelectValue placeholder={t("issue_form_template_placeholder")} /></SelectTrigger>
           <SelectContent>
-            {templates.map((t) => (<SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>))}
+            {templates.map((tpl) => (<SelectItem key={tpl.id} value={tpl.id}>{tpl.name}</SelectItem>))}
           </SelectContent>
         </Select>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="student_id">ছাত্র</Label>
+        <Label htmlFor="student_id">{t("issue_form_student")}</Label>
         <Select name="student_id" required>
-          <SelectTrigger id="student_id"><SelectValue placeholder="নির্বাচন" /></SelectTrigger>
+          <SelectTrigger id="student_id"><SelectValue placeholder={t("issue_form_student_placeholder")} /></SelectTrigger>
           <SelectContent>
             {students.slice(0, 500).map((s) => (
               <SelectItem key={s.id} value={s.id}>{s.name_bn} ({s.student_code})</SelectItem>
@@ -63,7 +65,7 @@ export function IssueCertificateForm({ schoolSlug, templates, students }: Props)
         </Select>
       </div>
       <Button type="submit" disabled={pending} className="mt-1 bg-gradient-primary text-white">
-        {pending ? "ইস্যু হচ্ছে..." : "ইস্যু করুন"}
+        {pending ? t("issue_form_pending") : t("issue_form_submit_short")}
       </Button>
     </form>
   );

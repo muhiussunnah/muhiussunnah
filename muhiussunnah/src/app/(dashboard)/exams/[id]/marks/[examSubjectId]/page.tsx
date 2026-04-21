@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -65,28 +66,30 @@ export default async function MarksEntryPage({ params }: PageProps) {
     if (e.locked) locked = true;
   }
 
+  const t = await getTranslations("exams");
+
   return (
     <>
       <PageHeader
         breadcrumbs={
           <Link href={`/exams/${examId}`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> পরীক্ষা
+            <ArrowLeft className="size-3.5" /> {t("marks_back")}
           </Link>
         }
-        title={<>{es.subjects.name_bn} — মার্ক্স এন্ট্রি</>}
+        title={<>{es.subjects.name_bn} {t("marks_title_suffix")}</>}
         subtitle={<>{es.exams.name} · {es.sections.classes.name_bn} — {es.sections.name}</>}
         impact={[
-          { label: <>পূর্ণমান · <BanglaDigit value={es.full_marks} /></>, tone: "default" },
-          { label: <>পাশ · <BanglaDigit value={es.pass_marks} /></>, tone: "default" },
-          { label: <>ছাত্র · <BanglaDigit value={studentList.length} /></>, tone: "accent" },
-          locked ? { label: "🔒 লক করা", tone: "warning" as const } : { label: "✏ Editable", tone: "default" as const },
+          { label: <>{t("marks_impact_full")} · <BanglaDigit value={es.full_marks} /></>, tone: "default" },
+          { label: <>{t("marks_impact_pass")} · <BanglaDigit value={es.pass_marks} /></>, tone: "default" },
+          { label: <>{t("marks_impact_students")} · <BanglaDigit value={studentList.length} /></>, tone: "accent" },
+          locked ? { label: t("marks_locked"), tone: "warning" as const } : { label: t("marks_editable"), tone: "default" as const },
         ]}
       />
 
       {studentList.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            এই সেকশনে এখনও সক্রিয় শিক্ষার্থী নেই।
+            {t("marks_no_students")}
           </CardContent>
         </Card>
       ) : (
