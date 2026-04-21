@@ -41,11 +41,27 @@ function toDate(input: Date | string | number): Date {
 
 export function formatBengaliDate(
   input: Date | string | number | null | undefined,
-  options: { withWeekday?: boolean } = {},
+  options: { withWeekday?: boolean; locale?: "bn" | "en" | "ar" } = {},
 ): string {
   if (input === null || input === undefined) return "";
   const date = toDate(input);
   if (Number.isNaN(date.getTime())) return "";
+  const loc = options.locale ?? "bn";
+
+  // Non-Bangla locales: defer to Intl for month + weekday names, keep
+  // English digits. This makes "16 Apr 2026, Thursday" possible without
+  // maintaining a second hardcoded month array per language.
+  if (loc !== "bn") {
+    const tag = loc === "ar" ? "ar-SA" : "en-US";
+    const opts: Intl.DateTimeFormatOptions = options.withWeekday
+      ? { year: "numeric", month: "short", day: "numeric", weekday: "long" }
+      : { year: "numeric", month: "short", day: "numeric" };
+    try {
+      return new Intl.DateTimeFormat(tag, opts).format(date);
+    } catch {
+      return date.toISOString().slice(0, 10);
+    }
+  }
 
   const day = localiseNumber(date.getDate(), "bn");
   const month = banglaMonths[date.getMonth()];
@@ -80,7 +96,7 @@ export function formatDualDate(
   options: { withWeekday?: boolean; withHijri?: boolean; locale?: "bn" | "en" | "ar" } = {},
 ): string {
   const { withWeekday = false, withHijri = false, locale = "bn" } = options;
-  const greg = formatBengaliDate(input, { withWeekday });
+  const greg = formatBengaliDate(input, { withWeekday, locale });
   if (!withHijri) return greg;
   const hijri = formatHijriDate(input, locale);
   return hijri ? `${greg} / ${hijri}` : greg;

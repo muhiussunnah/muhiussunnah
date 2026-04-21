@@ -25,6 +25,18 @@ type Copy = {
   // Stats section
   stats: { students: string; schools: string; transactions: string; languages: string };
 
+  // Hero dashboard preview (mock screenshot in the hero)
+  heroPreview: {
+    todayAttendance: string;
+    monthIncome: string;
+    outstandingFees: string;
+    chartLegend: string;
+    sampleStudents: string;      // "১,২৪৭" bn / "1,247" en
+    sampleAttendance: string;    // "৯৪%" bn / "94%" en
+    sampleIncome: string;        // "৳৮.৫ লক্ষ" bn / "৳ 850K" en
+    sampleDue: string;           // "৳১.২ লক্ষ" bn / "৳ 120K" en
+  };
+
   // Features section
   features: {
     eyebrow: string;
@@ -97,6 +109,17 @@ type Copy = {
     allSystemsOperational: string;
   };
 
+  // Pricing page extras (comparison table + trust cards + misc)
+  pricingPage: {
+    termsApply: string;
+    comparisonTitle: string;
+    comparisonColFeature: string;
+    featureRows: { label: string; values: Array<string | boolean> }[];
+    trustNoHidden: { title: string; desc: string };
+    trustFreeTrial: { title: string; desc: string };
+    trustStudents: { title: string; desc: string };
+  };
+
   // Contact page
   contact: {
     badge: string;
@@ -139,6 +162,44 @@ const bn: Copy = {
   },
 
   stats: { students: "সক্রিয় শিক্ষার্থী", schools: "মাদ্রাসা ও স্কুল", transactions: "মাসিক লেনদেন", languages: "ভাষা সাপোর্ট" },
+
+  heroPreview: {
+    todayAttendance: "আজকের উপস্থিতি",
+    monthIncome: "এ মাসের আয়",
+    outstandingFees: "বাকি ফি",
+    chartLegend: "মাসিক ফি কালেকশন ট্রেন্ড",
+    sampleStudents: "১,২৪৭",
+    sampleAttendance: "৯৪%",
+    sampleIncome: "৳৮.৫ লক্ষ",
+    sampleDue: "৳১.২ লক্ষ",
+  },
+
+  pricingPage: {
+    termsApply: "* শর্ত প্রযোজ্য",
+    comparisonTitle: "ফিচার তুলনা",
+    comparisonColFeature: "ফিচার",
+    featureRows: [
+      { label: "শিক্ষার্থী সীমা", values: ["২০০", "৫০০", "সীমাহীন", "সীমাহীন"] },
+      { label: "শিক্ষক ও স্টাফ ম্যানেজমেন্ট", values: [true, true, true, true] },
+      { label: "QR উপস্থিতি", values: [true, true, true, true] },
+      { label: "পরীক্ষা ও মার্কশীট", values: [true, true, true, true] },
+      { label: "সার্টিফিকেট প্রিন্ট", values: [true, true, true, true] },
+      { label: "অভিভাবক পোর্টাল", values: [true, true, true, true] },
+      { label: "ম্যানুয়াল ফি ট্র্যাকিং", values: [true, true, true, true] },
+      { label: "SMS নোটিফিকেশন", values: [false, "১,০০০/মাস", "৫,০০০/মাস", "২০,০০০/মাস"] },
+      { label: "অনলাইন পেমেন্ট (bKash, SSLCommerz)", values: [false, false, true, true] },
+      { label: "WhatsApp + Push", values: [false, false, true, true] },
+      { label: "AI ড্রপআউট ঝুঁকি", values: [false, false, true, true] },
+      { label: "AI রিপোর্ট কমেন্ট", values: [false, false, true, true] },
+      { label: "মাল্টি-ব্রাঞ্চ", values: [false, false, false, true] },
+      { label: "কাস্টম ডোমেইন", values: [false, false, false, true] },
+      { label: "পাবলিক স্কুল ওয়েবসাইট", values: [false, false, false, true] },
+      { label: "সাপোর্ট", values: ["কমিউনিটি", "ইমেইল", "প্রায়োরিটি", "২৪/৭ ফোন"] },
+    ],
+    trustNoHidden: { title: "কোন লুকানো খরচ নেই", desc: "যা দেখছেন তাই পাবেন। Setup ফি নেই, cancellation ফি নেই।" },
+    trustFreeTrial: { title: "১৫ দিন ফ্রি ট্রায়াল", desc: "সম্পূর্ণ access, কোন ক্রেডিট কার্ড লাগবে না।" },
+    trustStudents: { title: "৫০,০০০+ শিক্ষার্থী", desc: "১২০+ প্রতিষ্ঠানের বিশ্বস্ত — বাংলাদেশের #১ পছন্দ।" },
+  },
 
   features: {
     eyebrow: "ফিচার",
@@ -366,6 +427,44 @@ const en: Copy = {
 
   stats: { students: "Active Students", schools: "Madrasas & Schools", transactions: "Monthly Transactions", languages: "Languages Supported" },
 
+  heroPreview: {
+    todayAttendance: "Today's attendance",
+    monthIncome: "This month's income",
+    outstandingFees: "Outstanding fees",
+    chartLegend: "Monthly fee collection trend",
+    sampleStudents: "1,247",
+    sampleAttendance: "94%",
+    sampleIncome: "৳ 850K",
+    sampleDue: "৳ 120K",
+  },
+
+  pricingPage: {
+    termsApply: "* Terms apply",
+    comparisonTitle: "Feature comparison",
+    comparisonColFeature: "Feature",
+    featureRows: [
+      { label: "Student limit", values: ["200", "500", "Unlimited", "Unlimited"] },
+      { label: "Teacher & staff management", values: [true, true, true, true] },
+      { label: "QR attendance", values: [true, true, true, true] },
+      { label: "Exams & marksheets", values: [true, true, true, true] },
+      { label: "Certificate print", values: [true, true, true, true] },
+      { label: "Guardian portal", values: [true, true, true, true] },
+      { label: "Manual fee tracking", values: [true, true, true, true] },
+      { label: "SMS notifications", values: [false, "1,000/mo", "5,000/mo", "20,000/mo"] },
+      { label: "Online payments (bKash, SSLCommerz)", values: [false, false, true, true] },
+      { label: "WhatsApp + Push", values: [false, false, true, true] },
+      { label: "AI dropout risk", values: [false, false, true, true] },
+      { label: "AI report comments", values: [false, false, true, true] },
+      { label: "Multi-branch", values: [false, false, false, true] },
+      { label: "Custom domain", values: [false, false, false, true] },
+      { label: "Public school website", values: [false, false, false, true] },
+      { label: "Support", values: ["Community", "Email", "Priority", "24/7 phone"] },
+    ],
+    trustNoHidden: { title: "No hidden costs", desc: "What you see is what you get. No setup fee, no cancellation fee." },
+    trustFreeTrial: { title: "15-day free trial", desc: "Full access, no credit card required." },
+    trustStudents: { title: "50,000+ students", desc: "Trusted by 120+ institutions — Bangladesh's #1 choice." },
+  },
+
   features: {
     eyebrow: "Features",
     title: "Everything you need,",
@@ -592,6 +691,44 @@ const ur: Copy = {
 
   stats: { students: "فعال طلباء", schools: "مدارس اور اسکول", transactions: "ماہانہ لین دین", languages: "زبانوں کی حمایت" },
 
+  heroPreview: {
+    todayAttendance: "آج کی حاضری",
+    monthIncome: "اس ماہ کی آمدنی",
+    outstandingFees: "باقی فیس",
+    chartLegend: "ماہانہ فیس وصولی کا رجحان",
+    sampleStudents: "1,247",
+    sampleAttendance: "94%",
+    sampleIncome: "৳ 850K",
+    sampleDue: "৳ 120K",
+  },
+
+  pricingPage: {
+    termsApply: "* شرائط لاگو",
+    comparisonTitle: "فیچر موازنہ",
+    comparisonColFeature: "فیچر",
+    featureRows: [
+      { label: "طلبہ کی حد", values: ["200", "500", "لامحدود", "لامحدود"] },
+      { label: "اساتذہ اور عملے کا انتظام", values: [true, true, true, true] },
+      { label: "QR حاضری", values: [true, true, true, true] },
+      { label: "امتحانات اور مارکشیٹ", values: [true, true, true, true] },
+      { label: "سرٹیفکیٹ پرنٹ", values: [true, true, true, true] },
+      { label: "سرپرست پورٹل", values: [true, true, true, true] },
+      { label: "دستی فیس ٹریکنگ", values: [true, true, true, true] },
+      { label: "SMS اطلاعات", values: [false, "1,000/ماہ", "5,000/ماہ", "20,000/ماہ"] },
+      { label: "آن لائن ادائیگی (bKash, SSLCommerz)", values: [false, false, true, true] },
+      { label: "WhatsApp + Push", values: [false, false, true, true] },
+      { label: "AI ڈراپ آؤٹ خطرہ", values: [false, false, true, true] },
+      { label: "AI رپورٹ کمنٹ", values: [false, false, true, true] },
+      { label: "ملٹی برانچ", values: [false, false, false, true] },
+      { label: "کسٹم ڈومین", values: [false, false, false, true] },
+      { label: "عوامی اسکول ویب سائٹ", values: [false, false, false, true] },
+      { label: "سپورٹ", values: ["کمیونٹی", "ای میل", "ترجیحی", "24/7 فون"] },
+    ],
+    trustNoHidden: { title: "کوئی چھپی لاگت نہیں", desc: "جو دیکھیں گے وہی ملے گا۔ سیٹ اپ فیس نہیں، منسوخی فیس نہیں۔" },
+    trustFreeTrial: { title: "15 دن مفت آزمائش", desc: "مکمل رسائی، کریڈٹ کارڈ درکار نہیں۔" },
+    trustStudents: { title: "50,000+ طلبہ", desc: "120+ اداروں کے اعتماد — بنگلہ دیش کا نمبر 1 انتخاب۔" },
+  },
+
   features: {
     eyebrow: "خصوصیات",
     title: "جو کچھ آپ کو چاہیے،",
@@ -817,6 +954,44 @@ const ar: Copy = {
   },
 
   stats: { students: "طلاب نشطون", schools: "مدارس دينية وعامة", transactions: "معاملات شهرية", languages: "لغات مدعومة" },
+
+  heroPreview: {
+    todayAttendance: "الحضور اليوم",
+    monthIncome: "دخل هذا الشهر",
+    outstandingFees: "رسوم متأخرة",
+    chartLegend: "اتجاه تحصيل الرسوم الشهرية",
+    sampleStudents: "1,247",
+    sampleAttendance: "94%",
+    sampleIncome: "৳ 850K",
+    sampleDue: "৳ 120K",
+  },
+
+  pricingPage: {
+    termsApply: "* تطبق الشروط",
+    comparisonTitle: "مقارنة الميزات",
+    comparisonColFeature: "الميزة",
+    featureRows: [
+      { label: "حد الطلاب", values: ["200", "500", "غير محدود", "غير محدود"] },
+      { label: "إدارة المعلمين والموظفين", values: [true, true, true, true] },
+      { label: "حضور QR", values: [true, true, true, true] },
+      { label: "الامتحانات وكشف الدرجات", values: [true, true, true, true] },
+      { label: "طباعة الشهادات", values: [true, true, true, true] },
+      { label: "بوابة ولي الأمر", values: [true, true, true, true] },
+      { label: "تتبع الرسوم اليدوي", values: [true, true, true, true] },
+      { label: "إشعارات SMS", values: [false, "1,000/شهر", "5,000/شهر", "20,000/شهر"] },
+      { label: "المدفوعات عبر الإنترنت (bKash, SSLCommerz)", values: [false, false, true, true] },
+      { label: "WhatsApp + Push", values: [false, false, true, true] },
+      { label: "AI مخاطر التسرب", values: [false, false, true, true] },
+      { label: "AI تعليقات التقرير", values: [false, false, true, true] },
+      { label: "متعدد الفروع", values: [false, false, false, true] },
+      { label: "نطاق مخصص", values: [false, false, false, true] },
+      { label: "موقع المدرسة العام", values: [false, false, false, true] },
+      { label: "الدعم", values: ["المجتمع", "البريد", "أولوية", "24/7 هاتف"] },
+    ],
+    trustNoHidden: { title: "لا توجد تكاليف خفية", desc: "ما تراه هو ما تحصل عليه. لا رسوم إعداد، لا رسوم إلغاء." },
+    trustFreeTrial: { title: "تجربة مجانية 15 يومًا", desc: "وصول كامل، لا حاجة لبطاقة ائتمان." },
+    trustStudents: { title: "50,000+ طالب", desc: "موثوق من 120+ مؤسسة — الخيار #1 في بنغلاديش." },
+  },
 
   features: {
     eyebrow: "المميزات",

@@ -140,10 +140,10 @@ export default async function LandingPage() {
                   {/* Dashboard metrics */}
                   <div className="grid gap-3 md:grid-cols-4 text-start">
                     {[
-                      { label: t.stats.students, value: "১,২৪৭", icon: Users, color: "from-primary to-primary/60" },
-                      { label: "আজকের উপস্থিতি", value: "৯৪%", icon: Calendar, color: "from-success to-success/60" },
-                      { label: "এ মাসের আয়", value: "৳৮.৫ লক্ষ", icon: Wallet, color: "from-accent to-accent/60" },
-                      { label: "বাকি ফি", value: "৳১.২ লক্ষ", icon: TrendingUp, color: "from-warning to-warning/60" },
+                      { label: t.stats.students, value: t.heroPreview.sampleStudents, icon: Users, color: "from-primary to-primary/60" },
+                      { label: t.heroPreview.todayAttendance, value: t.heroPreview.sampleAttendance, icon: Calendar, color: "from-success to-success/60" },
+                      { label: t.heroPreview.monthIncome, value: t.heroPreview.sampleIncome, icon: Wallet, color: "from-accent to-accent/60" },
+                      { label: t.heroPreview.outstandingFees, value: t.heroPreview.sampleDue, icon: TrendingUp, color: "from-warning to-warning/60" },
                     ].map((m) => (
                       <div key={m.label} className="group relative rounded-xl border border-border/40 bg-card/80 p-4 hover-lift">
                         <div className={`inline-flex size-8 items-center justify-center rounded-lg bg-gradient-to-br ${m.color} text-white mb-2`}>
@@ -167,7 +167,7 @@ export default async function LandingPage() {
                       <path d="M 0 120 Q 50 80 100 90 T 200 50 T 300 70 T 400 30" stroke="#7c5cff" strokeWidth="2.5" fill="none" />
                       <path d="M 0 140 Q 50 110 100 115 T 200 80 T 300 100 T 400 70" stroke="#22d3ee" strokeWidth="2" fill="none" opacity="0.7" />
                     </svg>
-                    <div className="absolute top-3 start-4 text-xs text-muted-foreground">মাসিক ফি কালেকশন ট্রেন্ড</div>
+                    <div className="absolute top-3 start-4 text-xs text-muted-foreground">{t.heroPreview.chartLegend}</div>
                   </div>
                 </div>
               </div>

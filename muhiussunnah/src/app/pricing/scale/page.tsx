@@ -4,16 +4,26 @@ import { PackageDetailPage, type PackageDetail } from "@/components/marketing/pa
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
-export const metadata = {
-  title: "Scale Package",
-  description: "৳4,000/মাস — মাল্টি-ব্রাঞ্চ, কাস্টম ডোমেইন, ২৪/৭ সাপোর্ট। এন্টারপ্রাইজ চেইন প্রতিষ্ঠানের জন্য।",
-  alternates: { canonical: "/pricing/scale" },
-  openGraph: {
-    title: "Scale প্যাকেজ — Muhius Sunnah",
-    description: "৳4,000/month — multi-branch, custom domain, 24/7 support.",
-    url: "/pricing/scale",
-  },
-};
+export async function generateMetadata() {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const bn = locale === "bn";
+  return {
+    title: "Scale Package",
+    description: bn
+      ? "৳4,000/মাস — মাল্টি-ব্রাঞ্চ, কাস্টম ডোমেইন, ২৪/৭ সাপোর্ট। এন্টারপ্রাইজ চেইন প্রতিষ্ঠানের জন্য।"
+      : "৳4,000/month — multi-branch, custom domain, 24/7 support. Built for enterprise chains.",
+    alternates: { canonical: "/pricing/scale" },
+    openGraph: {
+      title: bn ? "Scale প্যাকেজ — Muhius Sunnah" : "Scale Package — Muhius Sunnah",
+      description: bn
+        ? "৳4,000/মাস — মাল্টি-ব্রাঞ্চ, কাস্টম ডোমেইন, ২৪/৭ সাপোর্ট।"
+        : "৳4,000/month — multi-branch, custom domain, 24/7 support.",
+      url: "/pricing/scale",
+    },
+  };
+}
 
 export default async function Page() {
   const jar = await cookies();

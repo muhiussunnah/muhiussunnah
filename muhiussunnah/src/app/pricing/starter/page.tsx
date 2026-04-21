@@ -4,16 +4,26 @@ import { PackageDetailPage, type PackageDetail } from "@/components/marketing/pa
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
-export const metadata = {
-  title: "Starter Package",
-  description: "৳1,000/মাস — ৫০০ ছাত্র পর্যন্ত, SMS নোটিফিকেশন, offline mode। বৃদ্ধিমান প্রতিষ্ঠানের জন্য।",
-  alternates: { canonical: "/pricing/starter" },
-  openGraph: {
-    title: "Starter প্যাকেজ — Muhius Sunnah",
-    description: "৳1,000/month — up to 500 students, SMS notifications, offline mode.",
-    url: "/pricing/starter",
-  },
-};
+export async function generateMetadata() {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const bn = locale === "bn";
+  return {
+    title: "Starter Package",
+    description: bn
+      ? "৳1,000/মাস — ৫০০ ছাত্র পর্যন্ত, SMS নোটিফিকেশন, offline mode। বৃদ্ধিমান প্রতিষ্ঠানের জন্য।"
+      : "৳1,000/month — up to 500 students, SMS notifications, offline mode. Built for growing institutions.",
+    alternates: { canonical: "/pricing/starter" },
+    openGraph: {
+      title: bn ? "Starter প্যাকেজ — Muhius Sunnah" : "Starter Package — Muhius Sunnah",
+      description: bn
+        ? "৳1,000/মাস — ৫০০ ছাত্র পর্যন্ত, SMS নোটিফিকেশন, offline mode।"
+        : "৳1,000/month — up to 500 students, SMS notifications, offline mode.",
+      url: "/pricing/starter",
+    },
+  };
+}
 
 export default async function Page() {
   const jar = await cookies();

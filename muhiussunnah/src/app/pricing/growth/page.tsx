@@ -4,16 +4,26 @@ import { PackageDetailPage, type PackageDetail } from "@/components/marketing/pa
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
-export const metadata = {
-  title: "Growth Package",
-  description: "৳2,000/মাস — সীমাহীন ছাত্র, অনলাইন পেমেন্ট, AI, WhatsApp। বেশিরভাগ প্রতিষ্ঠানের জন্য সেরা।",
-  alternates: { canonical: "/pricing/growth" },
-  openGraph: {
-    title: "Growth প্যাকেজ — Muhius Sunnah",
-    description: "৳2,000/month — unlimited students, online payments, AI, WhatsApp.",
-    url: "/pricing/growth",
-  },
-};
+export async function generateMetadata() {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const bn = locale === "bn";
+  return {
+    title: "Growth Package",
+    description: bn
+      ? "৳2,000/মাস — সীমাহীন ছাত্র, অনলাইন পেমেন্ট, AI, WhatsApp। বেশিরভাগ প্রতিষ্ঠানের জন্য সেরা।"
+      : "৳2,000/month — unlimited students, online payments, AI, WhatsApp. The best fit for most institutions.",
+    alternates: { canonical: "/pricing/growth" },
+    openGraph: {
+      title: bn ? "Growth প্যাকেজ — Muhius Sunnah" : "Growth Package — Muhius Sunnah",
+      description: bn
+        ? "৳2,000/মাস — সীমাহীন ছাত্র, অনলাইন পেমেন্ট, AI, WhatsApp।"
+        : "৳2,000/month — unlimited students, online payments, AI, WhatsApp.",
+      url: "/pricing/growth",
+    },
+  };
+}
 
 export default async function Page() {
   const jar = await cookies();

@@ -119,7 +119,7 @@ export default async function PricingPage() {
 
                     {plan.priceUnit === "once" && (
                       <p className="mb-3 text-[11px] text-muted-foreground/70 italic">
-                        * শর্ত প্রযোজ্য
+                        {t.pricingPage.termsApply}
                       </p>
                     )}
 
@@ -151,13 +151,13 @@ export default async function PricingPage() {
 
           {/* Comparison table */}
           <Reveal variant="fade-up" className="mt-20">
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">ফিচার তুলনা</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">{t.pricingPage.comparisonTitle}</h2>
             <div className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm overflow-hidden shine-border">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border/60 bg-muted/30">
-                      <th className="text-start p-4 font-medium">ফিচার</th>
+                      <th className="text-start p-4 font-medium">{t.pricingPage.comparisonColFeature}</th>
                       <th className="p-4 font-semibold text-accent whitespace-nowrap">Lifetime</th>
                       <th className="p-4 font-semibold">Starter</th>
                       <th className="p-4 font-semibold text-primary">Growth</th>
@@ -165,24 +165,7 @@ export default async function PricingPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[
-                      { label: "শিক্ষার্থী সীমা", values: ["২০০", "৫০০", "সীমাহীন", "সীমাহীন"] },
-                      { label: "শিক্ষক ও স্টাফ ম্যানেজমেন্ট", values: [true, true, true, true] },
-                      { label: "QR উপস্থিতি", values: [true, true, true, true] },
-                      { label: "পরীক্ষা ও মার্কশীট", values: [true, true, true, true] },
-                      { label: "সার্টিফিকেট প্রিন্ট", values: [true, true, true, true] },
-                      { label: "অভিভাবক পোর্টাল", values: [true, true, true, true] },
-                      { label: "ম্যানুয়াল ফি ট্র্যাকিং", values: [true, true, true, true] },
-                      { label: "SMS নোটিফিকেশন", values: [false, "১,০০০/মাস", "৫,০০০/মাস", "২০,০০০/মাস"] },
-                      { label: "অনলাইন পেমেন্ট (bKash, SSLCommerz)", values: [false, false, true, true] },
-                      { label: "WhatsApp + Push", values: [false, false, true, true] },
-                      { label: "AI ড্রপআউট ঝুঁকি", values: [false, false, true, true] },
-                      { label: "AI রিপোর্ট কমেন্ট", values: [false, false, true, true] },
-                      { label: "মাল্টি-ব্রাঞ্চ", values: [false, false, false, true] },
-                      { label: "কাস্টম ডোমেইন", values: [false, false, false, true] },
-                      { label: "পাবলিক স্কুল ওয়েবসাইট", values: [false, false, false, true] },
-                      { label: "সাপোর্ট", values: ["কমিউনিটি", "ইমেইল", "প্রায়োরিটি", "২৪/৭ ফোন"] },
-                    ].map((row, i) => (
+                    {t.pricingPage.featureRows.map((row, i) => (
                       <tr key={i} className="border-b border-border/40 hover:bg-muted/30 transition-colors">
                         <td className="p-4 font-medium">{row.label}</td>
                         {row.values.map((v, j) => (
@@ -203,9 +186,9 @@ export default async function PricingPage() {
           {/* Trust section */}
           <div className="mt-20 grid gap-5 md:grid-cols-3">
             {[
-              { icon: Shield, color: "text-success", title: "কোন লুকানো খরচ নেই", desc: "যা দেখছেন তাই পাবেন। Setup ফি নেই, cancellation ফি নেই।" },
-              { icon: Sparkles, color: "text-accent", title: "১৫ দিন ফ্রি ট্রায়াল", desc: "সম্পূর্ণ access, কোন ক্রেডিট কার্ড লাগবে না।" },
-              { icon: Trophy, color: "text-primary", title: "৫০,০০০+ শিক্ষার্থী", desc: "১২০+ প্রতিষ্ঠানের বিশ্বস্ত — বাংলাদেশের #১ পছন্দ।" },
+              { icon: Shield, color: "text-success", title: t.pricingPage.trustNoHidden.title, desc: t.pricingPage.trustNoHidden.desc },
+              { icon: Sparkles, color: "text-accent", title: t.pricingPage.trustFreeTrial.title, desc: t.pricingPage.trustFreeTrial.desc },
+              { icon: Trophy, color: "text-primary", title: t.pricingPage.trustStudents.title, desc: t.pricingPage.trustStudents.desc },
             ].map((item, i) => (
               <Reveal key={item.title} variant="fade-up" delay={i * 120}>
                 <TiltCard>

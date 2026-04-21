@@ -4,16 +4,26 @@ import { PackageDetailPage, type PackageDetail } from "@/components/marketing/pa
 import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i18n/config";
 import { getPackageDetailChrome, getPackageDetailCopy } from "@/lib/i18n/pages";
 
-export const metadata = {
-  title: "Lifetime Basic Package",
-  description: "৳20,000 একবার পরিশোধে সারাজীবন ব্যবহার। ২০০ জন পর্যন্ত শিক্ষার্থী। সব মূল feature।",
-  alternates: { canonical: "/pricing/lifetime" },
-  openGraph: {
-    title: "Lifetime Basic প্যাকেজ — Muhius Sunnah",
-    description: "৳20,000 once for lifetime access. Up to 200 students. All core features.",
-    url: "/pricing/lifetime",
-  },
-};
+export async function generateMetadata() {
+  const jar = await cookies();
+  const cookieLocale = jar.get(localeCookieName)?.value;
+  const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const bn = locale === "bn";
+  return {
+    title: "Lifetime Basic Package",
+    description: bn
+      ? "৳20,000 একবার পরিশোধে সারাজীবন ব্যবহার। ২০০ জন পর্যন্ত শিক্ষার্থী। সব মূল feature।"
+      : "৳20,000 once for lifetime access. Up to 200 students. All core features.",
+    alternates: { canonical: "/pricing/lifetime" },
+    openGraph: {
+      title: bn ? "Lifetime Basic প্যাকেজ — Muhius Sunnah" : "Lifetime Basic Package — Muhius Sunnah",
+      description: bn
+        ? "৳20,000 একবার পরিশোধে সারাজীবন ব্যবহার।"
+        : "৳20,000 once for lifetime access. Up to 200 students.",
+      url: "/pricing/lifetime",
+    },
+  };
+}
 
 export default async function Page() {
   const jar = await cookies();
