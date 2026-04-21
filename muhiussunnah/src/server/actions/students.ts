@@ -457,3 +457,60 @@ export async function shiftStudentAction(
   revalidatePath(`/students/${parsed.student_id}`);
   return ok(undefined, "শিক্ষার্থী স্থানান্তর করা হয়েছে।");
 }
+
+// ---------------------------------------------------------------------------
+// Delete student — soft delete via status = 'dropped'.
+// We never hard-delete because attendance, ledger, exam marks, etc. reference
+// the student by id; removing the row would orphan history.
+// ---------------------------------------------------------------------------
+
+const deleteStudentSchema = z.object({
+  schoolSlug: z.string().min(1),
+  student_id: z.string().uuid(),
+});
+
+export async function deleteStudentAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(deleteStudentSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "delete",
+    resource: "student",
+  });
+  if ("error" in auth) return auth.error;
+
+  const supabase = await supabaseServer();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: current } = await (supabase as any)
+    .from("students")
+    .select("school_id, name_bn, status")
+    .eq("id", parsed.student_id)
+    .single();
+  if (!current || current.school_id !== auth.active.school_id) {
+    return fail("এই শিক্ষার্থী এই স্কুলে নেই।");
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from("students")
+    .update({ status: "dropped" })
+    .eq("id", parsed.student_id);
+  if (error) return fail(error.message);
+
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: "delete",
+    resourceType: "student",
+    resourceId: parsed.student_id,
+    meta: { name_bn: current.name_bn, previous_status: current.status },
+  });
+
+  revalidatePath("/students", "layout");
+  return ok(undefined, `${current.name_bn} এর রেকর্ড মুছে ফেলা হয়েছে।`);
+}

@@ -12,6 +12,7 @@ import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { ensureDefaultSections } from "@/lib/schools/self-heal";
 import { StudentsFilters } from "./filters";
+import { StudentRowActions } from "./row-actions";
 
 type PageProps = {
   searchParams: Promise<{ class_id?: string; section_id?: string; status?: string; q?: string }>;
@@ -153,6 +154,7 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
                   <TableHead className="hidden md:table-cell">ক্লাস</TableHead>
                   <TableHead className="hidden lg:table-cell">অভিভাবক</TableHead>
                   <TableHead className="hidden md:table-cell">স্ট্যাটাস</TableHead>
+                  <TableHead className="text-end">কার্যক্রম</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -193,6 +195,13 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
                       }`}>
                         {statusLabel[s.status] ?? s.status}
                       </span>
+                    </TableCell>
+                    <TableCell className="text-end">
+                      <StudentRowActions
+                        schoolSlug={schoolSlug}
+                        studentId={s.id}
+                        studentName={s.name_bn}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
