@@ -8,7 +8,7 @@ import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { BengaliDate } from "@/components/ui/bengali-date";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { buttonVariants } from "@/components/ui/button";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { resolveStudentId } from "@/lib/students/resolve";
@@ -21,7 +21,9 @@ export default async function StudentDetailPage({ params }: PageProps) {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const schoolSlug = membership.school_slug;
-  const supabase = await supabaseServer();
+  // Admin client: requireActiveRole() already authorized the user, queries are
+  // scoped by school_id. Needed because RLS on `sections` blocks nested joins.
+  const supabase = supabaseAdmin();
 
   // Accept either a UUID or a human-readable student_code in the URL.
   const id = await resolveStudentId(idOrCode, membership.school_id);

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { resolveStudentId } from "@/lib/students/resolve";
@@ -16,7 +16,10 @@ export default async function EditStudentPage({ params }: PageProps) {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
   const schoolSlug = membership.school_slug;
 
-  const supabase = await supabaseServer();
+  // Admin client: requireActiveRole() already verified this user is an admin
+  // of this school, and all queries are scoped by school_id. Needed because
+  // RLS on `sections` blocks the nested join when using a user-session client.
+  const supabase = supabaseAdmin();
   // Accept either a UUID or a student_code in the URL segment.
   const id = await resolveStudentId(idOrCode, membership.school_id);
   if (!id) notFound();

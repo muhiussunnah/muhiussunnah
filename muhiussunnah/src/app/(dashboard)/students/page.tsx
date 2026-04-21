@@ -4,7 +4,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { buttonVariants } from "@/components/ui/button";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { ensureDefaultSections } from "@/lib/schools/self-heal";
@@ -23,7 +23,11 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
   // Self-heal any classes missing sections so the filter shows everything.
   await ensureDefaultSections(membership.school_id);
 
-  const supabase = await supabaseServer();
+  // Admin client: requireActiveRole() already authorized the user, and every
+  // query below is constrained by school_id — no cross-tenant leak possible.
+  // We need admin here because RLS on `sections` blocks nested PostgREST joins
+  // from user-session clients, which made class name come back null.
+  const supabase = supabaseAdmin();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase as any)
