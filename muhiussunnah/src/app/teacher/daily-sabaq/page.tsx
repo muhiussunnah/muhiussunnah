@@ -1,21 +1,25 @@
 import Link from "next/link";
+import { getTranslations, getLocale } from "next-intl/server";
 import { BookOpenText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { formatDualDate } from "@/lib/utils/date";
+import type { Locale } from "@/lib/i18n/config";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveMadrasaRole } from "@/lib/auth/require-madrasa";
 import { TEACHER_ROLES } from "@/lib/auth/roles";
 
 export default async function TeacherSabaqPage() {
   const { active } = await requireActiveMadrasaRole([...TEACHER_ROLES, "MADRASA_USTADH"]);
+  const t = await getTranslations("teacher");
+  const locale = (await getLocale()) as Locale;
+  const dateLocale = locale === "ur" ? "en" : locale;
 
   const schoolSlug = active.school_slug;
   const supabase = await supabaseServer();
 
-  // Independent queries — both keyed off the same user_id / school_id.
   const [sectionsAsClassTeacherRes, assignmentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -43,20 +47,21 @@ export default async function TeacherSabaqPage() {
   }
   const sections = Array.from(map.values());
   const today = new Date().toISOString().slice(0, 10);
+  const todayLabel = formatDualDate(today, { withWeekday: true, withHijri: true, locale: dateLocale });
 
   return (
     <>
       <PageHeader
-        title="দৈনিক সবক"
-        subtitle={`${formatDualDate(today, { withWeekday: true, withHijri: true })} · আপনার সেকশনে ক্লিক করে সবক এন্ট্রি করুন।`}
-        impact={[{ label: <>আপনার সেকশন · <BanglaDigit value={sections.length} /></>, tone: "accent" }]}
+        title={t("sabaq_title")}
+        subtitle={t("sabaq_subtitle", { date: todayLabel })}
+        impact={[{ label: <>{t("sabaq_count")} · <BanglaDigit value={sections.length} /></>, tone: "accent" }]}
       />
 
       {sections.length === 0 ? (
         <EmptyState
           icon={<BookOpenText className="size-8" />}
-          title="কোন ক্লাস অ্যাসাইন করা হয়নি"
-          body="প্রিন্সিপালকে জানান যেন আপনাকে কোন সেকশনে অ্যাসাইন করেন।"
+          title={t("sabaq_no_sections_title")}
+          body={t("sabaq_no_sections_body")}
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -68,8 +73,8 @@ export default async function TeacherSabaqPage() {
             >
               <Card className="transition hover:shadow-hover">
                 <CardContent className="p-5">
-                  <h3 className="font-semibold">{s.class_name} — সেকশন {s.name}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">স্ট্রিম: {s.stream}</p>
+                  <h3 className="font-semibold">{s.class_name} — {t("sabaq_section_suffix")} {s.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{t("sabaq_stream_label")}: {s.stream}</p>
                 </CardContent>
               </Card>
             </Link>

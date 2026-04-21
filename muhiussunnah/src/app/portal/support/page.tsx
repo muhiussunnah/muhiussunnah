@@ -1,21 +1,26 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { LifeBuoy, Plus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
 import { BengaliDate } from "@/components/ui/bengali-date";
-import { buttonVariants } from "@/components/ui/button";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { PORTAL_ROLES } from "@/lib/auth/roles";
 import { NewTicketForm } from "./new-ticket-form";
 
-const statusLabel: Record<string, string> = {
-  open: "খোলা", in_progress: "চলমান", waiting: "অপেক্ষমান", resolved: "সমাধান", closed: "বন্ধ",
-};
-
 export default async function PortalSupportPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
+
+  const statusLabel: Record<string, string> = {
+    open: t("support_status_open"),
+    in_progress: t("support_status_in_progress"),
+    waiting: t("support_status_waiting"),
+    resolved: t("support_status_resolved"),
+    closed: t("support_status_closed"),
+  };
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -33,8 +38,8 @@ export default async function PortalSupportPage() {
   return (
     <>
       <PageHeader
-        title="সাপোর্ট"
-        subtitle="কোন সমস্যা? স্কুলকে সরাসরি বলুন। আমরা দ্রুত উত্তর দেব।"
+        title={t("support_title")}
+        subtitle={t("support_subtitle")}
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -42,23 +47,23 @@ export default async function PortalSupportPage() {
           {tickets.length === 0 ? (
             <EmptyState
               icon={<LifeBuoy className="size-8" />}
-              title="এখনও কোন টিকেট নেই"
-              body="ডান পাশের ফর্ম থেকে আপনার প্রশ্ন বা অভিযোগ পাঠান।"
+              title={t("support_no_tickets_title")}
+              body={t("support_no_tickets_body")}
             />
           ) : (
             <div className="grid gap-3">
-              {tickets.map((t) => (
-                <Link key={t.id} href={`/portal/support/${t.id}`} className="group">
+              {tickets.map((tk) => (
+                <Link key={tk.id} href={`/portal/support/${tk.id}`} className="group">
                   <Card className="transition hover:shadow-hover">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold">{t.subject}</h3>
+                        <h3 className="font-semibold">{tk.subject}</h3>
                         <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
-                          {statusLabel[t.status] ?? t.status}
+                          {statusLabel[tk.status] ?? tk.status}
                         </span>
                       </div>
-                      <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{t.body}</p>
-                      <p className="mt-2 text-xs text-muted-foreground"><BengaliDate value={t.created_at} /></p>
+                      <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">{tk.body}</p>
+                      <p className="mt-2 text-xs text-muted-foreground"><BengaliDate value={tk.created_at} /></p>
                     </CardContent>
                   </Card>
                 </Link>
@@ -71,7 +76,7 @@ export default async function PortalSupportPage() {
           <Card>
             <CardContent className="p-5">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <Plus className="size-4" /> নতুন টিকেট
+                <Plus className="size-4" /> {t("support_new_ticket")}
               </h2>
               <NewTicketForm  schoolSlug={schoolSlug}/>
             </CardContent>

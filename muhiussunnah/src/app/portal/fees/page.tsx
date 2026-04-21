@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { CreditCard } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,17 +11,21 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { PORTAL_ROLES } from "@/lib/auth/roles";
 
-const statusLabel: Record<string, string> = {
-  unpaid: "বকেয়া", partial: "আংশিক", paid: "পরিশোধিত", overdue: "মেয়াদোত্তীর্ণ", canceled: "বাতিল",
-};
-
 export default async function PortalFeesPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
+
+  const statusLabel: Record<string, string> = {
+    unpaid: t("fees_status_unpaid"),
+    partial: t("fees_status_partial"),
+    paid: t("fees_status_paid"),
+    overdue: t("fees_status_overdue"),
+    canceled: t("fees_status_canceled"),
+  };
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Resolve children ids
   let childIds: string[] = [];
   if (membership.role === "PARENT") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -34,11 +39,11 @@ export default async function PortalFeesPage() {
   if (childIds.length === 0) {
     return (
       <>
-        <PageHeader title="ফি ও পেমেন্ট" subtitle="আপনার সন্তানের বকেয়া ফি এখানে দেখাবে।" />
+        <PageHeader title={t("fees_title")} subtitle={t("fees_subtitle_no_link")} />
         <EmptyState
           icon={<CreditCard className="size-8" />}
-          title="সন্তানের সাথে লিংক করা নেই"
-          body="স্কুল অ্যাডমিনকে জানান যেন আপনাকে সন্তানের সাথে যুক্ত করেন।"
+          title={t("fees_no_link_title")}
+          body={t("fees_no_link_body")}
         />
       </>
     );
@@ -65,17 +70,17 @@ export default async function PortalFeesPage() {
   return (
     <>
       <PageHeader
-        title="ফি ও পেমেন্ট"
-        subtitle={totalDue > 0 ? `মোট ৳ ${totalDue.toLocaleString("en-IN")} বাকি আছে` : "কোন বকেয়া নেই ✨"}
+        title={t("fees_title")}
+        subtitle={totalDue > 0 ? t("fees_subtitle_due", { amount: totalDue.toLocaleString("en-IN") }) : t("fees_subtitle_no_dues")}
         impact={[
-          { label: <>বকেয়া · ৳ <BanglaDigit value={totalDue.toLocaleString("en-IN")} /></>, tone: totalDue > 0 ? "warning" : "success" },
-          { label: <>পরিশোধিত · <BanglaDigit value={paidList.length} /> টি</>, tone: "default" },
+          { label: <>{t("fees_tally_due")} · ৳ <BanglaDigit value={totalDue.toLocaleString("en-IN")} /></>, tone: totalDue > 0 ? "warning" : "success" },
+          { label: <>{t("fees_tally_paid")} · <BanglaDigit value={paidList.length} /> {t("fees_paid_count_suffix")}</>, tone: "default" },
         ]}
       />
 
       {outstanding.length > 0 ? (
         <section className="mb-6">
-          <h2 className="mb-3 text-sm font-semibold text-warning-foreground dark:text-warning">🔔 বকেয়া ইনভয়েস</h2>
+          <h2 className="mb-3 text-sm font-semibold text-warning-foreground dark:text-warning">{t("fees_outstanding_heading")}</h2>
           <div className="grid gap-3">
             {outstanding.map((inv) => (
               <Card key={inv.id} className="border-warning/30">
@@ -96,14 +101,14 @@ export default async function PortalFeesPage() {
                     <div className="text-right">
                       <div className="text-lg font-bold">৳ <BanglaDigit value={Number(inv.due_amount).toLocaleString("en-IN")} /></div>
                       <div className="text-xs text-muted-foreground">
-                        মোট ৳ <BanglaDigit value={Number(inv.total_amount).toLocaleString("en-IN")} />
+                        {t("fees_total", { amount: Number(inv.total_amount).toLocaleString("en-IN") })}
                       </div>
                     </div>
                     <Link
                       href={`/portal/fees/pay/${inv.id}`}
                       className={buttonVariants({ size: "sm", className: "bg-gradient-primary text-white" })}
                     >
-                      <CreditCard className="me-1 size-3.5" /> এখনই পেমেন্ট
+                      <CreditCard className="me-1 size-3.5" /> {t("fees_pay_now")}
                     </Link>
                   </div>
                 </CardContent>
@@ -115,7 +120,7 @@ export default async function PortalFeesPage() {
 
       {paidList.length > 0 ? (
         <section>
-          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">পরিশোধিত ইতিহাস</h2>
+          <h2 className="mb-3 text-sm font-semibold text-muted-foreground">{t("fees_paid_heading")}</h2>
           <Card>
             <CardContent className="p-0">
               <ul className="divide-y divide-border/60">
@@ -129,7 +134,7 @@ export default async function PortalFeesPage() {
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-medium">৳ <BanglaDigit value={Number(inv.paid_amount).toLocaleString("en-IN")} /></div>
-                      <div className="text-xs text-success">✓ পরিশোধিত</div>
+                      <div className="text-xs text-success">{t("fees_paid_badge")}</div>
                     </div>
                   </li>
                 ))}

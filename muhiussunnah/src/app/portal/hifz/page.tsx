@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { BookOpenText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -16,12 +17,17 @@ const statusColor: Record<string, string> = {
   none:      "bg-muted",
 };
 
-const statusLabel: Record<string, string> = {
-  learning: "শিখছে", revising: "রিভিশন", completed: "সম্পন্ন", tested: "পরীক্ষিত", none: "শুরু হয়নি",
-};
-
 export default async function PortalHifzPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
+
+  const statusLabel: Record<string, string> = {
+    learning: t("hifz_status_learning"),
+    revising: t("hifz_status_revising"),
+    completed: t("hifz_status_completed"),
+    tested: t("hifz_status_tested"),
+    none: t("hifz_status_none"),
+  };
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -39,17 +45,16 @@ export default async function PortalHifzPage() {
   if (childIds.length === 0) {
     return (
       <>
-        <PageHeader title="হিফজ অগ্রগতি" subtitle="সন্তানের হিফজ অবস্থা এখানে দেখাবে।" />
+        <PageHeader title={t("hifz_title")} subtitle={t("hifz_subtitle_empty")} />
         <EmptyState
           icon={<BookOpenText className="size-8" />}
-          title="সন্তানের সাথে লিংক করা নেই"
-          body="স্কুল অ্যাডমিনকে জানান যেন আপনাকে সন্তানের সাথে যুক্ত করেন।"
+          title={t("hifz_no_link_title")}
+          body={t("hifz_no_link_body")}
         />
       </>
     );
   }
 
-  // Independent queries — both keyed off childIds only.
   const [studentsRes, progressRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -77,8 +82,8 @@ export default async function PortalHifzPage() {
   return (
     <>
       <PageHeader
-        title="হিফজ অগ্রগতি"
-        subtitle="আপনার সন্তানের ৩০ পারার হিফজ অবস্থা।"
+        title={t("hifz_title")}
+        subtitle={t("hifz_subtitle")}
       />
 
       {studentList.map((s) => {
@@ -91,11 +96,10 @@ export default async function PortalHifzPage() {
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">{s.name_bn}</h3>
                 <span className="rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
-                  <BanglaDigit value={completed} />/<BanglaDigit value={30} /> পারা · <BanglaDigit value={pct} />%
+                  <BanglaDigit value={completed} />/<BanglaDigit value={30} /> {t("hifz_para_suffix")} · <BanglaDigit value={pct} />%
                 </span>
               </div>
 
-              {/* 30-para grid */}
               <div className="grid grid-cols-10 gap-1 md:grid-cols-15">
                 {Array.from({ length: 30 }, (_, i) => i + 1).map((n) => {
                   const p = paraMap?.get(n);
@@ -104,7 +108,7 @@ export default async function PortalHifzPage() {
                     <div key={n} className="flex flex-col items-center gap-0.5">
                       <div
                         className={`size-8 rounded ${statusColor[st]} flex items-center justify-center text-[10px] font-semibold text-white`}
-                        title={`পারা ${n} · ${statusLabel[st]}${p?.tested_on ? ` · পরীক্ষিত ${p.tested_on}` : ""}`}
+                        title={`${t("hifz_para")} ${n} · ${statusLabel[st]}${p?.tested_on ? ` · ${t("hifz_tested_on")} ${p.tested_on}` : ""}`}
                       >
                         <BanglaDigit value={n} />
                       </div>
@@ -113,7 +117,6 @@ export default async function PortalHifzPage() {
                 })}
               </div>
 
-              {/* Recent tested */}
               {paraMap ? (
                 <div className="mt-4 text-xs text-muted-foreground">
                   {Array.from(paraMap.entries())
@@ -122,7 +125,7 @@ export default async function PortalHifzPage() {
                     .slice(0, 3)
                     .map(([n, v]) => (
                       <span key={n} className="me-3">
-                        পারা <BanglaDigit value={n} /> পরীক্ষিত · <BengaliDate value={v.tested_on!} />
+                        {t("hifz_para")} <BanglaDigit value={n} /> {t("hifz_tested_on")} · <BengaliDate value={v.tested_on!} />
                       </span>
                     ))}
                 </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { initiateOnlinePaymentAction, type GatewayChoice } from "@/server/actions/payment-init";
@@ -12,13 +13,14 @@ type Props = {
 };
 
 export function PayButtons({ schoolSlug, invoiceId, gateways }: Props) {
+  const t = useTranslations("portal");
   const [pending, startTransition] = useTransition();
 
   function pay(gateway: GatewayChoice) {
     startTransition(async () => {
       const res = await initiateOnlinePaymentAction({ schoolSlug, invoiceId, gateway });
       if (res.ok && res.data) {
-        toast.loading("গেটওয়েতে যাচ্ছেন...");
+        toast.loading(t("pay_going_to_gateway"));
         window.location.href = res.data.redirectUrl;
       } else if (!res.ok) {
         toast.error(res.error);
@@ -31,9 +33,9 @@ export function PayButtons({ schoolSlug, invoiceId, gateways }: Props) {
   if (!anyConfigured) {
     return (
       <div className="rounded-md border border-warning/30 bg-warning/5 p-3 text-sm">
-        <p className="font-semibold">⚠ অনলাইন পেমেন্ট এখনও চালু হয়নি</p>
+        <p className="font-semibold">{t("pay_online_disabled")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          স্কুল অ্যাডমিনকে জানান SSLCommerz বা bKash কনফিগার করতে। আপাতত ক্যাশ পেমেন্টের জন্য স্কুলে যান।
+          {t("pay_online_disabled_body")}
         </p>
       </div>
     );
@@ -48,7 +50,7 @@ export function PayButtons({ schoolSlug, invoiceId, gateways }: Props) {
           onClick={() => pay("sslcommerz")}
           className="bg-gradient-primary text-white"
         >
-          💳 কার্ড / bKash / Nagad / Rocket (SSLCommerz)
+          {t("pay_gateway_sslcommerz")}
         </Button>
       ) : null}
 
@@ -60,7 +62,7 @@ export function PayButtons({ schoolSlug, invoiceId, gateways }: Props) {
           variant="outline"
           className="border-pink-500/40 text-pink-500"
         >
-          📱 bKash সরাসরি (কম ফি)
+          {t("pay_gateway_bkash")}
         </Button>
       ) : null}
 
@@ -72,12 +74,12 @@ export function PayButtons({ schoolSlug, invoiceId, gateways }: Props) {
           variant="outline"
           className="border-orange-500/40 text-orange-500"
         >
-          🧡 Nagad সরাসরি
+          {t("pay_gateway_nagad")}
         </Button>
       ) : null}
 
       <p className="mt-2 text-xs text-muted-foreground">
-        💡 SSLCommerz সবচেয়ে সহজ — কার্ড + সব MFS এক জায়গায়। bKash সরাসরি ফি কম কিন্তু শুধু bKash-এ।
+        {t("pay_tip")}
       </p>
     </div>
   );

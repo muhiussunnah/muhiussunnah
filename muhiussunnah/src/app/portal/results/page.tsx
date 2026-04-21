@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ScrollText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -12,11 +13,11 @@ import { PORTAL_ROLES } from "@/lib/auth/roles";
 
 export default async function PortalResultsPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Load linked children
   let childIds: string[] = [];
   if (membership.role === "PARENT") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -30,11 +31,11 @@ export default async function PortalResultsPage() {
   if (childIds.length === 0) {
     return (
       <>
-        <PageHeader title="পরীক্ষার ফলাফল" subtitle="আপনার সন্তানের সব পরীক্ষার ফলাফল এখানে দেখাবে।" />
+        <PageHeader title={t("results_title")} subtitle={t("results_no_link_subtitle")} />
         <EmptyState
           icon={<ScrollText className="size-8" />}
-          title="সন্তানের সাথে লিংক করা নেই"
-          body="স্কুল অ্যাডমিনকে জানান যেন আপনাকে সন্তানের সাথে যুক্ত করেন।"
+          title={t("results_no_link_title")}
+          body={t("results_no_link_body")}
         />
       </>
     );
@@ -63,16 +64,16 @@ export default async function PortalResultsPage() {
   return (
     <>
       <PageHeader
-        title="পরীক্ষার ফলাফল"
-        subtitle={list.length > 0 ? `${list.length} টি প্রকাশিত ফলাফল` : "এখনও কোন ফলাফল প্রকাশিত হয়নি"}
-        impact={[{ label: <>মোট · <BanglaDigit value={list.length} /></>, tone: "accent" }]}
+        title={t("results_title")}
+        subtitle={list.length > 0 ? t("results_subtitle_count", { count: list.length }) : t("results_subtitle_empty")}
+        impact={[{ label: <>{t("results_total")} · <BanglaDigit value={list.length} /></>, tone: "accent" }]}
       />
 
       {list.length === 0 ? (
         <EmptyState
           icon={<ScrollText className="size-8" />}
-          title="কোন ফলাফল প্রকাশিত হয়নি"
-          body="স্কুল যখন পরীক্ষার ফলাফল প্রকাশ করবে, এখানে সাথে সাথে দেখা যাবে।"
+          title={t("results_empty_title")}
+          body={t("results_empty_body")}
         />
       ) : (
         <div className="grid gap-3">
@@ -85,13 +86,13 @@ export default async function PortalResultsPage() {
                     {c.students.name_bn} · {c.exams.start_date ? <BengaliDate value={c.exams.start_date} /> : null}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-3 text-sm">
-                    <span>GPA: <span className="font-bold">{c.overall_gpa?.toFixed(2) ?? "—"}</span></span>
-                    <span>গ্রেড: <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{c.overall_grade ?? "—"}</span></span>
+                    <span>{t("results_gpa")}: <span className="font-bold">{c.overall_gpa?.toFixed(2) ?? "—"}</span></span>
+                    <span>{t("results_grade")}: <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">{c.overall_grade ?? "—"}</span></span>
                     {c.position_in_class !== null ? (
-                      <span>অবস্থান: <BanglaDigit value={c.position_in_class} /></span>
+                      <span>{t("results_position")}: <BanglaDigit value={c.position_in_class} /></span>
                     ) : null}
                     {c.attendance_pct !== null ? (
-                      <span>উপস্থিতি: <BanglaDigit value={Math.round(Number(c.attendance_pct))} />%</span>
+                      <span>{t("results_attendance")}: <BanglaDigit value={Math.round(Number(c.attendance_pct))} />%</span>
                     ) : null}
                   </div>
                 </div>
@@ -99,7 +100,7 @@ export default async function PortalResultsPage() {
                   href={`/portal/results/${c.exam_id}/${c.student_id}`}
                   className={buttonVariants({ size: "sm", className: "bg-gradient-primary text-white" })}
                 >
-                  মার্কশিট
+                  {t("results_marksheet_btn")}
                 </Link>
               </CardContent>
             </Card>

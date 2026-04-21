@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ScrollText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,11 +11,11 @@ import { TEACHER_ROLES } from "@/lib/auth/roles";
 
 export default async function TeacherMarksIndexPage() {
   const membership = await requireActiveRole(TEACHER_ROLES);
+  const t = await getTranslations("teacher");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Independent queries — both keyed off the same user_id.
   const [assignmentsRes, classTeacherSectionsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -34,7 +35,6 @@ export default async function TeacherMarksIndexPage() {
   const sectionIds = new Set(((assignments ?? []) as { section_id: string }[]).map((a) => a.section_id));
   for (const s of ((classTeacherSections ?? []) as { id: string }[])) sectionIds.add(s.id);
 
-  // Find exam_subjects matching the teacher's scope (active exams)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let query = (supabase as any)
     .from("exam_subjects")
@@ -58,7 +58,6 @@ export default async function TeacherMarksIndexPage() {
     exams: { id: string; name: string; is_published: boolean };
   }>;
 
-  // Further filter: for SUBJECT_TEACHER, only keep subjects they're assigned to
   const filtered = membership.role === "SUBJECT_TEACHER"
     ? list.filter((es) => subjectIds.has(es.subject_id))
     : list;
@@ -66,16 +65,16 @@ export default async function TeacherMarksIndexPage() {
   return (
     <>
       <PageHeader
-        title="মার্ক্স এন্ট্রি"
-        subtitle="আপনি যে ক্লাস + বিষয়ে শিক্ষক, সেগুলোর মার্ক্স এন্ট্রি এখান থেকে করুন।"
-        impact={[{ label: <>আপনার ক্লাস · <BanglaDigit value={filtered.length} /></>, tone: "accent" }]}
+        title={t("marks_title")}
+        subtitle={t("marks_subtitle")}
+        impact={[{ label: <>{t("marks_count")} · <BanglaDigit value={filtered.length} /></>, tone: "accent" }]}
       />
 
       {filtered.length === 0 ? (
         <EmptyState
           icon={<ScrollText className="size-8" />}
-          title="কোন মার্ক্স এন্ট্রি বাকি নেই"
-          body="হয় আপনার জন্য অ্যাসাইনমেন্ট নেই, অথবা সব পরীক্ষার মার্ক্স আগেই দেওয়া আছে।"
+          title={t("marks_empty_title")}
+          body={t("marks_empty_body")}
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -95,12 +94,12 @@ export default async function TeacherMarksIndexPage() {
                       </p>
                     </div>
                     <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary">
-                      পূর্ণমান <BanglaDigit value={es.full_marks} />
+                      {t("marks_full_marks_label")} <BanglaDigit value={es.full_marks} />
                     </span>
                   </div>
                   <div className="mt-3 text-xs text-muted-foreground">{es.exams.name}</div>
                   {es.exams.is_published ? (
-                    <div className="mt-2 text-xs text-success">✓ ফলাফল প্রকাশিত</div>
+                    <div className="mt-2 text-xs text-success">{t("marks_published")}</div>
                   ) : null}
                 </CardContent>
               </Card>

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ClipboardCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,11 +12,11 @@ import { SubmitForm } from "./submit-form";
 
 export default async function PortalAssignmentsPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Get student ids for this user (parent = children, student = self link)
   let childrenIds: string[] = [];
   if (membership.role === "PARENT") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,17 +30,16 @@ export default async function PortalAssignmentsPage() {
   if (childrenIds.length === 0) {
     return (
       <>
-        <PageHeader title="অ্যাসাইনমেন্ট" subtitle="শিক্ষার্থীর জন্য দেওয়া অ্যাসাইনমেন্টের তালিকা ও জমা দেওয়ার অবস্থা।" />
+        <PageHeader title={t("assignments_title")} subtitle={t("assignments_subtitle_short")} />
         <EmptyState
           icon={<ClipboardCheck className="size-8" />}
-          title="কোন শিক্ষার্থী linked নেই"
-          body="আপনার অ্যাকাউন্টের সাথে কোন ছাত্র-ছাত্রী যুক্ত নেই। স্কুলে যোগাযোগ করুন।"
+          title={t("assignments_no_link_title")}
+          body={t("assignments_no_link_body")}
         />
       </>
     );
   }
 
-  // Independent — both keyed off childrenIds only.
   const [studentsRes, submissionsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -60,7 +60,6 @@ export default async function PortalAssignmentsPage() {
   const students = (studentsData ?? []) as Student[];
   const sectionIds = [...new Set(students.map((s) => s.section_id).filter(Boolean))] as string[];
 
-  // Fetch assignments for those sections — depends on sectionIds.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: assignments } = await (supabase as any)
     .from("assignments")
@@ -81,16 +80,16 @@ export default async function PortalAssignmentsPage() {
   return (
     <>
       <PageHeader
-        title="অ্যাসাইনমেন্ট"
-        subtitle="শিক্ষার্থীর জন্য দেওয়া অ্যাসাইনমেন্টের তালিকা — জমা দিন ও ফলাফল দেখুন।"
-        impact={[{ label: <>মোট · <BanglaDigit value={pending} /></>, tone: "default" }]}
+        title={t("assignments_title")}
+        subtitle={t("assignments_subtitle")}
+        impact={[{ label: <>{t("assignments_total")} · <BanglaDigit value={pending} /></>, tone: "default" }]}
       />
 
       {aList.length === 0 ? (
         <EmptyState
           icon={<ClipboardCheck className="size-8" />}
-          title="এখন কোন অ্যাসাইনমেন্ট নেই"
-          body="ভবিষ্যতে শিক্ষক অ্যাসাইনমেন্ট দিলে এখানে দেখাবে।"
+          title={t("assignments_empty_title")}
+          body={t("assignments_empty_body")}
         />
       ) : (
         <div className="space-y-4">
@@ -111,16 +110,16 @@ export default async function PortalAssignmentsPage() {
                               <Badge variant="outline" className="text-xs">{a.subjects?.name_bn ?? "—"}</Badge>
                               {a.due_date && (
                                 <Badge variant={overdue ? "destructive" : "secondary"} className="text-xs">
-                                  শেষ: {new Date(a.due_date).toLocaleDateString("bn-BD")}
+                                  {t("assignments_deadline")}: {new Date(a.due_date).toLocaleDateString()}
                                 </Badge>
                               )}
                               {sub?.graded_at && sub.marks !== null && (
                                 <Badge className="bg-success/10 text-success text-xs" variant="secondary">
-                                  গ্রেড: <BanglaDigit value={sub.marks} />{a.max_marks ? `/${a.max_marks}` : ""}
+                                  {t("assignments_grade")}: <BanglaDigit value={sub.marks} />{a.max_marks ? `/${a.max_marks}` : ""}
                                 </Badge>
                               )}
                               {sub?.submitted_at && !sub.graded_at && (
-                                <Badge variant="default" className="text-xs">জমা হয়েছে</Badge>
+                                <Badge variant="default" className="text-xs">{t("assignments_submitted")}</Badge>
                               )}
                             </div>
                           </div>
@@ -130,7 +129,7 @@ export default async function PortalAssignmentsPage() {
                         )}
                         {sub?.feedback && (
                           <div className="mt-3 rounded-md bg-success/5 border border-success/20 p-2 text-sm">
-                            <strong>শিক্ষকের মন্তব্য:</strong> {sub.feedback}
+                            <strong>{t("assignments_teacher_feedback")}:</strong> {sub.feedback}
                           </div>
                         )}
                         <div className="mt-3">

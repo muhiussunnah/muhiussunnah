@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Video, ExternalLink } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,11 +12,11 @@ import { PORTAL_ROLES } from "@/lib/auth/roles";
 
 export default async function PortalOnlineClassesPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Find student sections
   let childrenIds: string[] = [];
   if (membership.role === "PARENT") {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,58 +53,58 @@ export default async function PortalOnlineClassesPage() {
   const upcoming = list.filter((c) => c.scheduled_at >= now);
   const past = list.filter((c) => c.scheduled_at < now);
 
-  const providerLabel = (p: string) => ({ zoom: "Zoom", google_meet: "Meet", teams: "Teams", other: "অন্যান্য" }[p] ?? p);
+  const providerLabel = (p: string) => ({ zoom: "Zoom", google_meet: "Meet", teams: "Teams", other: t("online_provider_other") }[p] ?? p);
 
   return (
     <>
       <PageHeader
-        title="অনলাইন ক্লাস"
-        subtitle="আসন্ন ক্লাসে যোগ দিন, অতীত ক্লাসের রেকর্ডিং দেখুন।"
+        title={t("online_title")}
+        subtitle={t("online_subtitle")}
         impact={[
-          { label: <>আসন্ন · <BanglaDigit value={upcoming.length} /></>, tone: "accent" },
+          { label: <>{t("online_upcoming_label")} · <BanglaDigit value={upcoming.length} /></>, tone: "accent" },
         ]}
       />
 
       {list.length === 0 ? (
         <EmptyState
           icon={<Video className="size-8" />}
-          title="কোন অনলাইন ক্লাস নেই"
-          body="এই মুহূর্তে কোন ক্লাস শিডিউল করা নেই।"
+          title={t("online_empty_title")}
+          body={t("online_empty_body")}
         />
       ) : (
         <div className="space-y-4">
-          {upcoming.length > 0 && <h2 className="font-semibold">আসন্ন ক্লাস</h2>}
+          {upcoming.length > 0 && <h2 className="font-semibold">{t("online_upcoming_heading")}</h2>}
           {upcoming.map((c) => (
             <Card key={c.id}>
               <CardContent className="p-4 flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <h3 className="font-medium">{c.title ?? c.subjects?.name_bn ?? "ক্লাস"}</h3>
+                  <h3 className="font-medium">{c.title ?? c.subjects?.name_bn ?? t("online_class_fallback")}</h3>
                   <div className="text-xs text-muted-foreground mt-1">
-                    🗓️ {new Date(c.scheduled_at).toLocaleString("bn-BD")}
-                    {c.duration_mins && <> · <BanglaDigit value={c.duration_mins} /> মিনিট</>}
+                    🗓️ {new Date(c.scheduled_at).toLocaleString()}
+                    {c.duration_mins && <> · <BanglaDigit value={c.duration_mins} /> {t("online_minutes")}</>}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge variant="outline">{providerLabel(c.provider)}</Badge>
                   <a href={c.meet_url} target="_blank" rel="noreferrer" className={buttonVariants({ size: "sm" })}>
-                    <ExternalLink className="me-1.5 size-3.5" />যোগ দিন
+                    <ExternalLink className="me-1.5 size-3.5" />{t("online_join")}
                   </a>
                 </div>
               </CardContent>
             </Card>
           ))}
 
-          {past.length > 0 && <h2 className="font-semibold text-muted-foreground mt-6">অতীত ক্লাস</h2>}
+          {past.length > 0 && <h2 className="font-semibold text-muted-foreground mt-6">{t("online_past_heading")}</h2>}
           {past.slice(0, 20).map((c) => (
             <Card key={c.id} className="opacity-75">
               <CardContent className="p-3 flex items-center justify-between flex-wrap gap-2">
                 <div className="text-sm">
                   {c.title ?? c.subjects?.name_bn}
-                  <div className="text-xs text-muted-foreground">{new Date(c.scheduled_at).toLocaleDateString("bn-BD")}</div>
+                  <div className="text-xs text-muted-foreground">{new Date(c.scheduled_at).toLocaleDateString()}</div>
                 </div>
                 {c.recording_url && (
                   <a href={c.recording_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">
-                    📹 রেকর্ডিং দেখুন
+                    {t("online_view_recording")}
                   </a>
                 )}
               </CardContent>

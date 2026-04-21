@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Megaphone } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,6 +11,7 @@ import { PORTAL_ROLES } from "@/lib/auth/roles";
 
 export default async function PortalNoticesPage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -28,16 +30,16 @@ export default async function PortalNoticesPage() {
   return (
     <>
       <PageHeader
-        title="নোটিশ"
-        subtitle="স্কুল থেকে পাঠান ো সব নোটিশ এক জায়গায়।"
-        impact={[{ label: <>মোট · <BanglaDigit value={notices.length} /></>, tone: "accent" }]}
+        title={t("notices_title")}
+        subtitle={t("notices_subtitle")}
+        impact={[{ label: <>{t("notices_total")} · <BanglaDigit value={notices.length} /></>, tone: "accent" }]}
       />
 
       {notices.length === 0 ? (
         <EmptyState
           icon={<Megaphone className="size-8" />}
-          title="কোন নোটিশ নেই"
-          body="স্কুল যখন নোটিশ পাঠাবে, এখানে সাথে সাথে দেখা যাবে।"
+          title={t("notices_empty_title")}
+          body={t("notices_empty_body")}
         />
       ) : (
         <div className="grid gap-3">

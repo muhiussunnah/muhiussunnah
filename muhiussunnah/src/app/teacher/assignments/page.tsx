@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ClipboardCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,18 +12,18 @@ import { requireActiveRole } from "@/lib/auth/active-school";
 
 export default async function TeacherAssignmentsPage() {
   const membership = await requireActiveRole(["CLASS_TEACHER", "SUBJECT_TEACHER", "MADRASA_USTADH"]);
+  const t = await getTranslations("teacher");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Teacher's sections via teacher_assignments
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: teachings } = await (supabase as any)
     .from("teacher_assignments")
     .select("section_id")
     .eq("school_user_id", membership.school_user_id);
 
-  const sectionIds = [...new Set(((teachings ?? []) as { section_id: string }[]).map((t) => t.section_id))];
+  const sectionIds = [...new Set(((teachings ?? []) as { section_id: string }[]).map((tg) => tg.section_id))];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: assignments } = sectionIds.length > 0
@@ -39,12 +40,12 @@ export default async function TeacherAssignmentsPage() {
   return (
     <>
       <PageHeader
-        title="আমার অ্যাসাইনমেন্ট"
-        subtitle="আপনার শ্রেণিগুলোতে দেওয়া অ্যাসাইনমেন্ট ও জমা ব্যবস্থাপনা।"
-        impact={[{ label: <><BanglaDigit value={list.length} /> অ্যাসাইনমেন্ট</>, tone: "default" }]}
+        title={t("assn_title")}
+        subtitle={t("assn_subtitle")}
+        impact={[{ label: <><BanglaDigit value={list.length} /> {t("assn_count_suffix")}</>, tone: "default" }]}
         actions={
           <Link href={`/assignments`} className={buttonVariants({ variant: "default", size: "sm" })}>
-            নতুন অ্যাসাইনমেন্ট
+            {t("assn_new")}
           </Link>
         }
       />
@@ -52,8 +53,8 @@ export default async function TeacherAssignmentsPage() {
       {list.length === 0 ? (
         <EmptyState
           icon={<ClipboardCheck className="size-8" />}
-          title="এখনো কোন অ্যাসাইনমেন্ট নেই"
-          body="উপরের বাটনে ক্লিক করে প্রথম অ্যাসাইনমেন্ট তৈরি করুন।"
+          title={t("assn_empty_title")}
+          body={t("assn_empty_body")}
         />
       ) : (
         <div className="grid gap-3">
@@ -70,10 +71,10 @@ export default async function TeacherAssignmentsPage() {
                   <div className="flex gap-2 items-center">
                     {a.due_date && (
                       <Badge variant={new Date(a.due_date) < new Date() ? "destructive" : "secondary"}>
-                        শেষ: {new Date(a.due_date).toLocaleDateString("bn-BD")}
+                        {t("assn_deadline")}: {new Date(a.due_date).toLocaleDateString()}
                       </Badge>
                     )}
-                    {a.max_marks && <Badge variant="outline">মার্কস <BanglaDigit value={a.max_marks} /></Badge>}
+                    {a.max_marks && <Badge variant="outline">{t("assn_marks_label")} <BanglaDigit value={a.max_marks} /></Badge>}
                   </div>
                 </CardContent>
               </Card>

@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import { createTicketAction } from "@/server/actions/support";
 import type { ActionResult } from "@/server/actions/_helpers";
 
 export function NewTicketForm({ schoolSlug }: { schoolSlug: string }) {
+  const t = useTranslations("portal");
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(createTicketAction, null);
@@ -19,39 +21,40 @@ export function NewTicketForm({ schoolSlug }: { schoolSlug: string }) {
   useEffect(() => {
     if (!state) return;
     if (state.ok) {
-      toast.success(state.message ?? "পাঠান ো হয়েছে");
+      toast.success(state.message ?? t("support_sent_success"));
       formRef.current?.reset();
       if (state.redirect) router.push(state.redirect);
     } else {
       toast.error(state.error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, router]);
 
   return (
     <form ref={formRef} action={action} className="flex flex-col gap-3">
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="subject">বিষয়</Label>
-        <Input id="subject" name="subject" required placeholder="সংক্ষেপে কী নিয়ে" />
+        <Label htmlFor="subject">{t("support_subject")}</Label>
+        <Input id="subject" name="subject" required placeholder={t("support_subject_placeholder")} />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="body">বিস্তারিত</Label>
+        <Label htmlFor="body">{t("support_details")}</Label>
         <Textarea id="body" name="body" rows={4} required />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="priority">গুরুত্ব</Label>
+        <Label htmlFor="priority">{t("support_priority")}</Label>
         <Select name="priority" defaultValue="normal">
           <SelectTrigger id="priority"><SelectValue /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="low">কম</SelectItem>
-            <SelectItem value="normal">স্বাভাবিক</SelectItem>
-            <SelectItem value="high">বেশি</SelectItem>
-            <SelectItem value="urgent">জরুরি</SelectItem>
+            <SelectItem value="low">{t("support_priority_low")}</SelectItem>
+            <SelectItem value="normal">{t("support_priority_normal")}</SelectItem>
+            <SelectItem value="high">{t("support_priority_high")}</SelectItem>
+            <SelectItem value="urgent">{t("support_priority_urgent")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <Button type="submit" disabled={pending} className="mt-1 bg-gradient-primary text-white">
-        {pending ? "পাঠানো হচ্ছে..." : "টিকেট পাঠান"}
+        {pending ? t("support_sending") : t("support_send")}
       </Button>
     </form>
   );

@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { ArrowLeft, Sparkles } from "lucide-react";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { BengaliDate } from "@/components/ui/bengali-date";
@@ -13,6 +14,7 @@ type PageProps = { params: Promise<{ examId: string; studentId: string }> };
 export default async function PortalMarksheetPage({ params }: PageProps) {
   const { examId, studentId } = await params;
   const membership = await requireActiveRole(PORTAL_ROLES);
+  const t = await getTranslations("portal");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -28,7 +30,6 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
     if (!link) redirect(`/portal/results`);
   }
 
-  // Independent queries — all keyed off examId / studentId / school_id directly.
   const [examRes, studentRes, schoolRes, marksRes, reportCardRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -89,7 +90,7 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
     <>
       <div className="mb-4 flex items-center justify-between print:hidden">
         <Link href={`/portal/results`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-          <ArrowLeft className="size-3.5" /> ফলাফল তালিকা
+          <ArrowLeft className="size-3.5" /> {t("marksheet_back")}
         </Link>
         <PrintButton />
       </div>
@@ -111,24 +112,24 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
           </div>
         </header>
 
-        <h2 className="my-6 text-center text-xl font-bold tracking-wide">মার্কশিট / Marksheet</h2>
+        <h2 className="my-6 text-center text-xl font-bold tracking-wide">{t("marksheet_heading")}</h2>
         <p className="mb-6 text-center text-sm"><span className="font-semibold">{exam.name}</span></p>
 
         <section className="mb-6 grid grid-cols-2 gap-x-8 gap-y-1 text-sm">
-          <div><span className="text-muted-foreground">নাম:</span> <span className="font-medium">{student.name_bn}</span></div>
-          <div><span className="text-muted-foreground">ID:</span> <span className="font-medium">{student.student_code}</span></div>
-          <div><span className="text-muted-foreground">শ্রেণি:</span> <span className="font-medium">{student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"}</span></div>
-          {student.roll ? <div><span className="text-muted-foreground">রোল:</span> <span className="font-medium">{student.roll}</span></div> : null}
+          <div><span className="text-muted-foreground">{t("marksheet_name")}:</span> <span className="font-medium">{student.name_bn}</span></div>
+          <div><span className="text-muted-foreground">{t("marksheet_id")}:</span> <span className="font-medium">{student.student_code}</span></div>
+          <div><span className="text-muted-foreground">{t("marksheet_class")}:</span> <span className="font-medium">{student.sections ? `${student.sections.classes.name_bn} — ${student.sections.name}` : "—"}</span></div>
+          {student.roll ? <div><span className="text-muted-foreground">{t("marksheet_roll")}:</span> <span className="font-medium">{student.roll}</span></div> : null}
         </section>
 
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="border-b-2 border-primary/60">
-              <th className="p-2 text-left">বিষয়</th>
-              <th className="p-2 text-right">পূর্ণমান</th>
-              <th className="p-2 text-right">পাশ</th>
-              <th className="p-2 text-right">প্রাপ্ত</th>
-              <th className="p-2 text-center">গ্রেড</th>
+              <th className="p-2 text-left">{t("marksheet_subject")}</th>
+              <th className="p-2 text-right">{t("marksheet_full_marks")}</th>
+              <th className="p-2 text-right">{t("marksheet_pass_marks")}</th>
+              <th className="p-2 text-right">{t("marksheet_obtained")}</th>
+              <th className="p-2 text-center">{t("marksheet_grade")}</th>
             </tr>
           </thead>
           <tbody>
@@ -138,13 +139,13 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
                 <td className="p-2 text-right"><BanglaDigit value={m.exam_subjects.full_marks} /></td>
                 <td className="p-2 text-right"><BanglaDigit value={m.exam_subjects.pass_marks} /></td>
                 <td className="p-2 text-right font-medium">
-                  {m.is_absent ? "অ" : m.marks_obtained !== null ? <BanglaDigit value={Number(m.marks_obtained)} /> : "—"}
+                  {m.is_absent ? t("marksheet_absent") : m.marks_obtained !== null ? <BanglaDigit value={Number(m.marks_obtained)} /> : "—"}
                 </td>
                 <td className="p-2 text-center">{m.grade ?? "—"}</td>
               </tr>
             ))}
             <tr className="border-t-2 border-primary/60 font-bold">
-              <td className="p-2">মোট</td>
+              <td className="p-2">{t("marksheet_total")}</td>
               <td className="p-2 text-right"><BanglaDigit value={fullMarks} /></td>
               <td className="p-2 text-right">—</td>
               <td className="p-2 text-right"><BanglaDigit value={totalMarks} /></td>
@@ -160,13 +161,13 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
               <div className="text-2xl font-bold"><BanglaDigit value={reportCard.overall_gpa?.toFixed(2) ?? "—"} /></div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">অবস্থান</div>
+              <div className="text-xs text-muted-foreground">{t("marksheet_position")}</div>
               <div className="text-2xl font-bold">
                 {reportCard.position_in_class !== null ? <BanglaDigit value={reportCard.position_in_class} /> : "—"}
               </div>
             </div>
             <div>
-              <div className="text-xs text-muted-foreground">উপস্থিতি</div>
+              <div className="text-xs text-muted-foreground">{t("marksheet_attendance")}</div>
               <div className="text-2xl font-bold">
                 {reportCard.attendance_pct !== null ? (<><BanglaDigit value={Math.round(Number(reportCard.attendance_pct))} />%</>) : "—"}
               </div>
@@ -177,7 +178,7 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
         {reportCard?.teacher_comment || reportCard?.ai_generated_comment ? (
           <section className="mt-6 border-t border-border/60 pt-4">
             <div className="mb-1 flex items-center gap-1 text-xs font-semibold text-muted-foreground">
-              <Sparkles className="size-3" /> শিক্ষকের মন্তব্য
+              <Sparkles className="size-3" /> {t("marksheet_teacher_comment")}
             </div>
             <p className="text-sm">{reportCard.teacher_comment ?? reportCard.ai_generated_comment}</p>
           </section>
@@ -185,7 +186,7 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
 
         {exam.published_at ? (
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            প্রকাশিত: <BengaliDate value={exam.published_at} />
+            {t("marksheet_published")}: <BengaliDate value={exam.published_at} />
           </p>
         ) : null}
       </article>

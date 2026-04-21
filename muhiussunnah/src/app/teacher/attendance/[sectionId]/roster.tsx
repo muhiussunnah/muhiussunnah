@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Check, Clock, X, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,11 +23,12 @@ type Props = {
 };
 
 export function AttendanceRoster({ schoolSlug, sectionId, date, students, initial }: Props) {
+  const t = useTranslations("teacher");
   const [entries, setEntries] = useState<Record<string, Status>>(() => {
     const out: Record<string, Status> = {};
     for (const s of students) {
       const e = initial[s.id];
-      out[s.id] = (e?.status as Status) ?? "present"; // default optimistic: present
+      out[s.id] = (e?.status as Status) ?? "present";
     }
     return out;
   });
@@ -63,9 +65,9 @@ export function AttendanceRoster({ schoolSlug, sectionId, date, students, initia
       const res = await saveAttendanceAction({ schoolSlug, section_id: sectionId, date, entries: payload });
       if (res.ok) {
         toast.success(
-          `✓ ${payload.length} জনের attendance সম্পন্ন`,
+          t("entry_toast_title", { count: payload.length }),
           {
-            description: `উপস্থিত: ${counts.present} · অনুপস্থিত: ${counts.absent} · দেরি: ${counts.late} · ছুটি: ${counts.leave}`,
+            description: t("entry_toast_desc", { p: counts.present, a: counts.absent, l: counts.late, lv: counts.leave }),
           },
         );
       } else {
@@ -79,17 +81,17 @@ export function AttendanceRoster({ schoolSlug, sectionId, date, students, initia
       <Card className="sticky top-14 z-10 mb-4 border-primary/30">
         <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
           <div className="flex flex-wrap gap-3 text-xs">
-            <StatusTally label="উপস্থিত" count={counts.present} tone="success" />
-            <StatusTally label="অনুপস্থিত" count={counts.absent} tone="destructive" />
-            <StatusTally label="দেরি" count={counts.late} tone="warning" />
-            <StatusTally label="ছুটি" count={counts.leave} tone="muted" />
+            <StatusTally label={t("entry_tally_present")} count={counts.present} tone="success" />
+            <StatusTally label={t("entry_tally_absent")} count={counts.absent} tone="destructive" />
+            <StatusTally label={t("entry_tally_late")} count={counts.late} tone="warning" />
+            <StatusTally label={t("entry_tally_leave")} count={counts.leave} tone="muted" />
           </div>
           <div className="flex gap-2">
             <Button type="button" size="sm" variant="outline" onClick={() => setAll("present")}>
-              সব উপস্থিত
+              {t("entry_all_present")}
             </Button>
             <Button type="button" size="sm" onClick={submit} disabled={pending} className="bg-gradient-primary text-white">
-              {pending ? "সংরক্ষণ হচ্ছে..." : <>সংরক্ষণ <ArrowRight className="ms-1 size-3.5" /></>}
+              {pending ? t("entry_saving") : <>{t("entry_save")} <ArrowRight className="ms-1 size-3.5" /></>}
             </Button>
           </div>
         </CardContent>
@@ -100,6 +102,7 @@ export function AttendanceRoster({ schoolSlug, sectionId, date, students, initia
           <StudentRow
             key={s.id}
             student={s}
+            rollLabel={t("entry_roll")}
             status={entries[s.id] ?? "present"}
             onCycle={() => cycle(s.id)}
             onSet={(st) => set(s.id, st)}
@@ -125,8 +128,8 @@ function StatusTally({ label, count, tone }: { label: string; count: number; ton
   );
 }
 
-function StudentRow({ student, status, onCycle, onSet }: {
-  student: Student; status: Status; onCycle: () => void; onSet: (s: Status) => void;
+function StudentRow({ student, rollLabel, status, onCycle, onSet }: {
+  student: Student; rollLabel: string; status: Status; onCycle: () => void; onSet: (s: Status) => void;
 }) {
   const statusColor: Record<Status, string> = {
     present: "ring-success/60 bg-success/5",
@@ -151,7 +154,7 @@ function StudentRow({ student, status, onCycle, onSet }: {
         <div>
           <div className="font-medium">{student.name_bn}</div>
           {student.roll ? (
-            <div className="text-xs text-muted-foreground">রোল: <BanglaDigit value={student.roll} /></div>
+            <div className="text-xs text-muted-foreground">{rollLabel}: <BanglaDigit value={student.roll} /></div>
           ) : null}
         </div>
       </div>

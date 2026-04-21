@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { CalendarCheck } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,11 +11,11 @@ import { TEACHER_ROLES } from "@/lib/auth/roles";
 
 export default async function TeacherAttendanceIndexPage() {
   const membership = await requireActiveRole(TEACHER_ROLES);
+  const t = await getTranslations("teacher");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
 
-  // Independent queries — both keyed off the same user_id / school_id.
   const [sectionsAsClassTeacherRes, assignmentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -47,19 +48,19 @@ export default async function TeacherAttendanceIndexPage() {
   return (
     <>
       <PageHeader
-        title="আজকের উপস্থিতি"
-        subtitle="আপনার অ্যাসাইন করা সেকশনে ক্লিক করে attendance নিন। প্রতিটি ছাত্রের জন্য মাত্র ২-৩ সেকেন্ড।"
+        title={t("att_title")}
+        subtitle={t("att_subtitle")}
         impact={[
-          { label: <>আপনার সেকশন · <BanglaDigit value={sections.length} /></>, tone: "accent" },
-          { label: "⚡ Offline-capable", tone: "success" },
+          { label: <>{t("att_section_count")} · <BanglaDigit value={sections.length} /></>, tone: "accent" },
+          { label: t("att_offline_badge"), tone: "success" },
         ]}
       />
 
       {sections.length === 0 ? (
         <EmptyState
           icon={<CalendarCheck className="size-8" />}
-          title="কোন ক্লাস অ্যাসাইন করা হয়নি"
-          body="প্রিন্সিপালকে জানান যেন আপনাকে কোন সেকশন/বিষয়ে অ্যাসাইন করেন।"
+          title={t("att_no_sections_title")}
+          body={t("att_no_sections_body")}
         />
       ) : (
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -73,10 +74,10 @@ export default async function TeacherAttendanceIndexPage() {
                 <CardContent className="flex items-center justify-between p-5">
                   <div>
                     <h3 className="font-semibold">{s.class_name}</h3>
-                    <p className="text-sm text-muted-foreground">সেকশন: {s.name}</p>
+                    <p className="text-sm text-muted-foreground">{t("att_section_label")}: {s.name}</p>
                   </div>
                   <span className="rounded-full bg-gradient-primary px-3 py-1 text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100">
-                    Attendance →
+                    {t("att_arrow")}
                   </span>
                 </CardContent>
               </Card>

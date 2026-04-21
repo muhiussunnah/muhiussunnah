@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getTranslations, getLocale } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +9,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { TEACHER_ROLES } from "@/lib/auth/roles";
 import { formatDualDate } from "@/lib/utils/date";
+import type { Locale } from "@/lib/i18n/config";
 import { AttendanceRoster } from "./roster";
 
 type PageProps = {
@@ -19,10 +21,12 @@ export default async function AttendanceEntryPage({ params, searchParams }: Page
   const { sectionId } = await params;
   const { date = new Date().toISOString().slice(0, 10) } = await searchParams;
   const membership = await requireActiveRole(TEACHER_ROLES);
+  const t = await getTranslations("teacher");
+  const locale = (await getLocale()) as Locale;
+  const dateLocale = locale === "ur" ? "en" : locale;
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
-  // Independent queries — section meta, roster, existing attendance all keyed off sectionId.
   const [sectionRes, studentsRes, existingRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -63,25 +67,25 @@ export default async function AttendanceEntryPage({ params, searchParams }: Page
       <PageHeader
         breadcrumbs={
           <Link href={`/teacher/attendance`} className="inline-flex items-center gap-1 text-sm hover:text-foreground">
-            <ArrowLeft className="size-3.5" /> সেকশন তালিকা
+            <ArrowLeft className="size-3.5" /> {t("entry_back")}
           </Link>
         }
         title={
           <>
-            {(section as { classes: { name_bn: string } }).classes.name_bn} — সেকশন {(section as { name: string }).name}
+            {(section as { classes: { name_bn: string } }).classes.name_bn} — {t("entry_section_suffix")} {(section as { name: string }).name}
           </>
         }
-        subtitle={`${formatDualDate(date, { withWeekday: true })}`}
+        subtitle={`${formatDualDate(date, { withWeekday: true, locale: dateLocale })}`}
         impact={[
-          { label: <>মোট ছাত্র · <BanglaDigit value={studentList.length} /></>, tone: "accent" },
-          { label: "💡 সবুজ = উপস্থিত · লাল = অনুপস্থিত", tone: "default" },
+          { label: <>{t("entry_total_students")} · <BanglaDigit value={studentList.length} /></>, tone: "accent" },
+          { label: t("entry_legend"), tone: "default" },
         ]}
       />
 
       {studentList.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center text-sm text-muted-foreground">
-            এই সেকশনে এখনও কোন সক্রিয় শিক্ষার্থী নেই।
+            {t("entry_empty_section")}
           </CardContent>
         </Card>
       ) : (
