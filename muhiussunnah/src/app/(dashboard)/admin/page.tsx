@@ -15,6 +15,7 @@ import {
   Users2,
   Wallet,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { MetricCard } from "@/components/ui/metric-card";
 import { RealtimeDashboardIndicator } from "@/components/dashboard/realtime-dashboard-indicator";
@@ -37,6 +38,16 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
   const showHijri = membership.school_type === "madrasa" || membership.school_type === "both";
   const today = formatDualDate(new Date(), { withWeekday: true, withHijri: showHijri });
+
+  // Translation helpers — tAdmin for admin-dashboard strings, tDR for
+  // date-range preset labels, tDonut for class-donut labels.
+  const tAdmin = await getTranslations("adminDashboard");
+  const tDR = await getTranslations("dateRange");
+  const tDonut = await getTranslations("classDonut");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rangeLabel = tDR(range.labelKey as any, (range.labelArgs ?? {}) as Record<string, string | number>);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const prevLabel = tDR(range.prevLabelKey as any, (range.prevLabelArgs ?? {}) as Record<string, string | number>);
 
   // Admin client: requireActiveRole() already authorized the user, every
   // query below is scoped by school_id. Needed because RLS on `sections`
@@ -208,7 +219,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
   if (unassigned > 0) {
     donutSlices.push({
       id: "__unassigned__",
-      name: "⚠️ ক্লাস নির্ধারিত নেই",
+      name: tDonut("unassigned_bucket"),
       order: 9999,
       count: unassigned,
     });
@@ -218,8 +229,10 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
   return (
     <>
       <PageHeader
-        title={`স্বাগতম, ${membership.full_name_bn ?? "প্রিন্সিপাল"} সাহেব`}
-        subtitle={`আজ ${today} · আপনার স্কুলের সম্পূর্ণ চিত্র এক নজরে`}
+        title={membership.full_name_bn
+          ? tAdmin("welcome_title", { name: membership.full_name_bn })
+          : tAdmin("default_title")}
+        subtitle={tAdmin("today_subtitle", { today })}
         impact={[
           { label: <RealtimeDashboardIndicator schoolId={schoolId} />, tone: "success" },
         ]}
@@ -230,24 +243,24 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       <div className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-border/60 bg-gradient-to-r from-primary/5 via-card to-accent/5 px-4 py-2.5 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-primary" />
-          <span className="font-semibold text-foreground">{range.label}</span>
+          <span className="font-semibold text-foreground">{rangeLabel}</span>
           <span className="text-muted-foreground">({range.from} → {range.to})</span>
         </span>
         <span className="text-muted-foreground/50">·</span>
         <span className="flex items-center gap-1.5">
           <span className="size-1.5 rounded-full bg-muted-foreground/40" />
-          তুলনা: <span className="font-medium">{range.prevLabel}</span>
+          {tAdmin("context_comparison")} <span className="font-medium">{prevLabel}</span>
         </span>
         <span className="hidden lg:inline text-[10px] uppercase tracking-wider text-muted-foreground/70">
-          প্রতিটা কার্ডে ↗↘ চিহ্ন আগের পিরিয়ডের সাথে তুলনা
+          {tAdmin("context_hint")}
         </span>
         <div className="ml-auto">
           <DateRangeFilter
             currentRange={range.preset}
-            currentLabel={range.label}
+            currentLabel={rangeLabel}
             currentFrom={range.from}
             currentTo={range.to}
-            prevLabel={range.prevLabel}
+            prevLabel={prevLabel}
           />
         </div>
       </div>
@@ -255,38 +268,49 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       {/* Hero metric row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          label="মোট ছাত্র-ছাত্রী"
+          label={tAdmin("card_total_students")}
           value={totalStudents}
           icon={<Users2 className="size-4" />}
           tone="accent"
           trendPct={newAdmissionsTrend}
-          trendLabel={`${toBn(newAdmissions)} নতুন ভর্তি`}
-          target={activeStudents > 0 ? `সক্রিয়: ${toBn(activeStudents)}` : "প্রথম শিক্ষার্থী ভর্তি করুন"}
+          trendLabel={tAdmin("trend_new_admissions", { count: toBn(newAdmissions) })}
+          target={
+            activeStudents > 0
+              ? tAdmin("target_active", { count: toBn(activeStudents) })
+              : tAdmin("target_first_student")
+          }
         />
         <MetricCard
-          label="আজকের উপস্থিতি"
+          label={tAdmin("card_today_attendance")}
           value={todayAttPct}
           valueSuffix={<span className="text-muted-foreground text-base">%</span>}
           icon={<CalendarDays className="size-4" />}
           tone={todayAttPct >= 80 ? "success" : todayAttPct >= 50 ? "default" : "warning"}
-          target={todayAttRows.length > 0 ? `${toBn(presentToday)}/${toBn(todayAttRows.length)} উপস্থিত` : undefined}
+          target={
+            todayAttRows.length > 0
+              ? tAdmin("target_present_of_total", {
+                  present: toBn(presentToday),
+                  total: toBn(todayAttRows.length),
+                })
+              : undefined
+          }
         />
         <MetricCard
-          label={`${range.label}-এর আয়`}
+          label={tAdmin("card_period_income", { range: rangeLabel })}
           value={Math.round(curIncome)}
           valuePrefix="৳ "
           icon={<Wallet className="size-4" />}
           tone="success"
           trendPct={incomeTrend}
-          trendLabel={`vs ${range.prevLabel}`}
+          trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
         <MetricCard
-          label="বাকি ফি"
+          label={tAdmin("card_pending_fees")}
           value={Math.round(pendingAmount)}
           valuePrefix="৳ "
           icon={<TrendingUp className="size-4" />}
           tone={pendingAmount > 0 ? "warning" : "success"}
-          target={`${toBn(invoiceCount)} ইনভয়েস`}
+          target={tAdmin("target_invoice_count", { count: toBn(invoiceCount) })}
         />
       </div>
 
@@ -297,112 +321,116 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
         />
       </div>
 
-      {/* একাডেমিক ব্যবস্থাপনা */}
-      <Section title="📚 একাডেমিক ব্যবস্থাপনা">
+      {/* Academic */}
+      <Section title={tAdmin("section_academic")}>
         <MetricCard
-          label="শ্রেণি"
+          label={tAdmin("card_classes")}
           value={classCount}
           icon={<BookOpen className="size-4" />}
-          target={`${toBn(sectionCount)} শাখা`}
+          target={tAdmin("target_section_count", { count: toBn(sectionCount) })}
         />
         <MetricCard
-          label="বিষয়"
+          label={tAdmin("card_subjects")}
           value={subjectCount}
           icon={<ScrollText className="size-4" />}
         />
         <MetricCard
-          label={`${range.label} উপস্থিতি হার`}
+          label={tAdmin("card_period_attendance_rate", { range: rangeLabel })}
           value={curAttPct}
           valueSuffix={<span className="text-muted-foreground text-base">%</span>}
           icon={<CalendarDays className="size-4" />}
           tone={curAttPct >= 80 ? "success" : curAttPct >= 50 ? "default" : "warning"}
           trendPct={attTrend}
-          trendLabel={`vs ${range.prevLabel}`}
+          trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
         <MetricCard
-          label={`${range.label} নোটিশ`}
+          label={tAdmin("card_period_notices", { range: rangeLabel })}
           value={curNotices}
           icon={<Megaphone className="size-4" />}
           trendPct={noticesTrend}
-          trendLabel={`vs ${range.prevLabel}`}
-          target={`মোট ${toBn(noticesCount)}`}
+          trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
+          target={tAdmin("target_total_count", { count: toBn(noticesCount) })}
         />
       </Section>
 
-      {/* আর্থিক ব্যবস্থাপনা */}
-      <Section title="💰 আর্থিক ব্যবস্থাপনা">
+      {/* Financial */}
+      <Section title={tAdmin("section_financial")}>
         <MetricCard
-          label={`${range.label}-এর আয়`}
+          label={tAdmin("card_period_income", { range: rangeLabel })}
           value={Math.round(curIncome)}
           valuePrefix="৳ "
           icon={<Wallet className="size-4" />}
           tone="success"
           trendPct={incomeTrend}
-          trendLabel={`vs ${range.prevLabel}`}
+          trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
         <MetricCard
-          label={`${range.label}-এর ব্যয়`}
+          label={tAdmin("card_period_expense", { range: rangeLabel })}
           value={Math.round(curExpense)}
           valuePrefix="৳ "
           icon={<CreditCard className="size-4" />}
           tone="warning"
           trendPct={expenseTrendFlipped}
-          trendLabel={`আসল: ${expenseTrend !== null ? (expenseTrend > 0 ? "+" : "") + expenseTrend + "%" : "—"}`}
+          trendLabel={tAdmin("trend_expense_actual", {
+            value:
+              expenseTrend !== null
+                ? (expenseTrend > 0 ? "+" : "") + expenseTrend + "%"
+                : "—",
+          })}
         />
         <MetricCard
-          label="মোট ইনভয়েস"
+          label={tAdmin("card_total_invoices")}
           value={invoiceCount}
           icon={<Receipt className="size-4" />}
-          target={`৳ ${toBnCurrency(Math.round(paidInvoiceAmount))} আদায়`}
+          target={tAdmin("target_collected", { amount: toBnCurrency(Math.round(paidInvoiceAmount)) })}
         />
         <MetricCard
-          label="ক্যাশ ফ্লো"
+          label={tAdmin("card_cash_flow")}
           value={Math.round(Math.abs(curCashFlow))}
           valuePrefix={curCashFlow >= 0 ? "৳ +" : "৳ -"}
           icon={curCashFlow >= 0 ? <TrendingUp className="size-4" /> : <TrendingDown className="size-4" />}
           tone={curCashFlow >= 0 ? "success" : "danger"}
           trendPct={cashFlowTrend}
-          trendLabel={`vs ${range.prevLabel}`}
+          trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
       </Section>
 
-      {/* এইচআর + অন্যান্য */}
-      <Section title="👥 এইচআর + অন্যান্য">
+      {/* HR + other */}
+      <Section title={tAdmin("section_hr")}>
         <MetricCard
-          label="শিক্ষক"
+          label={tAdmin("card_teachers")}
           value={teacherCount}
           icon={<Users className="size-4" />}
           tone="accent"
         />
         <MetricCard
-          label="অন্যান্য কর্মচারী"
+          label={tAdmin("card_other_staff")}
           value={staffCount}
           icon={<UserCog className="size-4" />}
         />
         <MetricCard
-          label="সিস্টেম ব্যবহারকারী"
+          label={tAdmin("card_system_users")}
           value={userCount}
           icon={<FileText className="size-4" />}
-          target={`${toBn(activeStaff.length)} সক্রিয়`}
+          target={tAdmin("target_n_active", { count: toBn(activeStaff.length) })}
         />
         <MetricCard
-          label={`${range.label}-এ নতুন ভর্তি`}
+          label={tAdmin("card_period_new_admissions", { range: rangeLabel })}
           value={newAdmissions}
           icon={<UserPlus className="size-4" />}
           tone="accent"
           trendPct={newAdmissionsTrend}
-          trendLabel={`vs ${range.prevLabel}`}
+          trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
       </Section>
 
       <div className="mt-8 rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 text-xs text-muted-foreground">
         <p>
-          💡 <strong className="text-foreground">বুঝবেন কীভাবে:</strong>{" "}
-          <span className="inline-flex items-center gap-0.5 text-success">↗ সবুজ</span>
-          {" "}মানে আগের পিরিয়ডের চেয়ে ভালো হচ্ছে,{" "}
-          <span className="inline-flex items-center gap-0.5 text-destructive">↘ লাল</span>
-          {" "}মানে অবনতি হচ্ছে। ব্যয়ের ক্ষেত্রে কম খরচ = সবুজ, বেশি খরচ = লাল।
-          সময়সীমা উপরের ফিল্টার থেকে পরিবর্তন করুন — custom তারিখ ও তুলনা সব সম্ভব।
+          💡 <strong className="text-foreground">{tAdmin("legend_how_to_read")}</strong>{" "}
+          <span className="inline-flex items-center gap-0.5 text-success">{tAdmin("legend_green")}</span>
+          {tAdmin("legend_body")}
+          <span className="inline-flex items-center gap-0.5 text-destructive">{tAdmin("legend_red")}</span>
+          {tAdmin("legend_body_2")}
         </p>
       </div>
     </>

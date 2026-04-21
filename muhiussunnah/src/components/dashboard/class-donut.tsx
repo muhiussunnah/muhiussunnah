@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 
 type ClassSlice = {
@@ -17,11 +18,13 @@ type ClassSlice = {
  */
 export function ClassDonut({
   classes,
-  totalLabel = "মোট ছাত্র-ছাত্রী",
+  totalLabel,
 }: {
   classes: ClassSlice[];
   totalLabel?: string;
 }) {
+  const t = useTranslations("classDonut");
+  const resolvedTotalLabel = totalLabel ?? t("total_students");
   const total = classes.reduce((s, c) => s + c.count, 0);
   const [hoverId, setHoverId] = useState<string | null>(null);
 
@@ -29,9 +32,9 @@ export function ClassDonut({
     return (
       <div className="flex h-64 flex-col items-center justify-center rounded-2xl border border-border/60 bg-card/50 p-6 text-center">
         <div className="size-14 rounded-full border-4 border-dashed border-primary/30" />
-        <p className="mt-3 text-sm font-semibold text-foreground">এখনও কোন শিক্ষার্থী নেই</p>
+        <p className="mt-3 text-sm font-semibold text-foreground">{t("empty_title")}</p>
         <p className="mt-1 text-xs text-muted-foreground">
-          শিক্ষার্থী যোগ করলে এখানে ক্লাস অনুযায়ী বিতরণ দেখাবে।
+          {t("empty_body")}
         </p>
       </div>
     );
@@ -69,10 +72,10 @@ export function ClassDonut({
     <div className="rounded-3xl border border-border/60 bg-gradient-to-br from-card via-card to-primary/5 p-5 md:p-6">
       <div className="mb-4 flex items-center justify-between gap-2">
         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          ক্লাস অনুযায়ী শিক্ষার্থী বিতরণ
+          {t("title")}
         </h3>
         <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-          <BanglaDigit value={classes.length} /> ক্লাস
+          {t.rich("class_count", { count: () => <BanglaDigit value={classes.length} /> })}
         </span>
       </div>
 
@@ -136,7 +139,7 @@ export function ClassDonut({
                   <BanglaDigit value={hovered.count} />
                 </div>
                 <div className="text-[11px] text-muted-foreground tabular-nums">
-                  {hovered.pct.toFixed(1)}% · জন
+                  {hovered.pct.toFixed(1)}{t("pct_suffix")}
                 </div>
               </>
             ) : (
@@ -145,7 +148,7 @@ export function ClassDonut({
                   <BanglaDigit value={total} />
                 </div>
                 <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {totalLabel}
+                  {resolvedTotalLabel}
                 </div>
               </>
             )}

@@ -2,25 +2,21 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Calendar, Check, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type Preset = {
-  key: string;
-  label: string;
-};
-
-const PRESETS: Preset[] = [
-  { key: "today", label: "আজ" },
-  { key: "7d", label: "গত ৭ দিন" },
-  { key: "30d", label: "গত ৩০ দিন" },
-  { key: "this_month", label: "এই মাস" },
-  { key: "last_month", label: "গত মাস" },
-  { key: "365d", label: "গত ৩৬৫ দিন" },
-  { key: "this_year", label: "এই বছর" },
-  { key: "last_year", label: "গত বছর" },
-  { key: "yoy", label: "এই বছর বনাম গত বছর" },
-];
+const PRESET_KEYS = [
+  { key: "today", tKey: "label_today" },
+  { key: "7d", tKey: "label_7d" },
+  { key: "30d", tKey: "label_30d" },
+  { key: "this_month", tKey: "label_this_month" },
+  { key: "last_month", tKey: "label_last_month" },
+  { key: "365d", tKey: "label_365d" },
+  { key: "this_year", tKey: "label_this_year" },
+  { key: "last_year", tKey: "label_last_year" },
+  { key: "yoy", tKey: "label_yoy" },
+] as const;
 
 type Props = {
   currentRange: string;
@@ -40,6 +36,7 @@ export function DateRangeFilter({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const t = useTranslations("dateRange");
   const [pending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
   const [showCustom, setShowCustom] = useState(currentRange === "custom");
@@ -86,12 +83,12 @@ export function DateRangeFilter({
         <Calendar className="size-4 text-primary" />
         <span className="flex flex-col items-start leading-tight">
           <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-            সময়সীমা
+            {t("filter_label_small")}
           </span>
           <span className="text-foreground">{currentLabel}</span>
         </span>
         <span className="mx-1 hidden text-xs text-muted-foreground sm:inline">
-          vs {prevLabel}
+          {t("filter_vs", { label: prevLabel })}
         </span>
         <ChevronDown
           className={cn(
@@ -117,10 +114,10 @@ export function DateRangeFilter({
             {!showCustom ? (
               <>
                 <div className="border-b border-border/60 bg-muted/30 px-3 py-2 text-[11px] uppercase tracking-wider text-muted-foreground">
-                  সময়সীমা বাছাই করুন
+                  {t("filter_pick_range")}
                 </div>
                 <ul className="max-h-80 space-y-0.5 overflow-y-auto p-1.5">
-                  {PRESETS.map((p) => {
+                  {PRESET_KEYS.map((p) => {
                     const active = currentRange === p.key;
                     return (
                       <li key={p.key}>
@@ -134,7 +131,7 @@ export function DateRangeFilter({
                               : "text-foreground hover:bg-muted",
                           )}
                         >
-                          <span>{p.label}</span>
+                          <span>{t(p.tKey)}</span>
                           {active ? <Check className="size-4" /> : null}
                         </button>
                       </li>
@@ -148,7 +145,7 @@ export function DateRangeFilter({
                     className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition hover:border-primary/40 hover:text-primary"
                   >
                     <Calendar className="size-3.5" />
-                    কাস্টম তারিখ পরিসর
+                    {t("label_custom")}
                   </button>
                 </div>
               </>
@@ -156,7 +153,7 @@ export function DateRangeFilter({
               <div className="p-3">
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    কাস্টম পরিসর
+                    {t("custom_range_heading")}
                   </span>
                   <button
                     type="button"
@@ -168,7 +165,7 @@ export function DateRangeFilter({
                 </div>
                 <div className="space-y-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">থেকে</label>
+                    <label className="text-xs text-muted-foreground">{t("custom_from")}</label>
                     <input
                       type="date"
                       value={customFrom}
@@ -178,7 +175,7 @@ export function DateRangeFilter({
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-muted-foreground">পর্যন্ত</label>
+                    <label className="text-xs text-muted-foreground">{t("custom_to")}</label>
                     <input
                       type="date"
                       value={customTo}
@@ -193,7 +190,7 @@ export function DateRangeFilter({
                     disabled={!customFrom || !customTo || pending}
                     className="w-full rounded-lg bg-gradient-to-r from-primary to-accent px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:shadow-md disabled:opacity-50"
                   >
-                    প্রয়োগ করুন
+                    {t("custom_apply")}
                   </button>
                 </div>
               </div>

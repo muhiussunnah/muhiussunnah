@@ -2,9 +2,13 @@
  * Dashboard date-range helpers.
  *
  * Parses the ?range / ?from / ?to query params into a well-defined
- * { from, to, prevFrom, prevTo, label } struct so the server page can
+ * { from, to, prevFrom, prevTo } struct so the server page can
  * run both current-period and prior-period queries in parallel and
  * compute trend deltas.
+ *
+ * UI-facing labels are returned as **translation keys + optional args**
+ * (not raw strings) so the caller can translate them through the
+ * message catalog in whichever locale is active.
  */
 
 export type RangePreset =
@@ -21,12 +25,17 @@ export type RangePreset =
 
 export type ResolvedRange = {
   preset: RangePreset;
-  label: string;
+  /** i18n key under `dateRange.*` for the current-period label. */
+  labelKey: string;
+  /** i18n key under `dateRange.*` for the prior-period comparison label. */
+  prevLabelKey: string;
+  /** If non-null, pass as args to t(labelKey, args). */
+  labelArgs?: Record<string, string | number> | null;
+  prevLabelArgs?: Record<string, string | number> | null;
   from: string; // ISO yyyy-mm-dd
   to: string;
   prevFrom: string;
   prevTo: string;
-  prevLabel: string; // "আগের ৩০ দিন", "গত বছর" etc.
 };
 
 function iso(d: Date): string {
@@ -39,11 +48,6 @@ function addDays(d: Date, n: number): Date {
   return x;
 }
 
-/**
- * Parse the URL search params into a concrete date range. Defaults to
- * last-30-days when nothing is provided so the dashboard has sensible
- * numbers on first load.
- */
 export function resolveDateRange(search: {
   range?: string;
   from?: string;
@@ -54,49 +58,49 @@ export function resolveDateRange(search: {
 
   const preset = (search.range as RangePreset) || "30d";
 
-  // ── Custom range ───────────────────────────────────────────
   if (preset === "custom" && search.from && search.to) {
     const from = new Date(search.from + "T00:00:00");
     const to = new Date(search.to + "T00:00:00");
     const days = Math.max(1, Math.round((to.getTime() - from.getTime()) / 86400000) + 1);
     return {
       preset: "custom",
-      label: `${search.from} → ${search.to}`,
+      labelKey: "label_custom_with_dates",
+      labelArgs: { from: search.from, to: search.to },
+      prevLabelKey: "prev_days",
+      prevLabelArgs: { count: days },
       from: iso(from),
       to: iso(to),
       prevFrom: iso(addDays(from, -days)),
       prevTo: iso(addDays(from, -1)),
-      prevLabel: `আগের ${days} দিন`,
     };
   }
 
-  // ── Year-over-year (this year vs last year, same day-of-year) ──
   if (preset === "yoy") {
     const yearStart = new Date(today.getFullYear(), 0, 1);
     const prevYearStart = new Date(today.getFullYear() - 1, 0, 1);
     const prevYearSameDay = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
     return {
       preset: "yoy",
-      label: "এই বছর (আজ পর্যন্ত)",
+      labelKey: "label_this_year_ytd",
+      prevLabelKey: "prev_yoy_same",
       from: iso(yearStart),
       to: iso(today),
       prevFrom: iso(prevYearStart),
       prevTo: iso(prevYearSameDay),
-      prevLabel: "গত বছরের একই সময়",
     };
   }
 
-  // ── Preset helpers ─────────────────────────────────────────
-  const mkWindow = (days: number, label: string, prevLabel: string): ResolvedRange => {
+  const mkWindow = (days: number, labelKey: string): ResolvedRange => {
     const from = addDays(today, -(days - 1));
     return {
       preset,
-      label,
+      labelKey,
+      prevLabelKey: "prev_days",
+      prevLabelArgs: { count: days },
       from: iso(from),
       to: iso(today),
       prevFrom: iso(addDays(from, -days)),
       prevTo: iso(addDays(from, -1)),
-      prevLabel,
     };
   };
 
@@ -104,22 +108,22 @@ export function resolveDateRange(search: {
     case "today":
       return {
         preset,
-        label: "আজ",
+        labelKey: "label_today",
+        prevLabelKey: "prev_yesterday",
         from: iso(today),
         to: iso(today),
         prevFrom: iso(addDays(today, -1)),
         prevTo: iso(addDays(today, -1)),
-        prevLabel: "গতকাল",
       };
 
     case "7d":
-      return mkWindow(7, "গত ৭ দিন", "আগের ৭ দিন");
+      return mkWindow(7, "label_7d");
 
     case "30d":
-      return mkWindow(30, "গত ৩০ দিন", "আগের ৩০ দিন");
+      return mkWindow(30, "label_30d");
 
     case "365d":
-      return mkWindow(365, "গত ৩৬৫ দিন", "আগের ৩৬৫ দিন");
+      return mkWindow(365, "label_365d");
 
     case "this_month": {
       const from = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -127,12 +131,12 @@ export function resolveDateRange(search: {
       const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
       return {
         preset,
-        label: "এই মাস",
+        labelKey: "label_this_month",
+        prevLabelKey: "prev_month",
         from: iso(from),
         to: iso(today),
         prevFrom: iso(prevMonthStart),
         prevTo: iso(prevMonthEnd),
-        prevLabel: "গত মাস",
       };
     }
 
@@ -143,12 +147,12 @@ export function resolveDateRange(search: {
       const prevTo = new Date(today.getFullYear(), today.getMonth() - 1, 0);
       return {
         preset,
-        label: "গত মাস",
+        labelKey: "label_last_month",
+        prevLabelKey: "prev_month_before",
         from: iso(from),
         to: iso(to),
         prevFrom: iso(prevFrom),
         prevTo: iso(prevTo),
-        prevLabel: "তার আগের মাস",
       };
     }
 
@@ -158,12 +162,12 @@ export function resolveDateRange(search: {
       const prevTo = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
       return {
         preset,
-        label: "এই বছর",
+        labelKey: "label_this_year",
+        prevLabelKey: "prev_year_ytd",
         from: iso(from),
         to: iso(today),
         prevFrom: iso(prevFrom),
         prevTo: iso(prevTo),
-        prevLabel: "গত বছর (একই সময় পর্যন্ত)",
       };
     }
 
@@ -174,17 +178,17 @@ export function resolveDateRange(search: {
       const prevTo = new Date(today.getFullYear() - 2, 11, 31);
       return {
         preset,
-        label: "গত বছর",
+        labelKey: "label_last_year",
+        prevLabelKey: "prev_year_before",
         from: iso(from),
         to: iso(to),
         prevFrom: iso(prevFrom),
         prevTo: iso(prevTo),
-        prevLabel: "তার আগের বছর",
       };
     }
 
     default:
-      return mkWindow(30, "গত ৩০ দিন", "আগের ৩০ দিন");
+      return mkWindow(30, "label_30d");
   }
 }
 
