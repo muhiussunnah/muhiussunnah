@@ -518,11 +518,18 @@ export async function updateStudentAction(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: current } = await (supabase as any)
     .from("students")
-    .select("school_id")
+    .select("school_id, student_code")
     .eq("id", parsed.student_id)
     .single();
   if (!current || current.school_id !== auth.active.school_id) {
     return fail("এই শিক্ষার্থী এই স্কুলে নেই।");
+  }
+
+  // Self-heal: if the row somehow has no student_code (legacy import,
+  // pre-v2 admission, etc.), auto-generate one on the next edit so the
+  // admin doesn't have to think about it.
+  if ((!current.student_code || current.student_code.trim().length === 0) && !parsed.student_code) {
+    parsed.student_code = await nextStudentCode(auth.active.school_id);
   }
 
   const {

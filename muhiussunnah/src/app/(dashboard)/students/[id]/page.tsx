@@ -106,7 +106,12 @@ export default async function StudentDetailPage({ params }: PageProps) {
           <>
             {student.sections ? <>{student.sections.classes.name_bn} — {student.sections.name} · </> : null}
             {student.roll ? <>রোল: <BanglaDigit value={student.roll} /> · </> : null}
-            ID: <span className="font-mono">{student.student_code}</span>
+            ID:{" "}
+            <span className="font-mono">
+              {student.student_code && student.student_code.trim().length > 0
+                ? student.student_code
+                : <span className="text-destructive">— কোড নেই, সম্পাদনা করে সেভ করুন</span>}
+            </span>
           </>
         }
         impact={[

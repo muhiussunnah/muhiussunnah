@@ -251,23 +251,7 @@ export function EditStudentForm({
             name="extra_guardian_relation"
             defaultValue={extra?.relation && extra.relation !== "father" && extra.relation !== "mother" ? extra.relation : ""}
             placeholder="যেমন: চাচা, মামা, দাদা"
-            list="extra-relation-suggestions"
           />
-          <datalist id="extra-relation-suggestions">
-            <option value="চাচা" />
-            <option value="মামা" />
-            <option value="ফুপা" />
-            <option value="খালু" />
-            <option value="দাদা" />
-            <option value="নানা" />
-            <option value="দাদী" />
-            <option value="নানী" />
-            <option value="ভাই" />
-            <option value="বোন" />
-            <option value="স্বামী" />
-            <option value="স্ত্রী" />
-            <option value="অভিভাবক" />
-          </datalist>
         </Field>
       </FieldGroup>
 
