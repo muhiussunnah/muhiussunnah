@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import {
   ArrowDown,
@@ -66,6 +67,8 @@ export function StudentsTable({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState<string>("");
   const [pending, startTransition] = useTransition();
+  const t = useTranslations("common");
+  const tTable = useTranslations("studentsTable");
 
   // ── Real-time name/ID filter ──────────────────────────────
   // Matches substring in either Bangla name, English name, or the
@@ -153,10 +156,9 @@ export function StudentsTable({
 
   async function runBulkDelete(mode: "soft" | "hard") {
     if (selected.size === 0) return;
-    const verb = mode === "soft" ? "বাদ দিতে" : "স্থায়ীভাবে মুছতে";
     const warn = mode === "hard"
-      ? `⚠️ ${selected.size} জন শিক্ষার্থী স্থায়ীভাবে মুছে ফেলা হবে — এই কাজ উল্টানো যাবে না। নিশ্চিত?`
-      : `${selected.size} জন শিক্ষার্থীকে "বাদ" status-এ পাঠানো হবে। নিশ্চিত?`;
+      ? tTable("confirm_bulk_hard", { count: selected.size })
+      : tTable("confirm_bulk_drop", { count: selected.size });
     if (!confirm(warn)) return;
 
     const fd = new FormData();
@@ -167,7 +169,7 @@ export function StudentsTable({
     startTransition(async () => {
       const res = await bulkDeleteStudentsAction(null, fd);
       if (res.ok) {
-        toast.success(res.message ?? `${selected.size} জন ${verb.slice(0, -3)} হয়েছে`);
+        toast.success(res.message ?? "");
         clearSelection();
       } else {
         toast.error(res.error);
@@ -205,7 +207,7 @@ export function StudentsTable({
     a.download = `students-${schoolSlug}-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success(`${exportSource.length} টি রেকর্ড CSV-তে এক্সপোর্ট হয়েছে`);
+    toast.success(tTable("csv_success", { count: exportSource.length }));
   }
 
   async function copyClipboard() {
@@ -223,22 +225,22 @@ export function StudentsTable({
     const text = ["Code\tName\tClass\tSection\tRoll\tGuardian\tStatus", ...rows].join("\n");
     try {
       await navigator.clipboard.writeText(text);
-      toast.success(`${exportSource.length} টি রেকর্ড ক্লিপবোর্ডে কপি হয়েছে`);
+      toast.success(tTable("clipboard_success", { count: exportSource.length }));
     } catch {
-      toast.error("ক্লিপবোর্ড অ্যাক্সেস অনুমোদিত নয়");
+      toast.error(tTable("clipboard_fail"));
     }
   }
 
   function printTable() {
     const w = window.open("", "_blank", "width=1100,height=800");
     if (!w) {
-      toast.error("পপ-আপ ব্লক হয়েছে — প্রিন্ট করতে অনুমোদন দিন");
+      toast.error(tTable("print_blocked"));
       return;
     }
     const tableHtml = `
       <html>
         <head>
-          <title>${schoolName} — শিক্ষার্থী তালিকা</title>
+          <title>${schoolName} — ${tTable("print_title_suffix")}</title>
           <style>
             body { font-family: system-ui, sans-serif; margin: 24px; color: #111; }
             h1 { font-size: 20px; margin: 0 0 4px; text-align: center; }
@@ -251,11 +253,11 @@ export function StudentsTable({
         </head>
         <body>
           <h1>${schoolName}</h1>
-          <h2>শিক্ষার্থী তালিকা — ${new Date().toLocaleDateString("bn-BD")}</h2>
+          <h2>${tTable("print_title_suffix")} — ${new Date().toLocaleDateString("bn-BD")}</h2>
           <table>
             <thead>
               <tr>
-                <th>কোড</th><th>নাম</th><th>ক্লাস</th><th>শাখা</th><th>রোল</th><th>অভিভাবক</th><th>স্ট্যাটাস</th>
+                <th>${tTable("col_id")}</th><th>${tTable("col_name")}</th><th>${tTable("col_class")}</th><th>${tTable("col_section")}</th><th>${tTable("col_roll")}</th><th>${tTable("col_guardian")}</th><th>${tTable("col_status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -294,7 +296,7 @@ export function StudentsTable({
               <span className="inline-flex size-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
                 <BanglaDigit value={selected.size} />
               </span>
-              জন নির্বাচিত
+              {tTable("n_selected_suffix")}
             </span>
             {selected.size < sorted.length ? (
               <button
@@ -302,7 +304,7 @@ export function StudentsTable({
                 onClick={selectAllFiltered}
                 className="text-xs text-primary hover:underline"
               >
-                সব {sorted.length} জনকে নির্বাচন করুন
+                {tTable("select_all_filtered", { count: sorted.length })}
               </button>
             ) : null}
             <div className="ml-auto flex items-center gap-2">
@@ -313,7 +315,7 @@ export function StudentsTable({
                 className="inline-flex items-center gap-1.5 rounded-md border border-warning/40 bg-warning/10 px-3 py-1.5 text-xs font-medium text-warning transition hover:bg-warning/20 disabled:opacity-50"
               >
                 <Trash2 className="size-3.5" />
-                বাদ দিন
+                {t("drop")}
               </button>
               <button
                 type="button"
@@ -322,13 +324,13 @@ export function StudentsTable({
                 className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive transition hover:bg-destructive/20 disabled:opacity-50"
               >
                 <Trash2 className="size-3.5" />
-                স্থায়ীভাবে মুছুন
+                {t("delete_permanently")}
               </button>
               <button
                 type="button"
                 onClick={clearSelection}
                 className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="Clear selection"
+                aria-label={t("clear_search")}
               >
                 <X className="size-3.5" />
               </button>
@@ -339,7 +341,7 @@ export function StudentsTable({
         {/* Toolbar — page size + real-time search + export actions */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 p-3">
           <label className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>Show</span>
+            <span>{t("show")}</span>
             <select
               value={pageSize}
               onChange={(e) => {
@@ -354,7 +356,7 @@ export function StudentsTable({
                 </option>
               ))}
             </select>
-            <span>entries</span>
+            <span>{t("entries")}</span>
           </label>
 
           {/* Real-time search — filters instantly as user types, no server trip */}
@@ -367,7 +369,7 @@ export function StudentsTable({
                 setQuery(e.target.value);
                 setPage(1);
               }}
-              placeholder="আইডি বা নাম লিখে খুঁজুন..."
+              placeholder={t("search_placeholder")}
               className="h-9 w-full rounded-md border border-border/60 bg-card ps-9 pe-9 text-sm outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
             />
             {query ? (
@@ -378,7 +380,7 @@ export function StudentsTable({
                   setPage(1);
                 }}
                 className="absolute end-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="সার্চ মুছুন"
+                aria-label={t("clear_search")}
               >
                 <X className="size-3.5" />
               </button>
@@ -387,17 +389,23 @@ export function StudentsTable({
 
           <div className="flex items-center gap-1">
             <IconToolbarButton
-              label={selected.size > 0 ? `${selected.size} জন কপি` : "সব কপি"}
+              label={selected.size > 0
+                ? tTable("tooltip_copy_sel", { count: selected.size })
+                : tTable("tooltip_copy_all")}
               onClick={copyClipboard}
               icon={<Clipboard className="size-4" />}
             />
             <IconToolbarButton
-              label={selected.size > 0 ? `${selected.size} জন CSV` : "সব CSV"}
+              label={selected.size > 0
+                ? tTable("tooltip_csv_sel", { count: selected.size })
+                : tTable("tooltip_csv_all")}
               onClick={exportCsv}
               icon={<Download className="size-4" />}
             />
             <IconToolbarButton
-              label={selected.size > 0 ? `${selected.size} জন প্রিন্ট` : "সব প্রিন্ট"}
+              label={selected.size > 0
+                ? tTable("tooltip_print_sel", { count: selected.size })
+                : tTable("tooltip_print_all")}
               onClick={printTable}
               icon={<Printer className="size-4" />}
             />
@@ -414,52 +422,52 @@ export function StudentsTable({
                   ref={(el) => { if (el) el.indeterminate = someVisibleSelected; }}
                   onChange={toggleAllVisible}
                   className="size-4 cursor-pointer rounded border-border accent-primary"
-                  aria-label="এই পেজের সবাইকে নির্বাচন করুন"
+                  aria-label={tTable("select_this_page")}
                 />
               </TableHead>
-              <TableHead className="w-16">ছবি</TableHead>
+              <TableHead className="w-16">{tTable("col_photo")}</TableHead>
               <SortableHead
                 className="hidden sm:table-cell"
-                label="আইডি"
+                label={tTable("col_id")}
                 active={sortKey === "code"}
                 dir={sortDir}
                 onClick={() => toggleSort("code")}
               />
               <SortableHead
-                label="শিক্ষার্থীর নাম"
+                label={tTable("col_name")}
                 active={sortKey === "name"}
                 dir={sortDir}
                 onClick={() => toggleSort("name")}
               />
               <SortableHead
                 className="hidden md:table-cell"
-                label="শ্রেণি"
+                label={tTable("col_class")}
                 active={sortKey === "class"}
                 dir={sortDir}
                 onClick={() => toggleSort("class")}
               />
               <SortableHead
                 className="hidden sm:table-cell w-16"
-                label="রোল"
+                label={tTable("col_roll")}
                 active={sortKey === "roll"}
                 dir={sortDir}
                 onClick={() => toggleSort("roll")}
               />
               <SortableHead
                 className="hidden lg:table-cell"
-                label="ভর্তি তারিখ"
+                label={tTable("col_admission_date")}
                 active={sortKey === "admission"}
                 dir={sortDir}
                 onClick={() => toggleSort("admission")}
               />
               <SortableHead
                 className="hidden md:table-cell"
-                label="স্ট্যাটাস"
+                label={tTable("col_status")}
                 active={sortKey === "status"}
                 dir={sortDir}
                 onClick={() => toggleSort("status")}
               />
-              <TableHead className="text-end">কার্যক্রম</TableHead>
+              <TableHead className="text-end">{tTable("col_actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -469,7 +477,7 @@ export function StudentsTable({
                   <div className="flex flex-col items-center gap-1 text-muted-foreground">
                     <Search className="size-8 opacity-40" />
                     <p className="text-sm font-medium">
-                      &ldquo;{query}&rdquo; অনুসন্ধানে কোন শিক্ষার্থী পাওয়া যায়নি
+                      {tTable("search_empty", { query })}
                     </p>
                     <button
                       type="button"
@@ -479,7 +487,7 @@ export function StudentsTable({
                       }}
                       className="mt-1 text-xs text-primary hover:underline"
                     >
-                      সার্চ মুছুন
+                      {t("clear_search")}
                     </button>
                   </div>
                 </TableCell>
@@ -497,7 +505,7 @@ export function StudentsTable({
                       checked={isSel}
                       onChange={() => toggleRow(s.id)}
                       className="size-4 cursor-pointer rounded border-border accent-primary"
-                      aria-label={`${s.name_bn} নির্বাচন`}
+                      aria-label={tTable("select_aria", { name: s.name_bn })}
                     />
                   </TableCell>
                   <TableCell>
@@ -570,9 +578,11 @@ export function StudentsTable({
         {/* Pagination footer */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/60 p-3 text-sm text-muted-foreground">
           <div>
-            Showing <BanglaDigit value={startIdx + 1} /> to{" "}
-            <BanglaDigit value={Math.min(startIdx + pageSize, sorted.length)} /> of{" "}
-            <BanglaDigit value={sorted.length} /> entries
+            {t.rich("showing_x_to_y_of_z", {
+              start: () => <BanglaDigit value={startIdx + 1} />,
+              end: () => <BanglaDigit value={Math.min(startIdx + pageSize, sorted.length)} />,
+              total: () => <BanglaDigit value={sorted.length} />,
+            })}
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -582,7 +592,7 @@ export function StudentsTable({
               className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-3 py-1.5 text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
             >
               <ChevronLeft className="size-3.5 rtl:rotate-180" />
-              Previous
+              {t("previous")}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((n) => Math.abs(n - safePage) <= 2 || n === 1 || n === totalPages)
@@ -617,7 +627,7 @@ export function StudentsTable({
               disabled={safePage >= totalPages}
               className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-3 py-1.5 text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Next
+              {t("next")}
               <ChevronRight className="size-3.5 rtl:rotate-180" />
             </button>
           </div>

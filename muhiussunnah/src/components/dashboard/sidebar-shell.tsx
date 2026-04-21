@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { useSidebar } from "./sidebar-state";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ type NavItem = {
  */
 export function SidebarShell({ items }: { items: NavItem[] }) {
   const { collapsed, mobileOpen, closeMobile } = useSidebar();
+  const t = useTranslations("sidebar");
 
   return (
     <>
@@ -57,7 +59,7 @@ export function SidebarShell({ items }: { items: NavItem[] }) {
       >
         <button
           type="button"
-          aria-label="সাইডবার বন্ধ করুন"
+          aria-label={t("close")}
           onClick={closeMobile}
           className={cn(
             "absolute inset-0 bg-foreground/40 backdrop-blur-sm transition-opacity duration-300",
@@ -72,15 +74,15 @@ export function SidebarShell({ items }: { items: NavItem[] }) {
           )}
           role="dialog"
           aria-modal="true"
-          aria-label="নেভিগেশন মেনু"
+          aria-label={t("nav_menu")}
         >
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm font-semibold text-muted-foreground">মেনু</span>
+            <span className="text-sm font-semibold text-muted-foreground">{t("menu")}</span>
             <button
               type="button"
               onClick={closeMobile}
               className="inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground"
-              aria-label="বন্ধ করুন"
+              aria-label={t("close")}
             >
               <X className="size-4" />
             </button>
@@ -170,6 +172,7 @@ function SidebarNavBody({ items, expanded }: { items: NavItem[]; expanded: boole
 }
 
 function SidebarFooter({ expanded }: { expanded: boolean }) {
+  const t = useTranslations("sidebar");
   return (
     <div className="relative mt-auto pt-4">
       <div
@@ -187,7 +190,7 @@ function SidebarFooter({ expanded }: { expanded: boolean }) {
         </span>
         {expanded ? (
           <span className="font-medium">
-            Powered by{" "}
+            {t("powered_by")}{" "}
             <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-semibold">
               Muhius Sunnah
             </span>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FileSpreadsheet, UserPlus, Users2 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
@@ -82,18 +83,20 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
     active: students.filter((s) => s.status === "active").length,
   };
 
+  const t = await getTranslations("studentsTable");
+
   return (
     <>
       <PageHeader
-        title="ছাত্র-ছাত্রী ব্যবস্থাপনা"
+        title={t("page_title")}
         subtitle={
           stats.total > 0
-            ? `${stats.total.toString()} জনের মধ্যে ${stats.active.toString()} সক্রিয়`
-            : "এখনই প্রথম শিক্ষার্থী ভর্তি করুন — ৩০ সেকেন্ডে হয়ে যাবে।"
+            ? t("page_subtitle_with_counts", { total: stats.total, active: stats.active })
+            : t("page_subtitle_empty")
         }
         impact={[
-          { label: <>মোট · <BanglaDigit value={stats.total} /></>, tone: "accent" },
-          { label: <>সক্রিয় · <BanglaDigit value={stats.active} /></>, tone: "success" },
+          { label: <>{t("impact_total")} · <BanglaDigit value={stats.total} /></>, tone: "accent" },
+          { label: <>{t("impact_active")} · <BanglaDigit value={stats.active} /></>, tone: "success" },
         ]}
         actions={
           <div className="flex gap-2">
@@ -102,14 +105,14 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
               className={buttonVariants({ variant: "outline", size: "sm" })}
             >
               <FileSpreadsheet className="me-1 size-3.5" />
-              Excel Import
+              {t("btn_excel_import")}
             </Link>
             <Link
               href={`/students/new`}
               className={buttonVariants({ size: "sm", className: "bg-gradient-primary text-white" })}
             >
               <UserPlus className="me-1 size-3.5" />
-              নতুন ভর্তি
+              {t("btn_new_admission")}
             </Link>
           </div>
         }
@@ -123,19 +126,19 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
       {students.length === 0 ? (
         <EmptyState
           icon={<Users2 className="size-8" />}
-          title="🎓 প্রথম শিক্ষার্থী ভর্তি করুন"
-          body="একজন ছাত্র যোগ করতে মাত্র ৩০ সেকেন্ড লাগবে। বাল্ক import করলে ১০০+ ছাত্র একসাথে ১ মিনিটে!"
+          title={t("empty_title")}
+          body={t("empty_body")}
           primaryAction={
             <Link href={`/students/new`} className={buttonVariants({ className: "bg-gradient-primary text-white" })}>
-              নতুন ভর্তি
+              {t("empty_cta_new")}
             </Link>
           }
           secondaryAction={
             <Link href={`/students/bulk-import`} className={buttonVariants({ variant: "outline" })}>
-              Excel থেকে import
+              {t("empty_cta_bulk")}
             </Link>
           }
-          proTip="Excel template ডাউনলোড করে পূরণ করে upload করলে পুর ো ক্লাসের ডেটা মুহূর্তে ঢুকে যাবে।"
+          proTip={t("empty_pro_tip")}
         />
       ) : (
         <StudentsTable

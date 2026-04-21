@@ -7,6 +7,7 @@
  * with Supabase Realtime subscriptions once wired in Phase 1/6.
  */
 
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export function LiveIndicator({ connected = true, label, className }: Props) {
+  const t = useTranslations("live");
   return (
     <span
       className={cn(
@@ -39,7 +41,7 @@ export function LiveIndicator({ connected = true, label, className }: Props) {
           )}
         />
       </span>
-      {label ?? (connected ? "লাইভ" : "সংযোগ বিচ্ছিন্ন")}
+      {label ?? (connected ? t("live") : t("disconnected"))}
     </span>
   );
 }

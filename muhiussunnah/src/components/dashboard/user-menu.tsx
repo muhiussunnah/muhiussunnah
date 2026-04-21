@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { ChevronDown, LifeBuoy, LogOut, UserCircle2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -33,7 +34,8 @@ export function UserMenu({
   name: string | null | undefined;
   photoUrl?: string | null;
 }) {
-  const displayName = name?.trim() || "প্রশাসক";
+  const t = useTranslations("userMenu");
+  const displayName = name?.trim() || t("default_name");
   const initials = buildInitials(displayName);
   const [pending, startTransition] = useTransition();
 
@@ -63,7 +65,7 @@ export function UserMenu({
           )}
         </span>
         <div className="hidden md:flex flex-col items-start leading-none">
-          <span className="text-[10px] text-muted-foreground">স্বাগতম,</span>
+          <span className="text-[10px] text-muted-foreground">{t("welcome")}</span>
           <span className="text-sm font-semibold text-foreground max-w-[120px] truncate">
             {displayName}
           </span>
@@ -76,7 +78,7 @@ export function UserMenu({
             requires a surrounding <Menu.Group>, and without one base-ui
             throws error #31 the moment the dropdown opens. */}
         <div className="flex flex-col gap-0.5 px-2 py-1.5">
-          <span className="text-xs text-muted-foreground">লগইন রয়েছেন</span>
+          <span className="text-xs text-muted-foreground">{t("logged_in")}</span>
           <span className="font-semibold truncate">{displayName}</span>
         </div>
         <DropdownMenuSeparator />
@@ -86,14 +88,14 @@ export function UserMenu({
           render={<Link href="/settings" />}
         >
           <UserCircle2 className="me-2 size-4" />
-          প্রোফাইল
+          {t("profile")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer px-2 py-2"
           render={<Link href="/tickets" />}
         >
           <LifeBuoy className="me-2 size-4" />
-          সাপোর্ট টিকেট
+          {t("support_ticket")}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />
@@ -105,7 +107,7 @@ export function UserMenu({
           disabled={pending}
         >
           <LogOut className="me-2 size-4" />
-          {pending ? "লগআউট হচ্ছে…" : "লগআউট"}
+          {pending ? t("logging_out") : t("logout")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

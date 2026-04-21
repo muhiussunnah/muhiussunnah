@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { cookies } from "next/headers";
+import { getTranslations } from "next-intl/server";
 import { TrustBadge } from "@/components/ui/trust-badge";
 import { LiveIndicator } from "@/components/ui/live-indicator";
 import { LanguageSwitcher } from "@/components/marketing/language-switcher";
@@ -62,6 +63,7 @@ export async function DashboardShell({
   const jar = await cookies();
   const cookieLocale = jar.get(localeCookieName)?.value;
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  const tHeader = await getTranslations("header");
 
   // Build the visible header lines.
   const visibleFields = (headerFields ?? []).filter(
@@ -168,7 +170,7 @@ export async function DashboardShell({
                 {/* Address — own line, full-width text */}
                 {addressField ? (
                   <p className="mt-1 text-[11px] md:text-xs text-muted-foreground leading-snug break-words">
-                    <span className="font-semibold text-foreground/70">Address:</span>{" "}
+                    <span className="font-semibold text-foreground/70">{tHeader("label_address")}</span>{" "}
                     {addressField.value}
                   </p>
                 ) : null}
@@ -178,7 +180,7 @@ export async function DashboardShell({
                   <p className="mt-0.5 text-[11px] md:text-xs text-muted-foreground leading-snug break-words">
                     {phoneField ? (
                       <>
-                        <span className="font-semibold text-foreground/70">Phone:</span>{" "}
+                        <span className="font-semibold text-foreground/70">{tHeader("label_phone")}</span>{" "}
                         {phoneField.value}
                       </>
                     ) : null}
@@ -189,7 +191,7 @@ export async function DashboardShell({
                     ) : null}
                     {emailField ? (
                       <>
-                        <span className="font-semibold text-foreground/70">Email:</span>{" "}
+                        <span className="font-semibold text-foreground/70">{tHeader("label_email")}</span>{" "}
                         <span className="break-all">{emailField.value}</span>
                       </>
                     ) : null}
@@ -199,7 +201,7 @@ export async function DashboardShell({
                 {/* Website — last, centered on its own line */}
                 {websiteField ? (
                   <p className="mt-0.5 text-[11px] md:text-xs text-muted-foreground leading-snug break-words">
-                    <span className="font-semibold text-foreground/70">Website:</span>{" "}
+                    <span className="font-semibold text-foreground/70">{tHeader("label_website")}</span>{" "}
                     <span className="break-all">{websiteField.value}</span>
                   </p>
                 ) : null}

@@ -29,6 +29,7 @@ import {
   Video,
   Wallet,
 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { OnlineStatus } from "@/components/pwa/online-status";
 import { requireActiveRole } from "@/lib/auth/active-school";
@@ -44,7 +45,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
   const schoolRow = await getSchoolBranding(membership.school_id);
 
-  const nav = adminNav(membership);
+  const tNav = await getTranslations("nav");
+  const nav = adminNav(membership, tNav);
 
   const logoUrl = (schoolRow?.logo_url as string | null) ?? null;
   const rawHeaderFields = (schoolRow?.header_display_fields as string | null) ?? "name_bn";
@@ -87,46 +89,49 @@ export default async function AdminLayout({ children }: { children: ReactNode })
   );
 }
 
-function adminNav(membership: ActiveSchoolMembership) {
+function adminNav(
+  membership: ActiveSchoolMembership,
+  t: (key: string) => string,
+) {
   const items = [
-    { href: "/admin",              label: "ড্যাশবোর্ড",    icon: <LayoutDashboard className="size-4" /> },
-    { href: "/admission-inquiry",  label: "ভর্তি জিজ্ঞাসা",  icon: <ClipboardList className="size-4" /> },
-    { href: "/students",           label: "ছাত্র-ছাত্রী",     icon: <Users2 className="size-4" /> },
-    { href: "/classes",            label: "শ্রেণি",           icon: <Building2 className="size-4" /> },
-    { href: "/staff",              label: "শিক্ষক/স্টাফ",     icon: <Users2 className="size-4" /> },
-    { href: "/attendance",         label: "উপস্থিতি",         icon: <FileCheck2 className="size-4" /> },
-    { href: "/academic-years",     label: "শিক্ষাবর্ষ",       icon: <CalendarDays className="size-4" /> },
-    { href: "/exams",              label: "পরীক্ষা",          icon: <ScrollText className="size-4" /> },
-    { href: "/assignments",        label: "অ্যাসাইনমেন্ট",    icon: <ClipboardCheck className="size-4" /> },
-    { href: "/online-classes",     label: "অনলাইন ক্লাস",     icon: <Video className="size-4" /> },
-    { href: "/certificates",       label: "সার্টিফিকেট",      icon: <FileText className="size-4" /> },
-    { href: "/fees",               label: "ফি",                icon: <Wallet className="size-4" /> },
-    { href: "/fees/payments",      label: "পেমেন্ট",           icon: <Receipt className="size-4" /> },
-    { href: "/expenses",           label: "খরচ",              icon: <CreditCard className="size-4" /> },
-    { href: "/donations",          label: "চাঁদা",             icon: <HeartHandshake className="size-4" /> },
-    { href: "/investments",        label: "বিনিয়োগ",          icon: <TrendingUp className="size-4" /> },
-    { href: "/payroll",            label: "বেতন",             icon: <Banknote className="size-4" /> },
-    { href: "/scholarships",       label: "বৃত্তি",            icon: <Award className="size-4" /> },
-    { href: "/notices",            label: "নোটিশ",            icon: <Megaphone className="size-4" /> },
-    { href: "/messaging",          label: "মেসেজিং রিপোর্ট", icon: <MessageSquare className="size-4" /> },
-    { href: "/library",            label: "লাইব্রেরি",         icon: <BookOpen className="size-4" /> },
-    { href: "/transport",          label: "পরিবহন",           icon: <Bus className="size-4" /> },
-    { href: "/hostel",             label: "হোস্টেল",           icon: <Home className="size-4" /> },
-    { href: "/inventory",          label: "ইনভেন্টরি",        icon: <Package className="size-4" /> },
-    { href: "/tickets",            label: "সাপোর্ট টিকেট",    icon: <LifeBuoy className="size-4" /> },
-    { href: "/reports",            label: "রিপোর্ট",          icon: <ScrollText className="size-4" /> },
-    { href: "/insights/dropout-risk", label: "AI ঝুঁকি",     icon: <Sparkles className="size-4" /> },
-    { href: "/audit-logs",         label: "অডিট লগ",           icon: <History className="size-4" /> },
+    { href: "/admin",              label: t("dashboard"),          icon: <LayoutDashboard className="size-4" /> },
+    { href: "/admission-inquiry",  label: t("admission_inquiry"),  icon: <ClipboardList className="size-4" /> },
+    { href: "/students",           label: t("students"),           icon: <Users2 className="size-4" /> },
+    { href: "/classes",            label: t("classes"),            icon: <Building2 className="size-4" /> },
+    { href: "/staff",              label: t("staff"),              icon: <Users2 className="size-4" /> },
+    { href: "/attendance",         label: t("attendance"),         icon: <FileCheck2 className="size-4" /> },
+    { href: "/academic-years",     label: t("academic_years"),     icon: <CalendarDays className="size-4" /> },
+    { href: "/exams",              label: t("exams"),              icon: <ScrollText className="size-4" /> },
+    { href: "/assignments",        label: t("assignments"),        icon: <ClipboardCheck className="size-4" /> },
+    { href: "/online-classes",     label: t("online_classes"),     icon: <Video className="size-4" /> },
+    { href: "/certificates",       label: t("certificates"),       icon: <FileText className="size-4" /> },
+    { href: "/fees",               label: t("fees"),               icon: <Wallet className="size-4" /> },
+    { href: "/fees/payments",      label: t("payments"),           icon: <Receipt className="size-4" /> },
+    { href: "/expenses",           label: t("expenses"),           icon: <CreditCard className="size-4" /> },
+    { href: "/donations",          label: t("donations"),          icon: <HeartHandshake className="size-4" /> },
+    { href: "/investments",        label: t("investments"),        icon: <TrendingUp className="size-4" /> },
+    { href: "/payroll",            label: t("payroll"),            icon: <Banknote className="size-4" /> },
+    { href: "/scholarships",       label: t("scholarships"),       icon: <Award className="size-4" /> },
+    { href: "/notices",            label: t("notices"),            icon: <Megaphone className="size-4" /> },
+    { href: "/messaging",          label: t("messaging"),          icon: <MessageSquare className="size-4" /> },
+    { href: "/library",            label: t("library"),            icon: <BookOpen className="size-4" /> },
+    { href: "/transport",          label: t("transport"),          icon: <Bus className="size-4" /> },
+    { href: "/hostel",             label: t("hostel"),             icon: <Home className="size-4" /> },
+    { href: "/inventory",          label: t("inventory"),          icon: <Package className="size-4" /> },
+    { href: "/tickets",            label: t("tickets"),            icon: <LifeBuoy className="size-4" /> },
+    { href: "/reports",            label: t("reports"),            icon: <ScrollText className="size-4" /> },
+    { href: "/insights/dropout-risk", label: t("ai_risk"),         icon: <Sparkles className="size-4" /> },
+    { href: "/audit-logs",         label: t("audit_logs"),         icon: <History className="size-4" /> },
   ];
 
   if (membership.school_type === "madrasa" || membership.school_type === "both") {
     items.push(
-      { href: "/madrasa/hifz",        label: "হিফজ",         icon: <BookOpenText className="size-4" /> },
-      { href: "/madrasa/kitab",       label: "কিতাব",        icon: <BookOpenText className="size-4" /> },
-      { href: "/madrasa/daily-sabaq", label: "দৈনিক সবক",   icon: <BookOpenText className="size-4" /> },
+      { href: "/madrasa/hifz",        label: t("hifz"),         icon: <BookOpenText className="size-4" /> },
+      { href: "/madrasa/kitab",       label: t("kitab"),        icon: <BookOpenText className="size-4" /> },
+      { href: "/madrasa/daily-sabaq", label: t("daily_sabaq"),  icon: <BookOpenText className="size-4" /> },
     );
   }
 
-  items.push({ href: "/settings", label: "সেটিংস", icon: <Settings2 className="size-4" /> });
+  items.push({ href: "/settings", label: t("settings"), icon: <Settings2 className="size-4" /> });
   return items;
 }

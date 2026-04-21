@@ -6,6 +6,8 @@ import {
   Noto_Nastaliq_Urdu,
   Noto_Sans_Bengali,
 } from "next/font/google";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
@@ -213,6 +215,11 @@ export default async function RootLayout({
   const locale: Locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
   const dir = localeDirection[locale];
 
+  // Load the message catalog for the active locale. `getMessages()` reads
+  // from src/i18n/request.ts which already resolves the cookie — this just
+  // plugs the resolved messages into the client provider below.
+  const messages = await getMessages();
+
   return (
     <html
       lang={locale}
@@ -248,16 +255,18 @@ export default async function RootLayout({
         >
           Skip to main content
         </a>
-        <ThemeProvider>
-          <Suspense fallback={null}>
-            <NavProgress />
-          </Suspense>
-          {children}
-          <Toaster position="top-right" richColors closeButton />
-          <InstallPrompt />
-          <RegisterServiceWorker />
-          <WebVitalsReporter />
-        </ThemeProvider>
+        <NextIntlClientProvider locale={locale} messages={messages} timeZone="Asia/Dhaka">
+          <ThemeProvider>
+            <Suspense fallback={null}>
+              <NavProgress />
+            </Suspense>
+            {children}
+            <Toaster position="top-right" richColors closeButton />
+            <InstallPrompt />
+            <RegisterServiceWorker />
+            <WebVitalsReporter />
+          </ThemeProvider>
+        </NextIntlClientProvider>
         <AnalyticsProvider />
       </body>
     </html>

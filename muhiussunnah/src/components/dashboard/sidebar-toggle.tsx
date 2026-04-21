@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useSidebar } from "./sidebar-state";
 
 /**
@@ -12,6 +13,7 @@ import { useSidebar } from "./sidebar-state";
  */
 export function SidebarToggle() {
   const { collapsed, mobileOpen, toggle, toggleMobile } = useSidebar();
+  const t = useTranslations("sidebar");
 
   function handleClick() {
     // md+ is 768px. Below that we always use the drawer.
@@ -28,7 +30,7 @@ export function SidebarToggle() {
     <button
       type="button"
       onClick={handleClick}
-      aria-label={expanded ? "সাইডবার বন্ধ করুন" : "সাইডবার খুলুন"}
+      aria-label={expanded ? t("close") : t("open")}
       aria-expanded={expanded}
       className="inline-flex size-10 items-center justify-center rounded-xl border border-border/60 bg-card/60 text-muted-foreground shadow-sm transition-all hover:border-primary/40 hover:bg-primary/10 hover:text-primary hover:shadow-md hover:shadow-primary/10 active:scale-95"
     >
