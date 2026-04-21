@@ -68,7 +68,7 @@ export function UserMenu({
             {displayName}
           </span>
         </div>
-        <ChevronDown className="hidden md:inline size-4 text-muted-foreground transition-transform group-data-[popup-open]/user:rotate-180" />
+        <ChevronDown className="size-4 text-muted-foreground transition-transform group-data-[popup-open]/user:rotate-180" />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-56">
