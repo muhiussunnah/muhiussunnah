@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Building2 } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +12,7 @@ import { BranchList } from "./branch-list";
 
 export default async function BranchesPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
+  const t = await getTranslations("branches");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -27,9 +29,9 @@ export default async function BranchesPage() {
   return (
     <>
       <PageHeader
-        title="শাখা ব্যবস্থাপনা"
-        subtitle="একাধিক ক্যাম্পাস থাকলে প্রতিটি শাখা আলাদা করে যোগ করুন। প্রধান শাখা ফোল্ডার স্বয়ংক্রিয়ভাবে তৈরি হয়ে গেছে।"
-        impact={[{ label: <>মোট শাখা · <BanglaDigit value={branches.length} /></>, tone: "accent" }]}
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
+        impact={[{ label: <>{t("tally_total")} · <BanglaDigit value={branches.length} /></>, tone: "accent" }]}
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
@@ -37,8 +39,8 @@ export default async function BranchesPage() {
           {branches.length === 0 ? (
             <EmptyState
               icon={<Building2 className="size-8" />}
-              title="কোন শাখা পাওয়া যায়নি"
-              body="শাখা তৈরি করুন ডান পাশের ফর্ম থেকে।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <BranchList branches={branches} schoolSlug={schoolSlug} />
@@ -48,7 +50,7 @@ export default async function BranchesPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন শাখা</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("new_heading")}</h2>
               <AddBranchForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>

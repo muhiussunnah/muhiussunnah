@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { CalendarDays } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +12,7 @@ import { AddYearForm } from "./add-year-form";
 
 export default async function AcademicYearsPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
+  const t = await getTranslations("academicYears");
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -26,8 +28,8 @@ export default async function AcademicYearsPage() {
   return (
     <>
       <PageHeader
-        title="শিক্ষাবর্ষ"
-        subtitle="প্রতিটি সেশন/বছর এখানে তৈরি করুন। পরীক্ষা, ফি invoice, report card সবাই একটি Academic Year-এর সাথে যুক্ত থাকে।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
       />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_340px]">
@@ -35,8 +37,8 @@ export default async function AcademicYearsPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<CalendarDays className="size-8" />}
-              title="এখনও কোন শিক্ষাবর্ষ নেই"
-              body="ডান পাশ থেকে প্রথম শিক্ষাবর্ষ যোগ করুন। যেমন: '২০২৫-২০২৬'।"
+              title={t("empty_title")}
+              body={t("empty_body")}
             />
           ) : (
             <Card>
@@ -44,10 +46,10 @@ export default async function AcademicYearsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>নাম</TableHead>
-                      <TableHead>শুরু</TableHead>
-                      <TableHead>শেষ</TableHead>
-                      <TableHead>স্ট্যাটাস</TableHead>
+                      <TableHead>{t("col_name")}</TableHead>
+                      <TableHead>{t("col_start")}</TableHead>
+                      <TableHead>{t("col_end")}</TableHead>
+                      <TableHead>{t("col_status")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -58,7 +60,7 @@ export default async function AcademicYearsPage() {
                         <TableCell><BengaliDate value={y.end_date} /></TableCell>
                         <TableCell>
                           {y.is_active ? (
-                            <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">সক্রিয়</span>
+                            <span className="rounded-full bg-success/10 px-2 py-0.5 text-xs text-success">{t("status_active")}</span>
                           ) : (
                             <span className="text-xs text-muted-foreground">—</span>
                           )}
@@ -75,7 +77,7 @@ export default async function AcademicYearsPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন শিক্ষাবর্ষ</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("new_heading")}</h2>
               <AddYearForm  schoolSlug={schoolSlug}/>
             </CardContent>
           </Card>

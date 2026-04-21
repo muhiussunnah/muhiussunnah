@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,12 +22,14 @@ export function BranchList({ schoolSlug, branches }: { schoolSlug: string; branc
 }
 
 function BranchCard({ schoolSlug, data }: { schoolSlug: string; data: Branch }) {
+  const t = useTranslations("branches");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(deleteBranchAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "মুছে ফেলা হয়েছে");
+    if (state.ok) toast.success(state.message ?? t("deleted"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
@@ -37,18 +40,18 @@ function BranchCard({ schoolSlug, data }: { schoolSlug: string; data: Branch }) 
             {data.name}
             {data.is_primary ? (
               <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                প্রধান
+                {t("primary_badge")}
               </span>
             ) : null}
           </h3>
           {data.address ? <p className="mt-1 text-sm text-muted-foreground">{data.address}</p> : null}
-          {data.phone ? <p className="text-xs text-muted-foreground">ফোন: {data.phone}</p> : null}
+          {data.phone ? <p className="text-xs text-muted-foreground">{t("phone_label")}: {data.phone}</p> : null}
         </div>
         {data.is_primary ? null : (
           <form
             action={action}
             onSubmit={(e) => {
-              if (!confirm("এই শাখা মুছে ফেলবেন? সম্পর্কিত ডেটা বিচ্ছিন্ন হয়ে যাবে।")) e.preventDefault();
+              if (!confirm(t("confirm_delete"))) e.preventDefault();
             }}
           >
             <input type="hidden" name="schoolSlug" value={schoolSlug} />

@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { AlertTriangle, TrendingDown } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,13 +11,15 @@ import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { ComputeRiskButton } from "./compute-button";
 
-const levelLabel = (lv: string) =>
-  ({ critical: "গুরুতর", high: "উচ্চ", medium: "মাঝারি", low: "কম" }[lv] ?? lv);
 const levelVariant = (lv: string): "default" | "secondary" | "destructive" | "outline" =>
   lv === "critical" ? "destructive" : lv === "high" ? "destructive" : lv === "medium" ? "secondary" : "outline";
 
 export default async function DropoutRiskPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("insights");
+
+  const levelLabel = (lv: string) =>
+    ({ critical: t("level_critical"), high: t("level_high"), medium: t("level_medium"), low: t("level_low") }[lv] ?? lv);
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -50,13 +53,13 @@ export default async function DropoutRiskPage() {
   return (
     <>
       <PageHeader
-        title="ঝুঁকিপূর্ণ শিক্ষার্থী (AI Dropout Risk)"
-        subtitle="উপস্থিতি + মার্কস + বকেয়া ফি — তিনটি factor-এ ভিত্তি করে AI-computed risk score। নিয়মিত গণনা করুন এবং উচ্চ ঝুঁকির ছাত্রদের দ্রুত কাউন্সেলিং দিন।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>🚨 গুরুতর · <BanglaDigit value={critical} /></>, tone: critical > 0 ? "warning" : "default" },
-          { label: <>⚠️ উচ্চ · <BanglaDigit value={high} /></>, tone: high > 0 ? "warning" : "default" },
-          { label: <>মোট · <BanglaDigit value={list.length} /></>, tone: "default" },
-          ...(lastComputed ? [{ label: <>সর্বশেষ গণনা: {new Date(lastComputed).toLocaleDateString("bn-BD")}</>, tone: "accent" as const }] : []),
+          { label: <>{t("tally_critical")} · <BanglaDigit value={critical} /></>, tone: critical > 0 ? "warning" : "default" },
+          { label: <>{t("tally_high")} · <BanglaDigit value={high} /></>, tone: high > 0 ? "warning" : "default" },
+          { label: <>{t("tally_total")} · <BanglaDigit value={list.length} /></>, tone: "default" },
+          ...(lastComputed ? [{ label: <>{t("tally_last_computed")} {new Date(lastComputed).toLocaleDateString()}</>, tone: "accent" as const }] : []),
         ]}
         actions={<ComputeRiskButton  schoolSlug={schoolSlug}/>}
       />
@@ -64,9 +67,9 @@ export default async function DropoutRiskPage() {
       {list.length === 0 ? (
         <EmptyState
           icon={<TrendingDown className="size-8" />}
-          title="এখনো কোন ঝুঁকি স্কোর গণনা হয়নি"
-          body="উপরে 'ঝুঁকি স্কোর গণনা করুন' বাটনে ক্লিক করুন। প্রতিটি সক্রিয় ছাত্রের জন্য AI উপস্থিতি, মার্কস ও বকেয়া ফি বিশ্লেষণ করে risk score দেবে।"
-          proTip="মাসে অন্তত একবার গণনা করুন। গুরুতর ঝুঁকির ছাত্রদের অভিভাবকের সাথে জরুরি মিটিং ডাকুন।"
+          title={t("empty_title")}
+          body={t("empty_body")}
+          proTip={t("empty_tip")}
         />
       ) : (
         <Card>
@@ -74,14 +77,14 @@ export default async function DropoutRiskPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ছাত্র</TableHead>
-                  <TableHead>শ্রেণি</TableHead>
-                  <TableHead>Score</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead className="text-right">উপস্থিতি</TableHead>
-                  <TableHead className="text-right">মার্কস</TableHead>
-                  <TableHead className="text-right">বকেয়া</TableHead>
-                  <TableHead>পরামর্শ</TableHead>
+                  <TableHead>{t("col_student")}</TableHead>
+                  <TableHead>{t("col_class")}</TableHead>
+                  <TableHead>{t("col_score")}</TableHead>
+                  <TableHead>{t("col_level")}</TableHead>
+                  <TableHead className="text-right">{t("col_attendance")}</TableHead>
+                  <TableHead className="text-right">{t("col_marks")}</TableHead>
+                  <TableHead className="text-right">{t("col_overdue")}</TableHead>
+                  <TableHead>{t("col_suggestion")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -89,7 +92,7 @@ export default async function DropoutRiskPage() {
                   <TableRow key={r.id}>
                     <TableCell className="text-sm">
                       <div className="font-medium">{r.students?.name_bn ?? r.students?.name_en ?? "—"}</div>
-                      {r.students?.roll_no && <div className="text-xs text-muted-foreground">Roll: <BanglaDigit value={r.students.roll_no} /></div>}
+                      {r.students?.roll_no && <div className="text-xs text-muted-foreground">{t("roll_label")} <BanglaDigit value={r.students.roll_no} /></div>}
                     </TableCell>
                     <TableCell className="text-xs">
                       {r.students?.sections ? `${r.students.sections.classes?.name_bn} — ${r.students.sections.name_bn}` : "—"}
@@ -112,7 +115,7 @@ export default async function DropoutRiskPage() {
                       {r.avg_marks_pct !== null ? <><BanglaDigit value={Math.round(r.avg_marks_pct)} />%</> : "—"}
                     </TableCell>
                     <TableCell className="text-right text-xs">
-                      {r.fee_overdue_days !== null && r.fee_overdue_days > 0 ? <><BanglaDigit value={r.fee_overdue_days} /> দিন</> : "—"}
+                      {r.fee_overdue_days !== null && r.fee_overdue_days > 0 ? <><BanglaDigit value={r.fee_overdue_days} /> {t("days_suffix")}</> : "—"}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground max-w-xs">
                       {r.suggestion ?? "—"}

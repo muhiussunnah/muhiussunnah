@@ -1,18 +1,21 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { computeRiskScoresAction } from "@/server/actions/insights";
 import { Sparkles } from "lucide-react";
 
 export function ComputeRiskButton({ schoolSlug }: { schoolSlug: string }) {
+  const t = useTranslations("insights");
   const [state, action, pending] = useActionState(computeRiskScoresAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "গণনা সম্পন্ন।");
+    if (state.ok) toast.success(state.message ?? t("compute_done"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
@@ -20,7 +23,7 @@ export function ComputeRiskButton({ schoolSlug }: { schoolSlug: string }) {
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <Button type="submit" disabled={pending}>
         <Sparkles className="me-1.5 size-4" />
-        {pending ? "গণনা হচ্ছে..." : "ঝুঁকি স্কোর গণনা করুন"}
+        {pending ? t("computing") : t("compute_cta")}
       </Button>
     </form>
   );

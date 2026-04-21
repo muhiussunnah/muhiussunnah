@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ScrollText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -19,6 +20,7 @@ const actionVariant = (a: string): "default" | "secondary" | "destructive" | "ou
 export default async function AuditLogsPage({ searchParams }: PageProps) {
   const search = await searchParams;
   const membership = await requireActiveRole([...ADMIN_ROLES]);
+  const t = await getTranslations("auditLogs");
 
   const schoolSlug = membership.school_slug;
   const days = Number(search.days ?? 30);
@@ -26,18 +28,6 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
   fromDate.setDate(fromDate.getDate() - days);
 
   const supabase = await supabaseServer();
-
-  let query = (supabase as unknown as { from: (t: string) => unknown }).from("audit_logs") as unknown as {
-    select: (s: string) => {
-      eq: (k: string, v: string) => {
-        gte: (k: string, v: string) => {
-          order: (k: string, o: { ascending: boolean }) => {
-            limit: (n: number) => Promise<{ data: unknown }>;
-          };
-        };
-      };
-    };
-  };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let q: any = (supabase as any)
@@ -51,7 +41,6 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
 
   const { data: logs } = await q.order("created_at", { ascending: false }).limit(500);
 
-  // Fetch user names for the logs (prevent N+1 by bulk query)
   const userIds = [...new Set(((logs ?? []) as Array<{ user_id: string | null }>).map((l) => l.user_id).filter(Boolean))] as string[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: users } = userIds.length > 0
@@ -83,20 +72,20 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
   return (
     <>
       <PageHeader
-        title="অডিট লগ"
-        subtitle="গত ৩০ দিনের সব ব্যবহারকারীর কার্যকলাপ — কে কী তৈরি, পরিবর্তন বা মুছেছে, সবকিছুর trail।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>মোট · <BanglaDigit value={list.length} /></>, tone: "default" },
-          { label: <>Actions · <BanglaDigit value={actionCounts.size} /></>, tone: "accent" },
-          { label: <>Resources · <BanglaDigit value={resourceCounts.size} /></>, tone: "accent" },
+          { label: <>{t("tally_total")} · <BanglaDigit value={list.length} /></>, tone: "default" },
+          { label: <>{t("tally_actions")} · <BanglaDigit value={actionCounts.size} /></>, tone: "accent" },
+          { label: <>{t("tally_resources")} · <BanglaDigit value={resourceCounts.size} /></>, tone: "accent" },
         ]}
       />
 
       {list.length === 0 ? (
         <EmptyState
           icon={<ScrollText className="size-8" />}
-          title="কোন লগ নেই"
-          body={`গত ${days} দিনে কোন কার্যকলাপ রেকর্ড করা হয়নি।`}
+          title={t("empty_title")}
+          body={t("empty_body", { days })}
         />
       ) : (
         <Card>
@@ -104,18 +93,18 @@ export default async function AuditLogsPage({ searchParams }: PageProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>সময়</TableHead>
-                  <TableHead>ব্যবহারকারী</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Resource</TableHead>
-                  <TableHead>Meta</TableHead>
+                  <TableHead>{t("col_time")}</TableHead>
+                  <TableHead>{t("col_user")}</TableHead>
+                  <TableHead>{t("col_action")}</TableHead>
+                  <TableHead>{t("col_resource")}</TableHead>
+                  <TableHead>{t("col_meta")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {list.map((l) => (
                   <TableRow key={l.id}>
                     <TableCell className="text-xs whitespace-nowrap">
-                      {new Date(l.created_at).toLocaleString("bn-BD", { dateStyle: "short", timeStyle: "short" })}
+                      {new Date(l.created_at).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" })}
                     </TableCell>
                     <TableCell className="text-sm">
                       {l.user_id ? (userMap.get(l.user_id) ?? <code className="text-xs">{l.user_id.slice(0, 8)}</code>) : "—"}

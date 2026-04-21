@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { ClipboardList, PhoneCall } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -10,14 +11,6 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { AddInquiryForm } from "./add-inquiry-form";
 import { InquiryStatusToggle } from "./status-toggle";
 
-const statusLabels: Record<string, string> = {
-  new: "নতুন",
-  contacted: "যোগাযোগ হয়েছে",
-  visited: "ভিজিট করেছে",
-  admitted: "ভর্তি হয়েছে",
-  lost: "হারিয়েছি",
-};
-
 const statusTones: Record<string, string> = {
   new: "bg-primary/10 text-primary",
   contacted: "bg-info/10 text-info",
@@ -28,10 +21,18 @@ const statusTones: Record<string, string> = {
 
 export default async function AdmissionInquiryPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
+  const t = await getTranslations("admissionInquiry");
+
+  const statusLabels: Record<string, string> = {
+    new: t("status_new"),
+    contacted: t("status_contacted"),
+    visited: t("status_visited"),
+    admitted: t("status_admitted"),
+    lost: t("status_lost"),
+  };
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
-  // Independent — both keyed off school_id.
   const [inquiriesRes, classesRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -68,13 +69,13 @@ export default async function AdmissionInquiryPage() {
   return (
     <>
       <PageHeader
-        title="ভর্তি জিজ্ঞাসা"
-        subtitle="প্রতিটি ইনকোয়ারি লিড হিসেবে ট্র্যাক করুন — ভিজিটের পর সঠিক সময়ে ফলো-আপ করলে কনভার্সন বাড়ে।"
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
         impact={[
-          { label: <>মোট · <BanglaDigit value={stats.total} /></>, tone: "accent" },
-          { label: <>নতুন · <BanglaDigit value={stats.new} /></>, tone: "default" },
-          { label: <>ভর্তি হয়েছে · <BanglaDigit value={stats.admitted} /></>, tone: "success" },
-          { label: <>কনভার্সন · <BanglaDigit value={stats.conversion} />%</>, tone: "warning" },
+          { label: <>{t("tally_total")} · <BanglaDigit value={stats.total} /></>, tone: "accent" },
+          { label: <>{t("tally_new")} · <BanglaDigit value={stats.new} /></>, tone: "default" },
+          { label: <>{t("tally_admitted")} · <BanglaDigit value={stats.admitted} /></>, tone: "success" },
+          { label: <>{t("tally_conversion")} · <BanglaDigit value={stats.conversion} />%</>, tone: "warning" },
         ]}
       />
 
@@ -83,9 +84,9 @@ export default async function AdmissionInquiryPage() {
           {list.length === 0 ? (
             <EmptyState
               icon={<ClipboardList className="size-8" />}
-              title="📋 প্রথম ভর্তি জিজ্ঞাসা যোগ করুন"
-              body="ফোন কল, ওয়াক-ইন, অনলাইন ফর্ম — যেখান থেকেই ইনকোয়ারি আসুক, এখানে ট্র্যাক করলে ফলো-আপ মিস হবে না।"
-              proTip="ভর্তি জিজ্ঞাসা কনভার্সন ট্র্যাক করলে বুঝবেন কোন সোর্স সবচেয়ে বেশি কাজ করছে।"
+              title={t("empty_title")}
+              body={t("empty_body")}
+              proTip={t("empty_tip")}
             />
           ) : (
             <Card>
@@ -111,9 +112,9 @@ export default async function AdmissionInquiryPage() {
                             <PhoneCall className="size-3" />
                             <a href={`tel:${i.guardian_phone}`} className="hover:text-foreground">{i.guardian_phone}</a>
                           </span>
-                          <span>সোর্স: {i.source}</span>
+                          <span>{t("field_source_label")}: {i.source}</span>
                           {i.followup_date ? (
-                            <span>ফলোআপ: <BengaliDate value={i.followup_date} /></span>
+                            <span>{t("field_followup_label")}: <BengaliDate value={i.followup_date} /></span>
                           ) : null}
                         </div>
                         {i.notes ? <p className="mt-2 text-xs text-muted-foreground">{i.notes}</p> : null}
@@ -133,7 +134,7 @@ export default async function AdmissionInquiryPage() {
         <aside>
           <Card>
             <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">নতুন জিজ্ঞাসা</h2>
+              <h2 className="mb-4 text-lg font-semibold">{t("new_heading")}</h2>
               <AddInquiryForm classes={classes ?? []} schoolSlug={schoolSlug} />
             </CardContent>
           </Card>

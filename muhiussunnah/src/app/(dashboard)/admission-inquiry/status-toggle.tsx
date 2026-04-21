@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { updateInquiryStatusAction } from "@/server/actions/admission-inquiry";
@@ -9,12 +10,14 @@ import type { ActionResult } from "@/server/actions/_helpers";
 type Props = { schoolSlug: string; id: string; currentStatus: string };
 
 export function InquiryStatusToggle({ schoolSlug, id, currentStatus }: Props) {
+  const t = useTranslations("admissionInquiry");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(updateInquiryStatusAction, null);
 
   useEffect(() => {
     if (!state) return;
-    if (state.ok) toast.success(state.message ?? "আপডেট হয়েছে");
+    if (state.ok) toast.success(state.message ?? t("toggle_updated"));
     else toast.error(state.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   function handleChange(status: string | null) {
@@ -32,11 +35,11 @@ export function InquiryStatusToggle({ schoolSlug, id, currentStatus }: Props) {
         <SelectValue />
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="new">নতুন</SelectItem>
-        <SelectItem value="contacted">যোগাযোগ হয়েছে</SelectItem>
-        <SelectItem value="visited">ভিজিট করেছে</SelectItem>
-        <SelectItem value="admitted">ভর্তি হয়েছে</SelectItem>
-        <SelectItem value="lost">হারিয়েছি</SelectItem>
+        <SelectItem value="new">{t("status_new")}</SelectItem>
+        <SelectItem value="contacted">{t("status_contacted")}</SelectItem>
+        <SelectItem value="visited">{t("status_visited")}</SelectItem>
+        <SelectItem value="admitted">{t("status_admitted")}</SelectItem>
+        <SelectItem value="lost">{t("status_lost")}</SelectItem>
       </SelectContent>
     </Select>
   );
