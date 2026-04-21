@@ -76,7 +76,9 @@ export default async function SchoolSettingsPage() {
             </div>
             <ProfileForm
               currentEmail={currentEmail}
-              currentFullName={currentFullName} schoolSlug={schoolSlug}
+              currentFullName={currentFullName}
+              currentPhotoUrl={membership.photo_url}
+              schoolSlug={schoolSlug}
             />
           </CardContent>
         </Card>
