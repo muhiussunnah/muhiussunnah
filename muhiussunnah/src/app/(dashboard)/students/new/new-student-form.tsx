@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Camera, Upload, X, Printer, FileDown, Sparkles, CreditCard } from "lucide-react";
+import { Camera, Upload, X, Printer, Sparkles, CreditCard } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -242,21 +242,9 @@ export function NewStudentForm({
   }
   useEffect(() => () => closeCamera(), []);
 
-  // -------------------- print / export --------------------
+  // -------------------- print --------------------
   function printForm() {
     window.print();
-  }
-  function exportJson() {
-    const blob = new Blob(
-      [JSON.stringify({ ...values, classId, sectionId: resolvedSectionId, session: resolvedSession }, null, 2)],
-      { type: "application/json" },
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `student-${values.name_bn || "draft"}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   }
 
   // Submit only requires name + class. Section_id is auto-resolved on the
@@ -271,10 +259,6 @@ export function NewStudentForm({
         <Button type="button" size="sm" variant="outline" onClick={printForm}>
           <Printer className="size-3.5" />
           প্রিন্ট
-        </Button>
-        <Button type="button" size="sm" variant="outline" onClick={exportJson}>
-          <FileDown className="size-3.5" />
-          এক্সপোর্ট
         </Button>
       </div>
 
