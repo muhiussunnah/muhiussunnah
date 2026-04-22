@@ -2793,7 +2793,17 @@
     "manage_saving": "সংরক্ষণ হচ্ছে…",
     "manage_saved": "সংরক্ষিত হয়েছে।",
     "manage_change_email": "ইমেইল পরিবর্তন করুন",
-    "manage_reset_password": "পাসওয়ার্ড রিসেট করুন"
+    "manage_reset_password": "পাসওয়ার্ড রিসেট করুন",
+    "delete_school_cta": "স্কুল মুছুন",
+    "delete_school_title": "স্কুল সম্পূর্ণ মুছে ফেলবেন?",
+    "delete_school_warning_title": "{name} এবং এর সকল ডেটা স্থায়ীভাবে মুছে যাবে।",
+    "delete_school_warning_1": "সকল শিক্ষার্থী, ক্লাস, ফি, মার্ক, হাজিরা, রিপোর্ট মুছে যাবে",
+    "delete_school_warning_2": "সকল স্টাফ ও অ্যাডমিনের লগইন অ্যাকাউন্ট বন্ধ হবে (অন্য স্কুলে থাকলে সেখানে বহাল থাকবে)",
+    "delete_school_warning_3": "এই কাজ undo করা যাবে না",
+    "delete_school_confirm_label": "নিশ্চিতকরণের জন্য স্কুলের slug টাইপ করুন: {slug}",
+    "delete_school_confirm_cta": "স্থায়ীভাবে মুছে দিন",
+    "delete_school_deleting": "মুছে ফেলা হচ্ছে…",
+    "delete_school_done": "স্কুল মুছে ফেলা হয়েছে।"
   },
   "pay": {
     "success_title_meta": "পেমেন্ট সফল",

@@ -16,6 +16,7 @@ import {
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireSuperAdmin } from "@/lib/auth/session";
 import { ManageSchoolDialog, type PlanOption } from "./manage-dialog";
+import { DeleteSchoolButton } from "./delete-school-button";
 
 type SchoolRow = {
   id: string;
@@ -229,17 +230,24 @@ export default async function SubscriptionsPage() {
                         {new Date(s.created_at).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        <ManageSchoolDialog
-                          schoolId={s.id}
-                          schoolName={s.name_bn}
-                          adminUserId={adminRow?.user_id ?? null}
-                          adminEmail={adminEmail === "—" ? "" : adminEmail}
-                          currentPlanId={s.subscription_plan_id}
-                          currentStatus={s.subscription_status}
-                          currentTrialEndsAt={s.trial_ends_at}
-                          currentExpiresAt={s.subscription_expires_at}
-                          plans={plans}
-                        />
+                        <div className="flex items-center justify-end gap-1">
+                          <ManageSchoolDialog
+                            schoolId={s.id}
+                            schoolName={s.name_bn}
+                            adminUserId={adminRow?.user_id ?? null}
+                            adminEmail={adminEmail === "—" ? "" : adminEmail}
+                            currentPlanId={s.subscription_plan_id}
+                            currentStatus={s.subscription_status}
+                            currentTrialEndsAt={s.trial_ends_at}
+                            currentExpiresAt={s.subscription_expires_at}
+                            plans={plans}
+                          />
+                          <DeleteSchoolButton
+                            schoolId={s.id}
+                            schoolName={s.name_bn}
+                            schoolSlug={s.slug}
+                          />
+                        </div>
                       </TableCell>
                     </TableRow>
                   );

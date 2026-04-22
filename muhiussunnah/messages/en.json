@@ -2793,7 +2793,17 @@
     "manage_saving": "Saving…",
     "manage_saved": "Saved.",
     "manage_change_email": "Change email",
-    "manage_reset_password": "Reset password"
+    "manage_reset_password": "Reset password",
+    "delete_school_cta": "Delete school",
+    "delete_school_title": "Permanently delete this school?",
+    "delete_school_warning_title": "{name} and all its data will be erased.",
+    "delete_school_warning_1": "All students, classes, fees, marks, attendance, reports will be deleted",
+    "delete_school_warning_2": "All staff & admin login accounts will be disabled (preserved in any other schools they belong to)",
+    "delete_school_warning_3": "This action cannot be undone",
+    "delete_school_confirm_label": "Type the school slug to confirm: {slug}",
+    "delete_school_confirm_cta": "Delete permanently",
+    "delete_school_deleting": "Deleting…",
+    "delete_school_done": "School deleted."
   },
   "pay": {
     "success_title_meta": "Payment successful",
