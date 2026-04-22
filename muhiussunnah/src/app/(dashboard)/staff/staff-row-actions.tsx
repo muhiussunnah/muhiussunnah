@@ -217,7 +217,9 @@ function EditStaffForm({
               <span className="flex-1 text-left">{roleLabels[role] ?? role}</span>
             </SelectTrigger>
             <SelectContent>
-              {USER_ROLES.filter((r) => r !== "STUDENT" && r !== "PARENT").map((r) => (
+              {USER_ROLES.filter(
+                (r) => r !== "STUDENT" && r !== "PARENT" && r !== "SUPER_ADMIN",
+              ).map((r) => (
                 <SelectItem key={r} value={r}>
                   {roleLabels[r] ?? r}
                 </SelectItem>

@@ -45,6 +45,12 @@ export async function inviteStaffAction(
   const parsed = parseForm(staffSchema, formData);
   if ("error" in parsed) return parsed.error;
 
+  // SUPER_ADMIN is platform-level only — never assignable from tenant
+  // UI. Reject even if someone forges the value.
+  if (parsed.role === "SUPER_ADMIN") {
+    return fail("এই ভূমিকা এখান থেকে দেওয়া যাবে না।");
+  }
+
   const auth = await authorizeAction({
     schoolSlug: parsed.schoolSlug,
     action: "create",
@@ -156,6 +162,12 @@ export async function updateStaffAction(
 ): Promise<ActionResult> {
   const parsed = parseForm(updateStaffSchema, formData);
   if ("error" in parsed) return parsed.error;
+
+  // SUPER_ADMIN is platform-level and must never be assigned from the
+  // tenant-level staff page, even by a crafted request.
+  if (parsed.role === "SUPER_ADMIN") {
+    return fail("এই ভূমিকা এখান থেকে দেওয়া যাবে না।");
+  }
 
   const auth = await authorizeAction({
     schoolSlug: parsed.schoolSlug,

@@ -41,7 +41,7 @@ export default async function StaffPage() {
       .from("school_users")
       .select("id, user_id, full_name_bn, full_name_en, email, phone, role, status, employee_code, branch_id, joined_at")
       .eq("school_id", membership.school_id)
-      .not("role", "in", "(STUDENT,PARENT)")
+      .not("role", "in", "(STUDENT,PARENT,SUPER_ADMIN)")
       .order("joined_at", { ascending: false }),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
