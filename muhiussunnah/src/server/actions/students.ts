@@ -110,14 +110,17 @@ async function nextStudentCode(
   const prefixStr = String(prefix);
 
   // Find the highest existing code for this prefix in this school.
+  // NB: we intentionally DON'T .order("student_code", desc).limit(N) —
+  // Postgres sorts TEXT lexicographically, so "200099" compares greater
+  // than "2000100" and the 1st row is a lie once serials roll into
+  // three digits. Fetch all codes for this prefix and compute max
+  // numerically in JS.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: existing } = await (supabase as any)
     .from("students")
     .select("student_code")
     .eq("school_id", schoolId)
-    .like("student_code", `${prefixStr}%`)
-    .order("student_code", { ascending: false })
-    .limit(50);
+    .like("student_code", `${prefixStr}%`);
 
   let nextSerial = 1;
   const used = new Set<number>();
@@ -635,18 +638,33 @@ export async function bulkImportStudentsAction(
   const serialByPrefix = new Map<number, number>();
   for (const prefix of prefixes) {
     const prefixStr = String(prefix);
+    // Fetch every existing student_code with this prefix so we can
+    // compute max NUMERICALLY. Postgres sorts TEXT lexicographically —
+    // "200099" compares greater than "2000100" because '9' > '1' at the
+    // 5th char — which made the previous "order desc + limit 1" hand
+    // back 99 and then the loop minted 100 → collision with the already-
+    // existing 2000100. Fetching all codes for one prefix is cheap even
+    // for a thousands-of-students school, and it only runs 1× per
+    // prefix per bulk import.
+    //
+    // Counts *all* statuses (active / dropped / passed_out / …) because
+    // student_code has a UNIQUE (school_id, student_code) constraint
+    // regardless of status. Skipping dropped rows would re-use their
+    // codes and crash with the same duplicate-key error.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: existing } = await (supabase as any)
       .from("students")
       .select("student_code")
       .eq("school_id", auth.active.school_id)
-      .like("student_code", `${prefixStr}%`)
-      .order("student_code", { ascending: false })
-      .limit(1);
-    const top = (existing?.[0]?.student_code ?? "") as string;
-    const suffix = top.slice(prefixStr.length);
-    const n = parseInt(suffix, 10);
-    serialByPrefix.set(prefix, Number.isFinite(n) && n > 0 ? n : 0);
+      .like("student_code", `${prefixStr}%`);
+    let maxSerial = 0;
+    for (const row of ((existing ?? []) as { student_code: string | null }[])) {
+      const code = row.student_code ?? "";
+      if (!code.startsWith(prefixStr)) continue;
+      const n = parseInt(code.slice(prefixStr.length), 10);
+      if (Number.isFinite(n) && n > maxSerial) maxSerial = n;
+    }
+    serialByPrefix.set(prefix, maxSerial);
   }
 
   for (let i = 0; i < plan.length; i++) {
