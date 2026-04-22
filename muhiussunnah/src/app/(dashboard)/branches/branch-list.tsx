@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { deleteBranchAction } from "@/server/actions/school";
 import type { ActionResult } from "@/server/actions/_helpers";
 
@@ -24,6 +25,7 @@ export function BranchList({ schoolSlug, branches }: { schoolSlug: string; branc
 function BranchCard({ schoolSlug, data }: { schoolSlug: string; data: Branch }) {
   const t = useTranslations("branches");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(deleteBranchAction, null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (!state) return;
@@ -48,15 +50,23 @@ function BranchCard({ schoolSlug, data }: { schoolSlug: string; data: Branch }) 
           {data.phone ? <p className="text-xs text-muted-foreground">{t("phone_label")}: {data.phone}</p> : null}
         </div>
         {data.is_primary ? null : (
-          <form
-            action={action}
-            onSubmit={(e) => {
-              if (!confirm(t("confirm_delete"))) e.preventDefault();
-            }}
-          >
+          <form ref={formRef} action={action}>
             <input type="hidden" name="schoolSlug" value={schoolSlug} />
             <input type="hidden" name="branchId" value={data.id} />
-            <Button type="submit" size="icon-sm" variant="ghost" disabled={pending} aria-label="Delete branch">
+            <Button
+              type="button"
+              size="icon-sm"
+              variant="ghost"
+              disabled={pending}
+              aria-label="Delete branch"
+              onClick={async () => {
+                const ok = await confirmDialog({
+                  title: t("confirm_delete"),
+                  tone: "destructive",
+                });
+                if (ok) formRef.current?.requestSubmit();
+              }}
+            >
               <Trash2 className="size-4 text-destructive" />
             </Button>
           </form>

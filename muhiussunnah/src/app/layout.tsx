@@ -9,6 +9,7 @@ import {
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
+import { ConfirmDialogRoot } from "@/components/ui/confirm-dialog";
 import { RegisterServiceWorker } from "@/components/pwa/register-sw";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { AnalyticsProvider } from "@/components/analytics/analytics-provider";
@@ -262,6 +263,7 @@ export default async function RootLayout({
             </Suspense>
             {children}
             <Toaster position="top-right" richColors closeButton />
+            <ConfirmDialogRoot />
             <InstallPrompt />
             <RegisterServiceWorker />
             <WebVitalsReporter />

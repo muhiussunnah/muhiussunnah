@@ -18,6 +18,7 @@ import {
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -171,7 +172,11 @@ export function StudentsTable({
     const warn = mode === "hard"
       ? tTable("confirm_bulk_hard", { count: selected.size })
       : tTable("confirm_bulk_drop", { count: selected.size });
-    if (!confirm(warn)) return;
+    const ok = await confirmDialog({
+      title: warn,
+      tone: mode === "hard" ? "destructive" : "default",
+    });
+    if (!ok) return;
 
     const fd = new FormData();
     fd.append("schoolSlug", schoolSlug);

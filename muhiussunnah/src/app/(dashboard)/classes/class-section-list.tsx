@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Trash2, Plus, X, Pencil, Check, Info, ChevronDown, ChevronUp, ArrowRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -382,6 +383,7 @@ function AddSectionInline({ schoolSlug, classId, onDone }: { schoolSlug: string;
 function DeleteClassButton({ schoolSlug, classId }: { schoolSlug: string; classId: string }) {
   const t = useTranslations("classes");
   const [state, action, pending] = useActionState<ActionResult | null, FormData>(deleteClassAction, null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
     if (!state) return;
@@ -390,10 +392,24 @@ function DeleteClassButton({ schoolSlug, classId }: { schoolSlug: string; classI
   }, [state, t]);
 
   return (
-    <form action={action} onSubmit={(e) => { if (!confirm(t("delete_class_confirm"))) e.preventDefault(); }}>
+    <form ref={formRef} action={action}>
       <input type="hidden" name="schoolSlug" value={schoolSlug} />
       <input type="hidden" name="classId" value={classId} />
-      <Button type="submit" size="icon-sm" variant="ghost" disabled={pending} aria-label={t("delete_class_aria")} className="hover:bg-destructive/10">
+      <Button
+        type="button"
+        size="icon-sm"
+        variant="ghost"
+        disabled={pending}
+        aria-label={t("delete_class_aria")}
+        className="hover:bg-destructive/10"
+        onClick={async () => {
+          const ok = await confirmDialog({
+            title: t("delete_class_confirm"),
+            tone: "destructive",
+          });
+          if (ok) formRef.current?.requestSubmit();
+        }}
+      >
         <Trash2 className="size-4 text-destructive" />
       </Button>
     </form>
