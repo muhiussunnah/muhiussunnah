@@ -394,6 +394,7 @@ type BulkRow = {
   section_name?: string;
   class_name?: string;
   date_of_birth?: string;
+  admission_date?: string;
   gender?: "male" | "female" | "other";
   guardian_phone?: string;
   guardian_name?: string;
@@ -433,6 +434,30 @@ export async function bulkImportStudentsAction(
     if (!sectionLookup.has(sectionKey)) sectionLookup.set(sectionKey, s.id);
   });
 
+  // Normalize bulk-import date strings to ISO YYYY-MM-DD. Handles:
+  //   - Bangla digits  ("০৬-০৪-২০২৬" → "06-04-2026")
+  //   - DD-MM-YYYY or DD/MM/YYYY (competitor exports) → "YYYY-MM-DD"
+  //   - Already-ISO passes through; empty strings → null.
+  const bnToEn: Record<string, string> = {
+    "০": "0", "১": "1", "২": "2", "৩": "3", "৪": "4",
+    "৫": "5", "৬": "6", "৭": "7", "৮": "8", "৯": "9",
+  };
+  const toIsoDate = (v: string | undefined | null): string | null => {
+    if (v === undefined || v === null) return null;
+    const ascii = String(v).replace(/[০-৯]/g, (c) => bnToEn[c] ?? c).trim();
+    if (ascii === "") return null;
+    // ISO (YYYY-MM-DD) — keep as-is
+    if (/^\d{4}-\d{2}-\d{2}$/.test(ascii)) return ascii;
+    // DD-MM-YYYY / DD/MM/YYYY — convert
+    const m = ascii.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);
+    if (m) {
+      const [, dd, mm, yyyy] = m;
+      return `${yyyy}-${mm.padStart(2, "0")}-${dd.padStart(2, "0")}`;
+    }
+    // Unknown format — let Postgres complain rather than silently null.
+    return ascii;
+  };
+
   let inserted = 0;
   let skipped = 0;
   const errors: string[] = [];
@@ -464,7 +489,8 @@ export async function bulkImportStudentsAction(
       name_en: row.name_en?.toString() ?? null,
       roll: row.roll ? Number(row.roll) : null,
       section_id: sectionId,
-      date_of_birth: row.date_of_birth?.toString() || null,
+      date_of_birth: toIsoDate(row.date_of_birth?.toString()),
+      admission_date: toIsoDate(row.admission_date?.toString()),
       gender: row.gender ?? null,
       guardian_phone: row.guardian_phone?.toString() ?? null,
       address_present: row.address_present?.toString() ?? null,

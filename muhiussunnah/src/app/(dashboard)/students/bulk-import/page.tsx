@@ -49,6 +49,7 @@ export default async function BulkImportPage() {
                 <li><strong>class_name</strong> — {t("bulk_class_name")}</li>
                 <li><strong>section_name</strong> — {t("bulk_section_name")}</li>
                 <li><strong>date_of_birth</strong> — {t("bulk_dob")}</li>
+                <li><strong>admission_date</strong> — {t("bulk_admission_date")}</li>
                 <li><strong>gender</strong> — {t("bulk_gender")}</li>
                 <li><strong>guardian_phone</strong></li>
                 <li><strong>address_present</strong></li>

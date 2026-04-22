@@ -2504,6 +2504,7 @@
     "bulk_class_name": "ক্লাসের নাম (name_bn)",
     "bulk_section_name": "সেকশন (যেমন: ক)",
     "bulk_dob": "YYYY-MM-DD",
+    "bulk_admission_date": "YYYY-MM-DD (বা DD-MM-YYYY, বাংলা digit-ও চলবে)",
     "bulk_gender": "male / female / other",
     "bulk_guardian_phone": "",
     "bulk_address": "",
