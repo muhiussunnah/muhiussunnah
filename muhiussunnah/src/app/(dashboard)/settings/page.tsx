@@ -64,7 +64,17 @@ export default async function SchoolSettingsPage() {
         ]}
       />
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      {/*
+        Layout split — wide form column on the left, stack of smaller
+        cards on the right. The old grid put Basic Info (tall) and
+        Profile (tall) on row 1, then four short cards beneath, leaving
+        a huge vertical gap on the right while the left kept scrolling.
+        This layout fills that gap: Basic Info flows naturally on the
+        left; Profile / Subscription / Security / SMS stack in the
+        right column next to it.
+      */}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        {/* ── Left column: main school form ─────────────────── */}
         <Card>
           <CardContent className="p-5">
             <h2 className="mb-4 text-lg font-semibold">{t("basic_info_heading")}</h2>
@@ -72,71 +82,80 @@ export default async function SchoolSettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="flex flex-col gap-4 p-5">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex size-9 items-center justify-center rounded-xl bg-gradient-primary text-white shadow-lg shadow-primary/25">
-                <User className="size-4" />
-              </span>
-              <div>
-                <h2 className="text-lg font-semibold leading-tight">{t("profile_heading")}</h2>
-                <p className="text-xs text-muted-foreground">{t("profile_subheading")}</p>
+        {/* ── Right column: stack of ancillary cards ────────── */}
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardContent className="flex flex-col gap-4 p-5">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex size-9 items-center justify-center rounded-xl bg-gradient-primary text-white shadow-lg shadow-primary/25">
+                  <User className="size-4" />
+                </span>
+                <div>
+                  <h2 className="text-lg font-semibold leading-tight">{t("profile_heading")}</h2>
+                  <p className="text-xs text-muted-foreground">{t("profile_subheading")}</p>
+                </div>
               </div>
-            </div>
-            <ProfileForm
-              currentEmail={currentEmail}
-              currentFullName={currentFullName}
-              currentPhotoUrl={membership.photo_url}
-              schoolSlug={schoolSlug}
-            />
-          </CardContent>
-        </Card>
+              <ProfileForm
+                currentEmail={currentEmail}
+                currentFullName={currentFullName}
+                currentPhotoUrl={membership.photo_url}
+                schoolSlug={schoolSlug}
+              />
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="flex flex-col gap-3 p-5">
-            <h2 className="text-lg font-semibold">{t("subscription_heading")}</h2>
-            <dl className="grid grid-cols-2 gap-3 text-sm">
-              <dt className="text-muted-foreground">{t("subscription_status_label")}</dt>
-              <dd>{subLabel(school.subscription_status)}</dd>
-              {school.trial_ends_at ? (
-                <>
-                  <dt className="text-muted-foreground">{t("subscription_trial_ends")}</dt>
-                  <dd>{new Date(school.trial_ends_at).toLocaleDateString()}</dd>
-                </>
-              ) : null}
-              <dt className="text-muted-foreground">{t("subscription_url")}</dt>
-              <dd className="font-mono text-xs">/school/{school.slug}</dd>
-            </dl>
-            <p className="mt-4 rounded-md border border-dashed border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
-              {t("subscription_tip")}
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <h2 className="text-lg font-semibold">{t("subscription_heading")}</h2>
+              <dl className="grid grid-cols-2 gap-3 text-sm">
+                <dt className="text-muted-foreground">{t("subscription_status_label")}</dt>
+                <dd>{subLabel(school.subscription_status)}</dd>
+                {school.trial_ends_at ? (
+                  <>
+                    <dt className="text-muted-foreground">{t("subscription_trial_ends")}</dt>
+                    <dd>{new Date(school.trial_ends_at).toLocaleDateString()}</dd>
+                  </>
+                ) : null}
+                <dt className="text-muted-foreground">{t("subscription_url")}</dt>
+                <dd className="font-mono text-xs break-all">/school/{school.slug}</dd>
+              </dl>
+              <p className="mt-2 rounded-md border border-dashed border-primary/30 bg-primary/5 p-3 text-xs text-muted-foreground">
+                {t("subscription_tip")}
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="flex flex-col gap-3 p-5">
-            <h2 className="text-lg font-semibold">{t("security_heading")}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t("security_body")}
-            </p>
-            <Link href={`/settings/2fa`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-              <Shield className="me-1.5 size-4" />
-              {t("security_2fa_cta")}
-            </Link>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <h2 className="text-lg font-semibold">{t("security_heading")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {t("security_body")}
+              </p>
+              <Link
+                href={`/settings/2fa`}
+                className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+              >
+                <Shield className="me-1.5 size-4" />
+                {t("security_2fa_cta")}
+              </Link>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardContent className="flex flex-col gap-3 p-5">
-            <h2 className="text-lg font-semibold">{t("sms_heading")}</h2>
-            <p className="text-sm text-muted-foreground">
-              {t("sms_body")}
-            </p>
-            <Link href={`/messaging/templates`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-              {t("sms_cta")}
-            </Link>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardContent className="flex flex-col gap-3 p-5">
+              <h2 className="text-lg font-semibold">{t("sms_heading")}</h2>
+              <p className="text-sm text-muted-foreground">
+                {t("sms_body")}
+              </p>
+              <Link
+                href={`/messaging/templates`}
+                className={buttonVariants({ variant: "outline", size: "sm", className: "self-start" })}
+              >
+                {t("sms_cta")}
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </>
   );
