@@ -518,14 +518,23 @@ export async function bulkImportStudentsAction(
   let skipped = 0;
   const errors: string[] = [];
 
-  for (let i = 0; i < rows.length; i++) {
-    const row = normalizeKeys(rows[i] as BulkRow & Record<string, unknown>);
+  // ── Pre-compute student codes ──────────────────────────────
+  // Calling nextStudentCode() once per row in a loop caused duplicate-
+  // key violations in bulk imports because each call re-queries the DB
+  // for "max existing code". When two inserts land in the same tick
+  // (Supabase stateless HTTP round-trips, read-replica lag, etc.) both
+  // see the same "max" and request the same next serial → collision.
+  //
+  // Instead: figure out each row's section/prefix first, then for every
+  // unique prefix fetch the current max ONCE and hand out codes
+  // in-memory as we walk the rows. Zero races, 1 DB query per prefix
+  // instead of N.
+
+  type Plan = { row: BulkRow; sectionId: string | null; prefix: number } | { skip: string };
+  const plan: Plan[] = rows.map((rawRow, i) => {
+    const row = normalizeKeys(rawRow as BulkRow & Record<string, unknown>);
     const nameBn = (row.name_bn ?? "").toString().trim();
-    if (nameBn.length < 2) {
-      skipped++;
-      errors.push(`Row ${i + 2}: name_bn অনুপস্থিত`);
-      continue;
-    }
+    if (nameBn.length < 2) return { skip: `Row ${i + 2}: name_bn অনুপস্থিত` };
 
     let sectionId: string | null = null;
     if (row.section_name) {
@@ -534,8 +543,55 @@ export async function bulkImportStudentsAction(
         : row.section_name.toLowerCase();
       sectionId = sectionLookup.get(key) ?? null;
     }
+    return { row, sectionId, prefix: -1 }; // prefix filled in next pass
+  });
 
-    const code = await nextStudentCode(auth.active.school_id, sectionId);
+  // Fill prefix for each planned row (resolve sectionId → numeric prefix).
+  const uniqueSections = new Set<string | null>();
+  for (const p of plan) if ("row" in p) uniqueSections.add(p.sectionId);
+  const prefixBySection = new Map<string | null, number>();
+  for (const sid of uniqueSections) {
+    prefixBySection.set(sid, await classCodePrefix(sid));
+  }
+  for (const p of plan) {
+    if ("row" in p) p.prefix = prefixBySection.get(p.sectionId) ?? 2000;
+  }
+
+  // For every unique prefix in the batch, fetch the current max serial
+  // from the DB once. Then we hand out codes by incrementing counters
+  // locally — no in-loop SELECT needed.
+  const prefixes = new Set<number>();
+  for (const p of plan) if ("row" in p) prefixes.add(p.prefix);
+  const serialByPrefix = new Map<number, number>();
+  for (const prefix of prefixes) {
+    const prefixStr = String(prefix);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: existing } = await (supabase as any)
+      .from("students")
+      .select("student_code")
+      .eq("school_id", auth.active.school_id)
+      .like("student_code", `${prefixStr}%`)
+      .order("student_code", { ascending: false })
+      .limit(1);
+    const top = (existing?.[0]?.student_code ?? "") as string;
+    const suffix = top.slice(prefixStr.length);
+    const n = parseInt(suffix, 10);
+    serialByPrefix.set(prefix, Number.isFinite(n) && n > 0 ? n : 0);
+  }
+
+  for (let i = 0; i < plan.length; i++) {
+    const p = plan[i];
+    if ("skip" in p) {
+      skipped++;
+      errors.push(p.skip);
+      continue;
+    }
+    const { row, sectionId, prefix } = p;
+    const nameBn = (row.name_bn ?? "").toString().trim();
+
+    const nextSerial = (serialByPrefix.get(prefix) ?? 0) + 1;
+    serialByPrefix.set(prefix, nextSerial);
+    const code = `${prefix}${String(nextSerial).padStart(2, "0")}`;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase as any).from("students").insert({
       school_id: auth.active.school_id,
