@@ -36,7 +36,8 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
     .select(`
       id, student_code, name_bn, name_en, roll, gender, photo_url, status, guardian_phone,
       admission_date,
-      section_id, sections ( id, name, class_id, classes ( id, name_bn ) )
+      section_id, class_id,
+      sections ( id, name, class_id, classes ( id, name_bn ) )
     `)
     .eq("school_id", membership.school_id)
     .order("created_at", { ascending: false })
@@ -71,12 +72,30 @@ export default async function StudentsListPage({ searchParams }: PageProps) {
   const { data } = dataRes;
   const { data: classes } = classesRes;
 
-  const students = (data ?? []) as Array<{
+  const rawStudents = (data ?? []) as Array<{
     id: string; student_code: string; name_bn: string; name_en: string | null;
     roll: number | null; gender: string | null; photo_url: string | null; status: string;
-    guardian_phone: string | null; admission_date: string | null; section_id: string | null;
+    guardian_phone: string | null; admission_date: string | null;
+    section_id: string | null; class_id: string | null;
     sections: { id: string; name: string; classes: { name_bn: string } } | null;
   }>;
+
+  // Class lookup for students that have class_id but no section (migration
+  // 0022 — section is optional). Hydrates s.sections.classes.name_bn so
+  // the table doesn't have to special-case two data shapes.
+  type ClassRow = { id: string; name_bn: string; sections: { id: string; name: string }[] };
+  const classById = new Map<string, ClassRow>();
+  for (const c of (classes ?? []) as ClassRow[]) classById.set(c.id, c);
+
+  const students = rawStudents.map((s) => {
+    if (s.sections) return s;
+    if (!s.class_id) return s;
+    const cls = classById.get(s.class_id);
+    if (!cls) return s;
+    // Synthesize a sections object so existing UI / export paths work.
+    // name="" + class.name_bn — the table hides "ক" + "" fallbacks.
+    return { ...s, sections: { id: "", name: "", classes: { name_bn: cls.name_bn } } };
+  });
 
   const stats = {
     total: students.length,

@@ -498,6 +498,19 @@ export async function bulkImportStudentsAction(
     return ascii;
   };
 
+  // Coerce any roll value (ASCII "5", Bangla "৫", number 5, empty "")
+  // to a finite integer or null. Without this, Bangla-digit roll values
+  // landed in Number() as NaN and students were inserted with null
+  // roll — the column showed "—" for the whole class on the list page.
+  const toIntOrNull = (v: unknown): number | null => {
+    if (v === undefined || v === null) return null;
+    if (typeof v === "number") return Number.isFinite(v) ? Math.trunc(v) : null;
+    const ascii = String(v).replace(/[০-৯]/g, (c) => bnToEn[c] ?? c).trim();
+    if (ascii === "") return null;
+    const n = parseInt(ascii, 10);
+    return Number.isFinite(n) ? n : null;
+  };
+
   // Server-side gender-value normalization. The uploader already does
   // this client-side, but keep a safety net here so any stale client
   // (cached JS bundle, direct RPC call, etc.) still succeeds. Maps
@@ -656,7 +669,7 @@ export async function bulkImportStudentsAction(
       student_code: code,
       name_bn: nameBn,
       name_en: row.name_en?.toString() ?? null,
-      roll: row.roll ? Number(row.roll) : null,
+      roll: toIntOrNull(row.roll),
       section_id: sectionId,
       class_id: classId,
       date_of_birth: toIsoDate(row.date_of_birth?.toString()),
