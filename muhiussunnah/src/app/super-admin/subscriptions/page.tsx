@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/table";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireSuperAdmin } from "@/lib/auth/session";
+import { ManageSchoolDialog, type PlanOption } from "./manage-dialog";
 
 type SchoolRow = {
   id: string;
@@ -23,6 +24,7 @@ type SchoolRow = {
   name_en: string | null;
   email: string | null;
   subscription_status: string;
+  subscription_plan_id: string | null;
   trial_ends_at: string | null;
   subscription_expires_at: string | null;
   created_at: string;
@@ -56,12 +58,21 @@ export default async function SubscriptionsPage() {
     .from("schools")
     .select(
       `id, slug, name_bn, name_en, email,
-       subscription_status, trial_ends_at, subscription_expires_at, created_at,
+       subscription_status, subscription_plan_id,
+       trial_ends_at, subscription_expires_at, created_at,
        plan:subscription_plans ( code, name_bn, name_en, price_bdt )`,
     )
     .order("created_at", { ascending: false });
 
   const schools: SchoolRow[] = (schoolsData ?? []) as SchoolRow[];
+
+  // 1b. Plans (for the manage dialog select)
+  const { data: plansData } = await admin
+    .from("subscription_plans")
+    .select("id, name_bn, name_en, price_bdt, display_order, is_active")
+    .eq("is_active", true)
+    .order("display_order", { ascending: true });
+  const plans: PlanOption[] = (plansData ?? []) as PlanOption[];
 
   // 2. SCHOOL_ADMIN contact per school (for email fallback)
   const { data: adminsData } = await admin
@@ -159,6 +170,7 @@ export default async function SubscriptionsPage() {
                   <TableHead>{t("subs_col_status")}</TableHead>
                   <TableHead className="hidden lg:table-cell">{t("subs_col_ends")}</TableHead>
                   <TableHead className="hidden lg:table-cell">{t("subs_col_created")}</TableHead>
+                  <TableHead className="text-right">{t("subs_col_actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -215,6 +227,19 @@ export default async function SubscriptionsPage() {
                       </TableCell>
                       <TableCell className="hidden lg:table-cell text-sm">
                         {new Date(s.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <ManageSchoolDialog
+                          schoolId={s.id}
+                          schoolName={s.name_bn}
+                          adminUserId={adminRow?.user_id ?? null}
+                          adminEmail={adminEmail === "—" ? "" : adminEmail}
+                          currentPlanId={s.subscription_plan_id}
+                          currentStatus={s.subscription_status}
+                          currentTrialEndsAt={s.trial_ends_at}
+                          currentExpiresAt={s.subscription_expires_at}
+                          plans={plans}
+                        />
                       </TableCell>
                     </TableRow>
                   );
