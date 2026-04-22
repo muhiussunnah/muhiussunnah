@@ -140,6 +140,11 @@ export async function inviteStaffAction(
 const updateStaffSchema = z.object({
   schoolSlug: z.string().min(1),
   school_user_id: z.string().uuid(),
+  full_name_bn: z.string().trim().min(2).max(200),
+  full_name_en: z.string().trim().max(200).optional().or(z.literal("").transform(() => undefined)),
+  email: z.string().trim().email().optional().or(z.literal("").transform(() => undefined)),
+  phone: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
+  employee_code: z.string().trim().max(50).optional().or(z.literal("").transform(() => undefined)),
   role: z.enum(USER_ROLES),
   branch_id: z.string().uuid().optional().or(z.literal("").transform(() => undefined)),
   status: z.enum(["active", "inactive", "suspended"]),
@@ -164,6 +169,11 @@ export async function updateStaffAction(
   const { error } = await (supabase as any)
     .from("school_users")
     .update({
+      full_name_bn: parsed.full_name_bn,
+      full_name_en: parsed.full_name_en ?? null,
+      email: parsed.email ?? null,
+      phone: parsed.phone ?? null,
+      employee_code: parsed.employee_code ?? null,
       role: parsed.role,
       branch_id: parsed.branch_id ?? null,
       status: parsed.status,
@@ -178,11 +188,61 @@ export async function updateStaffAction(
     action: "update",
     resourceType: "staff",
     resourceId: parsed.school_user_id,
-    meta: { role: parsed.role, status: parsed.status },
+    meta: { role: parsed.role, status: parsed.status, email: parsed.email },
   });
 
   revalidatePath(`/staff`);
   return ok(undefined, "স্টাফের তথ্য আপডেট হয়েছে।");
+}
+
+// -----------------------------------------------------------------
+// Delete (remove membership)
+// -----------------------------------------------------------------
+
+const deleteStaffSchema = z.object({
+  schoolSlug: z.string().min(1),
+  school_user_id: z.string().uuid(),
+});
+
+export async function deleteStaffAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(deleteStaffSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "delete",
+    resource: "student",
+  });
+  if ("error" in auth) return auth.error;
+
+  // Safety: can't delete your own membership — use /settings instead
+  if (parsed.school_user_id === auth.active.school_user_id) {
+    return fail("নিজেকে মুছে ফেলা যাবে না।");
+  }
+
+  const supabase = await supabaseServer();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase as any)
+    .from("school_users")
+    .delete()
+    .eq("id", parsed.school_user_id)
+    .eq("school_id", auth.active.school_id);
+  if (error) return fail(error.message);
+
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: "delete",
+    resourceType: "staff",
+    resourceId: parsed.school_user_id,
+    meta: {},
+  });
+
+  revalidatePath(`/staff`);
+  return ok(undefined, "স্টাফ মুছে ফেলা হয়েছে।");
 }
 
 // -----------------------------------------------------------------

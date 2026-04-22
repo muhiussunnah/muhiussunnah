@@ -12,6 +12,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { InviteStaffForm } from "./invite-staff-form";
+import { StaffRowActions } from "./staff-row-actions";
 
 export default async function StaffPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
@@ -38,7 +39,7 @@ export default async function StaffPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("school_users")
-      .select("id, full_name_bn, full_name_en, email, phone, role, status, employee_code, branch_id, joined_at")
+      .select("id, user_id, full_name_bn, full_name_en, email, phone, role, status, employee_code, branch_id, joined_at")
       .eq("school_id", membership.school_id)
       .not("role", "in", "(STUDENT,PARENT)")
       .order("joined_at", { ascending: false }),
@@ -125,12 +126,13 @@ export default async function StaffPage() {
                           </span>
                         </TableCell>
                         <TableCell className="text-right">
-                          <Link
-                            href={`/staff/${s.id}/permissions`}
-                            className="text-xs font-medium text-primary underline-offset-4 hover:underline"
-                          >
-                            {t("action_permissions")}
-                          </Link>
+                          <StaffRowActions
+                            schoolSlug={schoolSlug}
+                            staff={s}
+                            branches={(branches ?? []) as { id: string; name: string }[]}
+                            currentSchoolUserId={membership.school_user_id}
+                            roleLabels={roleLabels}
+                          />
                         </TableCell>
                       </TableRow>
                     ))}
