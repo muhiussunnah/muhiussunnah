@@ -134,12 +134,12 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
     // Notices posted in previous period
     sb.from("notices").select("id", { count: "exact", head: true }).eq("school_id", schoolId)
       .gte("created_at", range.prevFrom).lte("created_at", range.prevTo + "T23:59:59"),
-    // For the donut we only need each active student's section_id — no
-    // joins. We bucket to class below using the class→sections map we
-    // already have. Cuts row payload from ~5 nested objects per student
-    // down to a single UUID, and drops the double join on Supabase.
+    // For the donut we only need each active student's class_id
+    // (migration 0022 added it as a direct column — works even for
+    // section-less students). Fall back to section_id for legacy rows
+    // that were inserted before the backfill ran.
     sb.from("students")
-      .select("section_id")
+      .select("class_id, section_id")
       .eq("school_id", schoolId)
       .eq("status", "active")
       .limit(5000),
@@ -226,21 +226,40 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
   const prevNotices = noticesPrevRes.count ?? 0;
   const noticesTrend = trendPct(curNotices, prevNotices);
 
-  // Group students by class for the donut. Uses the sectionToClass map
-  // built above so we don't re-query the DB with a nested join.
+  // Group students by class for the donut. Prefer the direct class_id
+  // column (migration 0022); fall back to section→class if a legacy row
+  // hasn't been backfilled yet.
   type ClassBucket = { id: string; name: string; order: number; count: number };
   const classBuckets = new Map<string, ClassBucket>();
-  const rawStudents = (studentsByClassRes.data ?? []) as Array<{ section_id: string | null }>;
+  // Build classId → {name, order} lookup from the already-loaded class list.
+  const classMeta = new Map<string, { name: string; order: number }>();
+  for (const c of classList) {
+    classMeta.set(c.id, { name: c.name_bn, order: c.display_order ?? 999 });
+  }
+  const rawStudents = (studentsByClassRes.data ?? []) as Array<{
+    class_id: string | null;
+    section_id: string | null;
+  }>;
   let unassigned = 0;
   for (const s of rawStudents) {
-    const cls = s.section_id ? sectionToClass.get(s.section_id) : undefined;
-    if (!cls) {
+    let classId: string | null = s.class_id;
+    if (!classId && s.section_id) {
+      // Legacy path: resolve via section
+      const viaSec = sectionToClass.get(s.section_id);
+      if (viaSec) classId = viaSec.id;
+    }
+    if (!classId) {
       unassigned++;
       continue;
     }
-    const b = classBuckets.get(cls.id);
+    const meta = classMeta.get(classId);
+    if (!meta) {
+      unassigned++;
+      continue;
+    }
+    const b = classBuckets.get(classId);
     if (b) b.count++;
-    else classBuckets.set(cls.id, { id: cls.id, name: cls.name, order: cls.order, count: 1 });
+    else classBuckets.set(classId, { id: classId, name: meta.name, order: meta.order, count: 1 });
   }
   const donutSlices: ClassBucket[] = [...classBuckets.values()].sort((a, b) => a.order - b.order);
   if (unassigned > 0) {

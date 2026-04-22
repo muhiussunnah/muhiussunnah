@@ -258,6 +258,10 @@ export async function addStudentAction(
     name_ar: parsed.name_ar ?? null,
     roll: parsed.roll ?? null,
     section_id: resolvedSectionId,
+    // Keep class_id in sync with whatever section was resolved, falling
+    // back to the explicit class_id from the form so section-less
+    // students still link to their class.
+    class_id: parsed.class_id ?? null,
     admission_date: cleanDate(parsed.admission_date),
     date_of_birth: cleanDate(parsed.date_of_birth),
     gender: parsed.gender ?? null,
@@ -438,8 +442,13 @@ export async function bulkImportStudentsAction(
   // Class-only lookup: `অষ্টম` → section id of the first section of that
   // class. Used when the import row gives class_name but no section_name.
   const classFirstSection = new Map<string, string>();
+  // class_name (lowercased, bn or en) → classes.id. Drives the new
+  // students.class_id column (see migration 0022) so section-less
+  // students still show up in per-class aggregates.
+  const classIdByName = new Map<string, string>();
+  const sectionToClass = new Map<string, string>(); // sectionId → classId
 
-  (sections ?? []).forEach((s: { id: string; name: string; classes: { name_bn: string; name_en: string | null } }) => {
+  (sections ?? []).forEach((s: { id: string; name: string; class_id: string; classes: { id: string; name_bn: string; name_en: string | null } }) => {
     const classKey = (s.classes.name_bn || s.classes.name_en || "").toLowerCase();
     const sectionKey = s.name.toLowerCase();
     sectionLookup.set(`${classKey}|${sectionKey}`, s.id);
@@ -449,7 +458,21 @@ export async function bulkImportStudentsAction(
     if (classKey && !classFirstSection.has(classKey)) {
       classFirstSection.set(classKey, s.id);
     }
+    if (classKey) classIdByName.set(classKey, s.classes.id);
+    sectionToClass.set(s.id, s.classes.id);
   });
+
+  // Also pull classes without any sections so we can still set class_id
+  // on the student even if section assignment fails for some reason.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: rawClasses } = await (supabase as any)
+    .from("classes")
+    .select("id, name_bn, name_en")
+    .eq("school_id", auth.active.school_id);
+  for (const c of (rawClasses ?? []) as Array<{ id: string; name_bn: string | null; name_en: string | null }>) {
+    const key = (c.name_bn || c.name_en || "").toLowerCase();
+    if (key && !classIdByName.has(key)) classIdByName.set(key, c.id);
+  }
 
   // Normalize bulk-import date strings to ISO YYYY-MM-DD. Handles:
   //   - Bangla digits  ("০৬-০৪-২০২৬" → "06-04-2026")
@@ -547,7 +570,9 @@ export async function bulkImportStudentsAction(
   // in-memory as we walk the rows. Zero races, 1 DB query per prefix
   // instead of N.
 
-  type Plan = { row: BulkRow; sectionId: string | null; prefix: number } | { skip: string };
+  type Plan =
+    | { row: BulkRow; sectionId: string | null; classId: string | null; prefix: number }
+    | { skip: string };
   const plan: Plan[] = rows.map((rawRow, i) => {
     const row = normalizeKeys(rawRow as BulkRow & Record<string, unknown>);
     const nameBn = (row.name_bn ?? "").toString().trim();
@@ -566,7 +591,16 @@ export async function bulkImportStudentsAction(
       // ensureDefaultSections above.)
       sectionId = classFirstSection.get(row.class_name.toLowerCase()) ?? null;
     }
-    return { row, sectionId, prefix: -1 }; // prefix filled in next pass
+
+    // Resolve class_id independently — works even when sectionId is
+    // null, so rows with only class_name still aggregate correctly on
+    // /classes and on the admin dashboard donut.
+    let classId: string | null = sectionId ? (sectionToClass.get(sectionId) ?? null) : null;
+    if (!classId && row.class_name) {
+      classId = classIdByName.get(row.class_name.toLowerCase()) ?? null;
+    }
+
+    return { row, sectionId, classId, prefix: -1 }; // prefix filled in next pass
   });
 
   // Fill prefix for each planned row (resolve sectionId → numeric prefix).
@@ -609,7 +643,7 @@ export async function bulkImportStudentsAction(
       errors.push(p.skip);
       continue;
     }
-    const { row, sectionId, prefix } = p;
+    const { row, sectionId, classId, prefix } = p;
     const nameBn = (row.name_bn ?? "").toString().trim();
 
     const nextSerial = (serialByPrefix.get(prefix) ?? 0) + 1;
@@ -624,6 +658,7 @@ export async function bulkImportStudentsAction(
       name_en: row.name_en?.toString() ?? null,
       roll: row.roll ? Number(row.roll) : null,
       section_id: sectionId,
+      class_id: classId,
       date_of_birth: toIsoDate(row.date_of_birth?.toString()),
       admission_date: toIsoDate(row.admission_date?.toString()),
       gender: toGender(row.gender),
@@ -697,11 +732,23 @@ export async function shiftStudentAction(
     shifted_by: auth.active.school_user_id,
   });
 
+  // Look up the destination section's class so class_id stays in sync
+  // (students now carry class_id directly — migration 0022).
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: dest } = await (supabase as any)
+    .from("sections")
+    .select("class_id")
+    .eq("id", parsed.to_section_id)
+    .maybeSingle();
+
   // Move the student
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { error } = await (supabase as any)
     .from("students")
-    .update({ section_id: parsed.to_section_id })
+    .update({
+      section_id: parsed.to_section_id,
+      class_id: dest?.class_id ?? null,
+    })
     .eq("id", parsed.student_id);
   if (error) return fail(error.message);
 
@@ -813,10 +860,15 @@ export async function updateStudentAction(
     extra_guardian_name,
     extra_guardian_phone,
     extra_guardian_relation,
-    // class_id isn't a students column — it's resolved to a section_id.
+    // class_id is now a students column (migration 0022) but also gets
+    // used to resolve a default section_id below. Put it back into the
+    // update payload after the resolve so it lands on the row.
     class_id,
     ...rawUpdate
   } = parsed;
+  if (class_id !== undefined) {
+    (rawUpdate as Record<string, unknown>).class_id = class_id;
+  }
 
   // If the form picked a class_id but no explicit section_id, resolve
   // to the first section of that class. If the class has no sections,

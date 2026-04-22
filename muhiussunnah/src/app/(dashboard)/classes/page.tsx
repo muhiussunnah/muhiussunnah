@@ -40,13 +40,15 @@ export default async function ClassesPage() {
       .select("id, name")
       .eq("school_id", membership.school_id)
       .order("is_primary", { ascending: false }),
-    // Pull all active students with just the section_id — we'll
-    // aggregate into per-class + per-section counts client-side so the
-    // card can show "15 ছাত্র · 3 সেকশন" at a glance.
+    // Pull all active students with class_id + section_id. class_id
+    // (migration 0022) gives us a direct class link so section-less
+    // students still count on the per-class card; section_id handles
+    // the per-section breakdown. Keeping both lets us aggregate "15
+    // ছাত্র · 3 সেকশন" at a glance.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("students")
-      .select("id, section_id")
+      .select("id, section_id, class_id")
       .eq("school_id", membership.school_id)
       .eq("status", "active")
       .limit(10000),
@@ -65,22 +67,22 @@ export default async function ClassesPage() {
     sections: { id: string; name: string; capacity: number | null; room: string | null }[];
   }[];
 
-  // Build { sectionId → studentCount } and { classId → totalStudentCount }
+  // Per-class count comes from students.class_id directly so
+  // section-less students still show up on the class card.
+  // Per-section count uses section_id as before.
   const sectionCounts = new Map<string, number>();
-  for (const s of (students ?? []) as { id: string; section_id: string | null }[]) {
-    if (!s.section_id) continue;
-    sectionCounts.set(s.section_id, (sectionCounts.get(s.section_id) ?? 0) + 1);
+  const classCounts = new Map<string, number>();
+  for (const s of (students ?? []) as { id: string; section_id: string | null; class_id: string | null }[]) {
+    if (s.section_id) sectionCounts.set(s.section_id, (sectionCounts.get(s.section_id) ?? 0) + 1);
+    if (s.class_id) classCounts.set(s.class_id, (classCounts.get(s.class_id) ?? 0) + 1);
   }
   const classStudentCounts: Record<string, number> = {};
   const sectionStudentCounts: Record<string, number> = {};
   for (const c of classList) {
-    let classTotal = 0;
+    classStudentCounts[c.id] = classCounts.get(c.id) ?? 0;
     for (const sec of c.sections) {
-      const n = sectionCounts.get(sec.id) ?? 0;
-      sectionStudentCounts[sec.id] = n;
-      classTotal += n;
+      sectionStudentCounts[sec.id] = sectionCounts.get(sec.id) ?? 0;
     }
-    classStudentCounts[c.id] = classTotal;
   }
 
   const t = await getTranslations("classes");
