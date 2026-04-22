@@ -19,7 +19,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { USER_ROLES } from "@/lib/auth/roles";
@@ -214,8 +213,8 @@ function EditStaffForm({
         <div className="flex flex-col gap-1.5">
           <Label>{t("edit_role")}</Label>
           <Select value={role} onValueChange={(v) => setRole(v ?? role)}>
-            <SelectTrigger>
-              <SelectValue />
+            <SelectTrigger className="w-full justify-between">
+              <span className="flex-1 text-left">{roleLabels[role] ?? role}</span>
             </SelectTrigger>
             <SelectContent>
               {USER_ROLES.filter((r) => r !== "STUDENT" && r !== "PARENT").map((r) => (
@@ -232,8 +231,10 @@ function EditStaffForm({
         <div className="flex flex-col gap-1.5">
           <Label>{t("edit_branch")}</Label>
           <Select value={branchId} onValueChange={(v) => setBranchId(v ?? "")}>
-            <SelectTrigger>
-              <SelectValue placeholder={t("edit_branch_none")} />
+            <SelectTrigger className="w-full justify-between">
+              <span className="flex-1 text-left">
+                {branches.find((b) => b.id === branchId)?.name ?? t("edit_branch_none")}
+              </span>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="">— {t("edit_branch_none")} —</SelectItem>
@@ -248,8 +249,10 @@ function EditStaffForm({
         <div className="flex flex-col gap-1.5">
           <Label>{t("edit_status")}</Label>
           <Select value={status} onValueChange={(v) => setStatus(v ?? status)}>
-            <SelectTrigger>
-              <SelectValue />
+            <SelectTrigger className="w-full justify-between">
+              <span className="flex-1 text-left">
+                {t(`edit_status_${status}` as Parameters<typeof t>[0])}
+              </span>
             </SelectTrigger>
             <SelectContent>
               {STATUSES.map((s) => (

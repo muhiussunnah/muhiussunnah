@@ -18,7 +18,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -165,8 +164,14 @@ function PlanForm({
       <div className="flex flex-col gap-1.5">
         <Label>{t("manage_plan_label")}</Label>
         <Select value={planId} onValueChange={(v) => setPlanId(v ?? "")}>
-          <SelectTrigger>
-            <SelectValue placeholder={t("manage_plan_placeholder")} />
+          <SelectTrigger className="w-full justify-between">
+            <span className="flex-1 text-left">
+              {(() => {
+                const current = plans.find((p) => p.id === planId);
+                if (!current) return t("manage_plan_none");
+                return `${current.name_bn} · ৳${Number(current.price_bdt).toLocaleString("en-IN")}`;
+              })()}
+            </span>
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="">— {t("manage_plan_none")} —</SelectItem>
@@ -182,8 +187,10 @@ function PlanForm({
       <div className="flex flex-col gap-1.5">
         <Label>{t("manage_status_label")}</Label>
         <Select value={status} onValueChange={(v) => setStatus(v ?? status)}>
-          <SelectTrigger>
-            <SelectValue />
+          <SelectTrigger className="w-full justify-between">
+            <span className="flex-1 text-left">
+              {t(`subs_status_${status}` as Parameters<typeof t>[0])}
+            </span>
           </SelectTrigger>
           <SelectContent>
             {STATUSES.map((s) => (
