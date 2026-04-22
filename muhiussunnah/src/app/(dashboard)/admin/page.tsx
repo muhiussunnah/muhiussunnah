@@ -31,6 +31,17 @@ type PageProps = {
   searchParams: Promise<{ range?: string; from?: string; to?: string }>;
 };
 
+/**
+ * Cache the admin dashboard for 60s between requests.
+ *
+ * Reason: the page runs ~19 aggregate queries against Supabase. On a
+ * typical dashboard visit the numbers don't need to be fresher than a
+ * minute — realtime postgres_changes still triggers `router.refresh()`
+ * when new rows land, so edits still feel instant; idle reloads just
+ * hit the cached HTML and skip the DB entirely.
+ */
+export const revalidate = 60;
+
 export default async function SchoolAdminDashboardPage({ searchParams }: PageProps) {
   const search = await searchParams;
   const range = resolveDateRange(search);
@@ -97,7 +108,10 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       .gte("date", range.prevFrom).lte("date", range.prevTo),
     // Today specifically (for "আজকের উপস্থিতি" card)
     sb.from("attendance").select("status").eq("date", todayIso).eq("school_id", schoolId),
-    sb.from("classes").select("id, name_bn, display_order, sections(id)").eq("school_id", schoolId).order("display_order"),
+    // Classes + their sections. The nested `sections(id, class_id)` is used
+    // both for the section-count metric AND as a lookup map to bucket the
+    // donut by class without needing a second heavy join on students.
+    sb.from("classes").select("id, name_bn, display_order, sections(id, class_id)").eq("school_id", schoolId).order("display_order"),
     sb.from("subjects").select("id", { count: "exact", head: true }).eq("school_id", schoolId),
     sb.from("fee_invoices").select("total_amount, paid_amount, status").eq("school_id", schoolId),
     // Payments in current period
@@ -120,9 +134,12 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
     // Notices posted in previous period
     sb.from("notices").select("id", { count: "exact", head: true }).eq("school_id", schoolId)
       .gte("created_at", range.prevFrom).lte("created_at", range.prevTo + "T23:59:59"),
-    // Student-per-section → group client-side by class name
+    // For the donut we only need each active student's section_id — no
+    // joins. We bucket to class below using the class→sections map we
+    // already have. Cuts row payload from ~5 nested objects per student
+    // down to a single UUID, and drops the double join on Supabase.
     sb.from("students")
-      .select("id, section_id, sections ( id, name, class_id, classes ( id, name_bn, display_order ) )")
+      .select("section_id")
       .eq("school_id", schoolId)
       .eq("status", "active")
       .limit(5000),
@@ -154,10 +171,22 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
     id: string;
     name_bn: string;
     display_order: number | null;
-    sections: { id: string }[];
+    sections: { id: string; class_id: string }[];
   }>;
   const classCount = classList.length;
   const sectionCount = classList.reduce((s, c) => s + (c.sections?.length ?? 0), 0);
+
+  // Build section_id → class lookup once, reused by the donut below.
+  const sectionToClass = new Map<string, { id: string; name: string; order: number }>();
+  for (const c of classList) {
+    for (const sec of c.sections ?? []) {
+      sectionToClass.set(sec.id, {
+        id: c.id,
+        name: c.name_bn,
+        order: c.display_order ?? 999,
+      });
+    }
+  }
   const subjectCount = subjectsRes.count ?? 0;
 
   const invoices = (invoicesAggRes.data ?? []) as Array<{
@@ -197,23 +226,21 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
   const prevNotices = noticesPrevRes.count ?? 0;
   const noticesTrend = trendPct(curNotices, prevNotices);
 
-  // Group students by class for the donut
+  // Group students by class for the donut. Uses the sectionToClass map
+  // built above so we don't re-query the DB with a nested join.
   type ClassBucket = { id: string; name: string; order: number; count: number };
   const classBuckets = new Map<string, ClassBucket>();
-  const rawStudents = (studentsByClassRes.data ?? []) as Array<{
-    id: string;
-    sections: { id: string; class_id: string; classes: { id: string; name_bn: string; display_order: number | null } | null } | null;
-  }>;
+  const rawStudents = (studentsByClassRes.data ?? []) as Array<{ section_id: string | null }>;
   let unassigned = 0;
   for (const s of rawStudents) {
-    const cls = s.sections?.classes;
+    const cls = s.section_id ? sectionToClass.get(s.section_id) : undefined;
     if (!cls) {
       unassigned++;
       continue;
     }
     const b = classBuckets.get(cls.id);
     if (b) b.count++;
-    else classBuckets.set(cls.id, { id: cls.id, name: cls.name_bn, order: cls.display_order ?? 999, count: 1 });
+    else classBuckets.set(cls.id, { id: cls.id, name: cls.name, order: cls.order, count: 1 });
   }
   const donutSlices: ClassBucket[] = [...classBuckets.values()].sort((a, b) => a.order - b.order);
   if (unassigned > 0) {

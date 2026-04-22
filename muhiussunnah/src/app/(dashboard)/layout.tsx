@@ -95,10 +95,10 @@ function adminNav(
 ) {
   const items = [
     { href: "/admin",              label: t("dashboard"),          icon: <LayoutDashboard className="size-4" /> },
-    { href: "/admission-inquiry",  label: t("admission_inquiry"),  icon: <ClipboardList className="size-4" /> },
     { href: "/students",           label: t("students"),           icon: <Users2 className="size-4" /> },
     { href: "/classes",            label: t("classes"),            icon: <Building2 className="size-4" /> },
     { href: "/staff",              label: t("staff"),              icon: <Users2 className="size-4" /> },
+    { href: "/admission-inquiry",  label: t("admission_inquiry"),  icon: <ClipboardList className="size-4" /> },
     { href: "/attendance",         label: t("attendance"),         icon: <FileCheck2 className="size-4" /> },
     { href: "/academic-years",     label: t("academic_years"),     icon: <CalendarDays className="size-4" /> },
     { href: "/exams",              label: t("exams"),              icon: <ScrollText className="size-4" /> },
