@@ -596,14 +596,14 @@ export function StudentsTable({
               total: () => <BanglaDigit value={sorted.length} />,
             })}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               type="button"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={safePage <= 1}
-              className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-3 py-1.5 text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+              className="group/pg inline-flex items-center gap-1 rounded-xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.03] px-3.5 py-2 text-sm font-medium shadow-sm shadow-primary/5 transition-all duration-200 cursor-pointer hover:-translate-y-[1px] hover:border-primary/40 hover:bg-gradient-to-br hover:from-card hover:via-card hover:to-primary/[0.08] hover:shadow-md hover:shadow-primary/15 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:text-foreground"
             >
-              <ChevronLeft className="size-3.5 rtl:rotate-180" />
+              <ChevronLeft className="size-3.5 rtl:rotate-180 transition-transform group-hover/pg:-translate-x-0.5" />
               {t("previous")}
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -615,7 +615,7 @@ export function StudentsTable({
               }, [])
               .map((n, i) =>
                 n === -1 ? (
-                  <span key={`g-${i}`} className="px-1 text-muted-foreground">
+                  <span key={`g-${i}`} className="px-1 text-muted-foreground select-none">
                     …
                   </span>
                 ) : (
@@ -623,11 +623,14 @@ export function StudentsTable({
                     key={n}
                     type="button"
                     onClick={() => setPage(n)}
-                    className={`min-w-[32px] rounded-md border px-2 py-1.5 text-sm ${
+                    aria-current={safePage === n ? "page" : undefined}
+                    className={
                       safePage === n
-                        ? "border-primary/40 bg-primary text-primary-foreground shadow-sm"
-                        : "border-border/60 bg-card hover:bg-muted"
-                    }`}
+                        ? // Active page — gradient-primary pill with glow.
+                          "min-w-[38px] rounded-xl border border-primary/60 bg-gradient-primary animate-gradient px-2.5 py-2 text-sm font-bold text-white shadow-lg shadow-primary/30 cursor-pointer transition-all duration-200"
+                        : // Idle — matches the prev/next style for a cohesive row.
+                          "min-w-[38px] rounded-xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.03] px-2.5 py-2 text-sm font-medium shadow-sm shadow-primary/5 cursor-pointer transition-all duration-200 hover:-translate-y-[1px] hover:border-primary/40 hover:bg-gradient-to-br hover:from-card hover:via-card hover:to-primary/[0.08] hover:shadow-md hover:shadow-primary/15 hover:text-primary"
+                    }
                   >
                     <BanglaDigit value={n} />
                   </button>
@@ -637,10 +640,10 @@ export function StudentsTable({
               type="button"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={safePage >= totalPages}
-              className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-3 py-1.5 text-sm hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+              className="group/pg inline-flex items-center gap-1 rounded-xl border border-primary/20 bg-gradient-to-br from-card via-card to-primary/[0.03] px-3.5 py-2 text-sm font-medium shadow-sm shadow-primary/5 transition-all duration-200 cursor-pointer hover:-translate-y-[1px] hover:border-primary/40 hover:bg-gradient-to-br hover:from-card hover:via-card hover:to-primary/[0.08] hover:shadow-md hover:shadow-primary/15 hover:text-primary disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-sm disabled:hover:text-foreground"
             >
               {t("next")}
-              <ChevronRight className="size-3.5 rtl:rotate-180" />
+              <ChevronRight className="size-3.5 rtl:rotate-180 transition-transform group-hover/pg:translate-x-0.5" />
             </button>
           </div>
         </div>

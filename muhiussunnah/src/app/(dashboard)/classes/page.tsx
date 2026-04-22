@@ -2,28 +2,23 @@ import { BookOpen } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { ensureDefaultSections } from "@/lib/schools/self-heal";
-import { AddClassForm } from "./add-class-form";
-import { ClassSectionList } from "./class-section-list";
+import { ClassesWorkspace } from "./classes-workspace";
 
 export default async function ClassesPage() {
   const membership = await requireActiveRole([...ADMIN_ROLES, "ACCOUNTANT"]);
 
   const schoolSlug = membership.school_slug;
-  // Heal legacy classes so the dropdowns on student pages always work.
+  // Legacy classes get a default section so downstream modules
+  // (attendance / marks / online classes) keep resolving section_id
+  // even though the UI never shows it.
   await ensureDefaultSections(membership.school_id);
 
-  // Admin client: requireActiveRole() already authorized the user, all queries
-  // scoped by school_id. Needed because RLS on `sections` blocks the nested
-  // join in the classes query — without this, per-class student counts come
-  // back as zero because the sections list on each class is empty.
   const supabase = supabaseAdmin();
-  // Independent — all three keyed off school_id.
   const [classesRes, branchesRes, studentsRes] = await Promise.all([
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
@@ -40,15 +35,13 @@ export default async function ClassesPage() {
       .select("id, name")
       .eq("school_id", membership.school_id)
       .order("is_primary", { ascending: false }),
-    // Pull all active students with class_id + section_id. class_id
-    // (migration 0022) gives us a direct class link so section-less
-    // students still count on the per-class card; section_id handles
-    // the per-section breakdown. Keeping both lets us aggregate "15
-    // ছাত্র · 3 সেকশন" at a glance.
+    // Only need class_id now — per-class counts come straight from the
+    // direct column (migration 0022). No section aggregation needed
+    // since the UI no longer surfaces sections.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("students")
-      .select("id, section_id, class_id")
+      .select("class_id")
       .eq("school_id", membership.school_id)
       .eq("status", "active")
       .limit(10000),
@@ -67,23 +60,13 @@ export default async function ClassesPage() {
     sections: { id: string; name: string; capacity: number | null; room: string | null }[];
   }[];
 
-  // Per-class count comes from students.class_id directly so
-  // section-less students still show up on the class card.
-  // Per-section count uses section_id as before.
-  const sectionCounts = new Map<string, number>();
   const classCounts = new Map<string, number>();
-  for (const s of (students ?? []) as { id: string; section_id: string | null; class_id: string | null }[]) {
-    if (s.section_id) sectionCounts.set(s.section_id, (sectionCounts.get(s.section_id) ?? 0) + 1);
+  for (const s of (students ?? []) as { class_id: string | null }[]) {
     if (s.class_id) classCounts.set(s.class_id, (classCounts.get(s.class_id) ?? 0) + 1);
   }
   const classStudentCounts: Record<string, number> = {};
-  const sectionStudentCounts: Record<string, number> = {};
-  for (const c of classList) {
-    classStudentCounts[c.id] = classCounts.get(c.id) ?? 0;
-    for (const sec of c.sections) {
-      sectionStudentCounts[sec.id] = sectionCounts.get(sec.id) ?? 0;
-    }
-  }
+  for (const c of classList) classStudentCounts[c.id] = classCounts.get(c.id) ?? 0;
+  const totalStudents = (students ?? []).length;
 
   const t = await getTranslations("classes");
 
@@ -94,37 +77,25 @@ export default async function ClassesPage() {
         subtitle={t("page_subtitle")}
         impact={[
           { label: <>{t("impact_total")} · <BanglaDigit value={classList.length} /></>, tone: "accent" },
+          { label: <>{t("impact_total_students")} · <BanglaDigit value={totalStudents} /></>, tone: "success" },
         ]}
       />
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        <section className="flex flex-col gap-4">
-          {classList.length === 0 ? (
-            <EmptyState
-              icon={<BookOpen className="size-8" />}
-              title={t("empty_title")}
-              body={t("empty_body")}
-              proTip={t("empty_pro_tip")}
-            />
-          ) : (
-            <ClassSectionList
-              classes={classList}
-              schoolSlug={schoolSlug}
-              classStudentCounts={classStudentCounts}
-              sectionStudentCounts={sectionStudentCounts}
-            />
-          )}
-        </section>
-
-        <aside>
-          <Card>
-            <CardContent className="p-5">
-              <h2 className="mb-4 text-lg font-semibold">{t("sidebar_new_class")}</h2>
-              <AddClassForm branches={branches ?? []} schoolSlug={schoolSlug} />
-            </CardContent>
-          </Card>
-        </aside>
-      </div>
+      {classList.length === 0 ? (
+        <EmptyState
+          icon={<BookOpen className="size-8" />}
+          title={t("empty_title")}
+          body={t("empty_body")}
+          proTip={t("empty_pro_tip")}
+        />
+      ) : (
+        <ClassesWorkspace
+          schoolSlug={schoolSlug}
+          classes={classList}
+          branches={branches ?? []}
+          classStudentCounts={classStudentCounts}
+        />
+      )}
     </>
   );
 }

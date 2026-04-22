@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Trash2, Pencil, Check, Info, ArrowRight, Users } from "lucide-react";
+import { Trash2, Pencil, Check, ArrowRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,32 +60,20 @@ export function ClassSectionList({
   classes,
   classStudentCounts = {},
 }: Props) {
-  const t = useTranslations("classes");
+  // Emits cards as direct children so the parent (ClassesWorkspace) can
+  // control the grid layout. The "multi-section" hint banner and the
+  // overall chrome now live in the workspace, not here.
   return (
-    <div className="flex flex-col gap-4">
-      {/* Hint — tell principals how to handle multi-section classes
-          without exposing the "section" concept at all. */}
-      <div className="flex items-start gap-2 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5 p-3.5 text-sm">
-        <Info className="mt-0.5 size-4 shrink-0 text-primary" />
-        <div className="flex-1">
-          <p className="font-medium text-foreground">{t("multi_section_hint_title")}</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {t("multi_section_hint_body")}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-3">
-        {classes.map((c) => (
-          <ClassCard
-            key={c.id}
-            data={c}
-            schoolSlug={schoolSlug}
-            classStudentCount={classStudentCounts[c.id] ?? 0}
-          />
-        ))}
-      </div>
-    </div>
+    <>
+      {classes.map((c) => (
+        <ClassCard
+          key={c.id}
+          data={c}
+          schoolSlug={schoolSlug}
+          classStudentCount={classStudentCounts[c.id] ?? 0}
+        />
+      ))}
+    </>
   );
 }
 
