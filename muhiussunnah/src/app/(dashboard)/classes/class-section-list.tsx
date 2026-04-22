@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Trash2, Pencil, Check, ArrowRight, Users } from "lucide-react";
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
+import { cn } from "@/lib/utils";
 import { deleteClassAction, updateClassAction } from "@/server/actions/academic";
 import type { ActionResult } from "@/server/actions/_helpers";
 
@@ -87,10 +89,45 @@ function ClassCard({
   classStudentCount: number;
 }) {
   const t = useTranslations("classes");
+  const router = useRouter();
   const [editing, setEditing] = useState(false);
+  const targetHref = `/students?class_id=${data.id}`;
+
+  // While editing the inline form lives in the card, so clicks inside
+  // the card mustn't navigate anywhere. The whole-card click only fires
+  // in the resting state.
+  const cardClickable = !editing;
 
   return (
-    <Card>
+    <Card
+      onClick={cardClickable ? () => router.push(targetHref) : undefined}
+      // Enter / Space activates the card like a button when focused —
+      // keeps keyboard parity with the hover behaviour.
+      onKeyDown={(e) => {
+        if (!cardClickable) return;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          router.push(targetHref);
+        }
+      }}
+      tabIndex={cardClickable ? 0 : -1}
+      role={cardClickable ? "button" : undefined}
+      aria-label={cardClickable ? t("count_students_tooltip") : undefined}
+      className={cn(
+        "group/card relative overflow-hidden transition-all duration-200 outline-none",
+        cardClickable && [
+          // Hand cursor + smooth lift + brighter gradient on hover,
+          // primary border + glow. Matches the dropdown / pagination /
+          // action-button language used elsewhere on the site.
+          "cursor-pointer",
+          "hover:-translate-y-[2px] hover:border-primary/40 hover:bg-gradient-to-br hover:from-card hover:via-card hover:to-primary/[0.06] hover:shadow-lg hover:shadow-primary/15",
+          "focus-visible:border-primary/60 focus-visible:ring-4 focus-visible:ring-primary/15 focus-visible:shadow-lg focus-visible:shadow-primary/20",
+          // Subtle top-edge gradient stripe appears on hover as a micro
+          // flourish without overwhelming the rest of the card.
+          "before:pointer-events-none before:absolute before:inset-x-0 before:top-0 before:h-0.5 before:scale-x-0 before:bg-gradient-primary before:transition-transform before:duration-300 group-hover/card:before:scale-x-100 hover:before:scale-x-100",
+        ],
+      )}
+    >
       <CardContent className="flex flex-col gap-3 p-4">
         {editing ? (
           <EditClassInline
@@ -102,9 +139,12 @@ function ClassCard({
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 flex-wrap">
-                {/* Class name — click to see the class's student list */}
+                {/* Class name — nested Link keeps native right-click /
+                    middle-click / "open in new tab" semantics even
+                    though the whole card is also clickable. */}
                 <Link
-                  href={`/students?class_id=${data.id}`}
+                  href={targetHref}
+                  onClick={(e) => e.stopPropagation()}
                   className="group/cls inline-flex items-center gap-1.5 text-base font-semibold transition-colors hover:text-primary"
                   title={t("count_students_tooltip")}
                 >
@@ -116,12 +156,13 @@ function ClassCard({
                       ({data.name_en})
                     </span>
                   ) : null}
-                  <ArrowRight className="size-3.5 opacity-0 -translate-x-1 transition-all group-hover/cls:opacity-100 group-hover/cls:translate-x-0" />
+                  <ArrowRight className="size-3.5 opacity-0 -translate-x-1 transition-all group-hover/cls:opacity-100 group-hover/cls:translate-x-0 group-hover/card:opacity-60 group-hover/card:translate-x-0" />
                 </Link>
 
                 {/* Student-count pill */}
                 <Link
-                  href={`/students?class_id=${data.id}`}
+                  href={targetHref}
+                  onClick={(e) => e.stopPropagation()}
                   className={
                     classStudentCount > 0
                       ? "group/count inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-accent/10 px-3 py-1.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md hover:shadow-primary/20"
@@ -167,12 +208,17 @@ function ClassCard({
                 })()}
               </p>
             </div>
-            <div className="flex items-center gap-1">
+            {/* Action buttons — stop propagation so clicking the edit
+                or delete icon doesn't also fire the card's navigate. */}
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
               <Button
                 type="button"
                 size="icon-sm"
                 variant="ghost"
-                onClick={() => setEditing(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditing(true);
+                }}
                 aria-label={t("edit_class_aria")}
                 className="hover:bg-primary/10 hover:text-primary"
               >
