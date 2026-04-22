@@ -69,6 +69,11 @@ export async function updateSchoolSubscriptionAction(
 
   revalidatePath("/super-admin/subscriptions");
   revalidatePath("/super-admin/schools");
+  // Bust tenant-facing routes so the principal sees the new plan
+  // immediately, not after a stale-while-revalidate window.
+  revalidatePath("/settings");
+  revalidatePath("/admin");
+  revalidatePath("/", "layout");
   return ok(undefined, "সাবস্ক্রিপশন আপডেট হয়েছে।");
 }
 

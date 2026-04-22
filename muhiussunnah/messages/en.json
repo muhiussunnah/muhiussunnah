@@ -1773,7 +1773,10 @@
     "twofa_init_title": "Two-factor authentication (2FA)",
     "twofa_init_body": "Extra security on your account — you'll need an authenticator app code.",
     "twofa_setting_up": "Setting up...",
-    "twofa_start_cta": "Start 2FA setup"
+    "twofa_start_cta": "Start 2FA setup",
+    "subscription_plan_label": "Plan",
+    "subscription_plan_none": "No plan assigned",
+    "subscription_expires_label": "Expires"
   },
   "staff": {
     "page_title": "Teachers & staff",

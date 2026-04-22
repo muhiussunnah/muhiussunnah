@@ -10,6 +10,10 @@ import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { SchoolSettingsForm } from "./settings-form";
 import { ProfileForm } from "./profile-form";
 
+// Subscription status can change from the super-admin side at any
+// moment; the tenant must see fresh data, not a cached render.
+export const dynamic = "force-dynamic";
+
 export default async function SchoolSettingsPage() {
   const membership = await requireActiveRole(ADMIN_ROLES);
   const t = await getTranslations("settings");
@@ -20,7 +24,7 @@ export default async function SchoolSettingsPage() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("schools")
-      .select("*")
+      .select("*, plan:subscription_plans ( code, name_bn, name_en, price_bdt )")
       .eq("id", membership.school_id)
       .single(),
     supabase.auth.getUser(),
@@ -33,8 +37,10 @@ export default async function SchoolSettingsPage() {
     type: "school" | "madrasa" | "both"; address: string | null; phone: string | null;
     email: string | null; website: string | null;
     subscription_status: string; trial_ends_at: string | null;
+    subscription_expires_at?: string | null;
     logo_url?: string | null; display_name_locale?: "bn" | "en" | null;
     header_display_fields?: string | null;
+    plan?: { code: string; name_bn: string; name_en: string; price_bdt: number } | null;
   } | null;
 
   if (!school) return null;
@@ -108,12 +114,31 @@ export default async function SchoolSettingsPage() {
             <CardContent className="flex flex-col gap-3 p-5">
               <h2 className="text-lg font-semibold">{t("subscription_heading")}</h2>
               <dl className="grid grid-cols-2 gap-3 text-sm">
+                <dt className="text-muted-foreground">{t("subscription_plan_label")}</dt>
+                <dd>
+                  {school.plan ? (
+                    <>
+                      <span className="font-medium">{school.plan.name_bn}</span>
+                      <span className="ms-1 text-xs text-muted-foreground">
+                        · ৳{Number(school.plan.price_bdt).toLocaleString("en-IN")}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">{t("subscription_plan_none")}</span>
+                  )}
+                </dd>
                 <dt className="text-muted-foreground">{t("subscription_status_label")}</dt>
                 <dd>{subLabel(school.subscription_status)}</dd>
                 {school.trial_ends_at ? (
                   <>
                     <dt className="text-muted-foreground">{t("subscription_trial_ends")}</dt>
                     <dd>{new Date(school.trial_ends_at).toLocaleDateString()}</dd>
+                  </>
+                ) : null}
+                {school.subscription_expires_at ? (
+                  <>
+                    <dt className="text-muted-foreground">{t("subscription_expires_label")}</dt>
+                    <dd>{new Date(school.subscription_expires_at).toLocaleDateString()}</dd>
                   </>
                 ) : null}
                 <dt className="text-muted-foreground">{t("subscription_url")}</dt>

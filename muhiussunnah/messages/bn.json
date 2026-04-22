@@ -1773,7 +1773,10 @@
     "twofa_init_title": "দুই-স্তর প্রমাণীকরণ (2FA)",
     "twofa_init_body": "আপনার অ্যাকাউন্টের জন্য বাড়তি সুরক্ষা — Authenticator app-এর কোড দরকার হবে।",
     "twofa_setting_up": "সেটআপ হচ্ছে...",
-    "twofa_start_cta": "2FA সেটআপ শুরু করুন"
+    "twofa_start_cta": "2FA সেটআপ শুরু করুন",
+    "subscription_plan_label": "প্ল্যান",
+    "subscription_plan_none": "কোনো প্ল্যান নেই",
+    "subscription_expires_label": "মেয়াদ শেষ"
   },
   "staff": {
     "page_title": "শিক্ষক ও স্টাফ",
