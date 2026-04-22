@@ -15,7 +15,7 @@ export default async function TeacherSabaqPage() {
   const { active } = await requireActiveMadrasaRole([...TEACHER_ROLES, "MADRASA_USTADH"]);
   const t = await getTranslations("teacher");
   const locale = (await getLocale()) as Locale;
-  const dateLocale = locale === "ur" ? "en" : locale;
+
 
   const schoolSlug = active.school_slug;
   const supabase = await supabaseServer();
@@ -47,7 +47,7 @@ export default async function TeacherSabaqPage() {
   }
   const sections = Array.from(map.values());
   const today = new Date().toISOString().slice(0, 10);
-  const todayLabel = formatDualDate(today, { withWeekday: true, withHijri: true, locale: dateLocale });
+  const todayLabel = formatDualDate(today, { withWeekday: true, withHijri: true, locale: locale });
 
   return (
     <>

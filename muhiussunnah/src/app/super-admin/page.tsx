@@ -15,8 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SuperAdminDashboardPage() {
   const t = await getTranslations("superAdmin");
   const locale = (await getLocale()) as Locale;
-  const dateLocale = locale === "ur" ? "en" : locale;
-  const today = formatDualDate(new Date(), { withWeekday: true, locale: dateLocale });
+
+  const today = formatDualDate(new Date(), { withWeekday: true, locale: locale });
 
   return (
     <>

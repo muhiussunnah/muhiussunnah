@@ -23,7 +23,7 @@ export default async function SabaqGridPage({ params, searchParams }: PageProps)
   const { active } = await requireActiveMadrasaRole([...ADMIN_ROLES, ...TEACHER_ROLES, "MADRASA_USTADH"]);
   const t = await getTranslations("madrasa");
   const locale = (await getLocale()) as Locale;
-  const dateLocale = locale === "ur" ? "en" : locale;
+
   const schoolSlug = active.school_slug;
 
   const supabase = await supabaseServer();
@@ -82,7 +82,7 @@ export default async function SabaqGridPage({ params, searchParams }: PageProps)
           </Link>
         }
         title={<>{(section as { classes: { name_bn: string } }).classes.name_bn} — {t("sabaq_section_prefix")} {(section as { name: string }).name}</>}
-        subtitle={formatDualDate(date, { withWeekday: true, withHijri: true, locale: dateLocale })}
+        subtitle={formatDualDate(date, { withWeekday: true, withHijri: true, locale: locale })}
         impact={[{ label: <>{t("entry_student_count")} · <BanglaDigit value={studentList.length} /></>, tone: "accent" }]}
       />
 

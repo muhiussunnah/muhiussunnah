@@ -31,7 +31,6 @@ type Props = {
 export function BanglaDigit({ value, locale, className }: Props) {
   const auto = useLocale() as Locale;
   const resolved = locale ?? auto;
-  const digitSystem: "bn" | "en" | "ar" =
-    resolved === "bn" ? "bn" : resolved === "ar" || resolved === "ur" ? "ar" : "en";
+  const digitSystem: "bn" | "en" = resolved === "bn" ? "bn" : "en";
   return <span className={className}>{localiseNumber(value, digitSystem)}</span>;
 }

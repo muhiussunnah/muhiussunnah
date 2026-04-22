@@ -29,9 +29,7 @@ type Props = {
 export function BengaliDate({ value, withWeekday, withHijri, locale, className }: Props) {
   const auto = useLocale() as Locale;
   const resolved = locale ?? auto;
-  // formatDualDate only knows bn / en / ar; Urdu maps to Arabic script.
-  const mapped: "bn" | "en" | "ar" =
-    resolved === "bn" ? "bn" : resolved === "ar" || resolved === "ur" ? "ar" : "en";
+  const mapped: "bn" | "en" = resolved === "bn" ? "bn" : "en";
   return (
     <span className={className}>
       {formatDualDate(value, { withWeekday, withHijri, locale: mapped })}

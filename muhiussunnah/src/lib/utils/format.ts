@@ -15,15 +15,11 @@ import type { Locale } from "@/lib/i18n/config";
 const intlTag: Record<Locale, string> = {
   bn: "bn-BD",
   en: "en-US",
-  ur: "ur-PK",
-  ar: "ar-SA",
 };
 
 /** Which digit system to use for a given UI locale. */
-function digitsFor(locale: Locale): "bn" | "en" | "ar" {
-  if (locale === "bn") return "bn";
-  if (locale === "ar" || locale === "ur") return "ar";
-  return "en";
+function digitsFor(locale: Locale): "bn" | "en" {
+  return locale === "bn" ? "bn" : "en";
 }
 
 // ─────────────────────────────────────────────────────────────

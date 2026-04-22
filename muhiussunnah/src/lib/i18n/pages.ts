@@ -25,7 +25,7 @@ export type FeaturesPageCopy = {
   }>;
 };
 
-const featuresPage: Record<Locale, FeaturesPageCopy> = {
+const featuresPage: Record<string, FeaturesPageCopy> = {
   bn: {
     heroBadge: "ফিচার",
     heroTitle: "যা যা লাগবে",
@@ -255,7 +255,7 @@ export type AboutPageCopy = {
   ctaSecondary: string;
 };
 
-const aboutPage: Record<Locale, AboutPageCopy> = {
+const aboutPage: Record<string, AboutPageCopy> = {
   bn: {
     heroBadge: "আমাদের গল্প",
     heroTitle: "বাংলাদেশের জন্য তৈরি,",
@@ -406,7 +406,7 @@ export type SupportPageCopy = {
   slaRows: Array<{ plan: string; email: string; whatsapp: string; phone: string; demo: string }>;
 };
 
-const supportPage: Record<Locale, SupportPageCopy> = {
+const supportPage: Record<string, SupportPageCopy> = {
   bn: {
     heroBadge: "সাপোর্ট সেন্টার",
     heroTitle: "আমরা আপনার সাথে",
@@ -571,7 +571,7 @@ export type RefundPageCopy = {
   ctaSecondary: string;
 };
 
-const refundPage: Record<Locale, RefundPageCopy> = {
+const refundPage: Record<string, RefundPageCopy> = {
   bn: {
     heroBadge: "Refund Policy",
     heroTitle: "৩০ দিনের",
@@ -762,7 +762,7 @@ export type PackageDetailChromeCopy = {
   ctaSecondary: string; // "অন্য প্যাকেজ তুলনা করুন"
 };
 
-const packageDetailChrome: Record<Locale, PackageDetailChromeCopy> = {
+const packageDetailChrome: Record<string, PackageDetailChromeCopy> = {
   bn: {
     backToAll: "সকল প্যাকেজ দেখুন",
     packageSuffix: "প্যাকেজ",
@@ -895,7 +895,7 @@ export type LocalizedPackageDetail = {
   };
 };
 
-const packageDetails: Record<PackageSlug, Record<Locale, LocalizedPackageDetail>> = {
+const packageDetails: Record<PackageSlug, Record<string, LocalizedPackageDetail>> = {
   lifetime: {
     bn: {
       name: "Lifetime Basic",
@@ -1773,7 +1773,7 @@ export type RegisterPageCopy = {
   loginLink: string;
 };
 
-const registerPage: Record<Locale, RegisterPageCopy> = {
+const registerPage: Record<string, RegisterPageCopy> = {
   bn: {
     metaTitle: "স্কুল রেজিস্টার করুন",
     heading: "ফ্রি ট্রায়াল শুরু",

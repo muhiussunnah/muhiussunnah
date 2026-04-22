@@ -57,40 +57,6 @@ const copyByLocale: Record<Locale, Copy> = {
       { title: "Contact", desc: "Talk to us directly", href: "/contact" },
     ],
   },
-  ur: {
-    eyebrow: "404 — صفحہ نہیں ملا",
-    title: "راستہ کھو گیا؟",
-    subtitle: "یہ صفحہ موجود نہیں ہے",
-    description:
-      "جو صفحہ آپ تلاش کر رہے ہیں وہ منتقل یا تبدیل کیا جا چکا ہے، یا کبھی موجود ہی نہیں تھا۔ پریشان نہ ہوں — نیچے دیے گئے لنکس سے اپنی منزل تک پہنچ جائیں۔",
-    homeLabel: "ہوم پر واپس",
-    featuresLabel: "فیچرز دیکھیں",
-    supportLabel: "مدد حاصل کریں",
-    helpfulTitle: "مقبول صفحات",
-    helpfulLinks: [
-      { title: "فیچرز", desc: "سب کچھ ایک جگہ", href: "/features" },
-      { title: "قیمتیں", desc: "پیکجز اور قیمتیں", href: "/pricing" },
-      { title: "ہمارے بارے میں", desc: "ہمارا مشن", href: "/about" },
-      { title: "رابطہ", desc: "براہ راست بات کریں", href: "/contact" },
-    ],
-  },
-  ar: {
-    eyebrow: "404 — الصفحة غير موجودة",
-    title: "هل تهت؟",
-    subtitle: "هذه الصفحة غير موجودة",
-    description:
-      "الصفحة التي تبحث عنها ربما تم نقلها أو إعادة تسميتها أو لم تكن موجودة من الأصل. لا تقلق — الروابط أدناه ستأخذك إلى المكان الذي تريده.",
-    homeLabel: "العودة للرئيسية",
-    featuresLabel: "عرض الميزات",
-    supportLabel: "احصل على الدعم",
-    helpfulTitle: "الصفحات الشائعة",
-    helpfulLinks: [
-      { title: "الميزات", desc: "كل شيء في مكان واحد", href: "/features" },
-      { title: "الأسعار", desc: "الباقات والأسعار", href: "/pricing" },
-      { title: "من نحن", desc: "مهمتنا", href: "/about" },
-      { title: "اتصل بنا", desc: "تحدث معنا مباشرة", href: "/contact" },
-    ],
-  },
 };
 
 const linkIcons = [Compass, Search, LifeBuoy, Home];

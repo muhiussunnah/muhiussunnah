@@ -20,7 +20,7 @@ type Props = {
   trendLabel?: ReactNode;
   target?: ReactNode;
   icon?: ReactNode;
-  locale?: "bn" | "en" | "ar";
+  locale?: "bn" | "en";
   tone?: "default" | "success" | "warning" | "danger" | "accent";
   className?: string;
 };

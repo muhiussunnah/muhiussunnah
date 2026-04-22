@@ -19,9 +19,9 @@ export default async function PortalHomePage() {
   const membership = await requireActiveRole(PORTAL_ROLES);
   const t = await getTranslations("portal");
   const locale = (await getLocale()) as Locale;
-  const dateLocale = locale === "ur" ? "en" : locale;
+
   const schoolSlug = membership.school_slug;
-  const today = formatDualDate(new Date(), { withWeekday: true, locale: dateLocale });
+  const today = formatDualDate(new Date(), { withWeekday: true, locale: locale });
 
   const supabase = await supabaseServer();
 

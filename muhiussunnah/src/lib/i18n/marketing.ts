@@ -1203,7 +1203,10 @@ const ar: Copy = {
   },
 };
 
-const map: Record<Locale, Copy> = { bn, en, ur, ar };
+// Urdu + Arabic copy kept in-file for easy re-activation later; not exposed
+// while the switcher only offers bn + en.
+void ur; void ar;
+const map: Record<Locale, Copy> = { bn, en };
 
 export function getMarketingCopy(locale: Locale): Copy {
   return map[locale] ?? bn;

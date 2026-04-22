@@ -23,7 +23,7 @@ export default async function AttendanceEntryPage({ params, searchParams }: Page
   const membership = await requireActiveRole(TEACHER_ROLES);
   const t = await getTranslations("teacher");
   const locale = (await getLocale()) as Locale;
-  const dateLocale = locale === "ur" ? "en" : locale;
+
 
   const schoolSlug = membership.school_slug;
   const supabase = await supabaseServer();
@@ -75,7 +75,7 @@ export default async function AttendanceEntryPage({ params, searchParams }: Page
             {(section as { classes: { name_bn: string } }).classes.name_bn} — {t("entry_section_suffix")} {(section as { name: string }).name}
           </>
         }
-        subtitle={`${formatDualDate(date, { withWeekday: true, locale: dateLocale })}`}
+        subtitle={`${formatDualDate(date, { withWeekday: true, locale: locale })}`}
         impact={[
           { label: <>{t("entry_total_students")} · <BanglaDigit value={studentList.length} /></>, tone: "accent" },
           { label: t("entry_legend"), tone: "default" },

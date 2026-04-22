@@ -11,9 +11,9 @@ export default async function TeacherDashboardPage() {
   const membership = await requireActiveRole(TEACHER_ROLES);
   const t = await getTranslations("teacher");
   const locale = (await getLocale()) as Locale;
-  const dateLocale = locale === "ur" ? "en" : locale;
+
   const schoolSlug = membership.school_slug;
-  const today = formatDualDate(new Date(), { withWeekday: true, locale: dateLocale });
+  const today = formatDualDate(new Date(), { withWeekday: true, locale: locale });
   const displayName = membership.full_name_bn ?? membership.full_name_en ?? t("default_name");
 
   return (
