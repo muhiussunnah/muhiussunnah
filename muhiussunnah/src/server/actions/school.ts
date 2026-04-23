@@ -4,7 +4,7 @@
  * School settings + branches.
  */
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { z } from "zod";
 import { supabaseServer } from "@/lib/supabase/server";
 import {
@@ -136,6 +136,9 @@ export async function updateSchoolAction(
   });
 
   revalidatePath(`/admin`, "layout");
+  // Bust the cross-request branding cache so header/logo changes appear
+  // immediately instead of waiting for the 5-minute TTL to roll over.
+  revalidateTag("school-branding", "default");
   return ok(undefined, "স্কুলের তথ্য আপডেট হয়েছে।");
 }
 
