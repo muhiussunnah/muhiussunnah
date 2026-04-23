@@ -222,6 +222,14 @@ export default async function RootLayout({
     >
       <head>
         {/*
+          Resource hints — the browser can kick off DNS + TLS for these
+          origins while the HTML is still streaming, shaving ~100-200ms
+          off the first DB/auth/image request on mobile networks.
+        */}
+        <link rel="preconnect" href="https://ccobpxkglpkoaelglpcv.supabase.co" crossOrigin="" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+        {/*
           Plain inline <script> tags for JSON-LD — NOT next/script.
           Structured data is a pure crawler signal: Google reads the HTML
           directly. Using next/script with `beforeInteractive` hoists
