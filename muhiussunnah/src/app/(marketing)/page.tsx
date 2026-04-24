@@ -11,8 +11,6 @@ import { defaultLocale, isLocale, localeCookieName, type Locale } from "@/lib/i1
 import { getMarketingCopy } from "@/lib/i18n/marketing";
 import { Reveal } from "@/components/marketing/reveal";
 import { TextReveal } from "@/components/marketing/text-reveal";
-import { TiltCard } from "@/components/marketing/tilt-card";
-import { Magnetic } from "@/components/marketing/magnetic";
 
 /**
  * Below-the-fold components — code-split out of the initial bundle.
@@ -28,6 +26,17 @@ const Marquee = dynamic(
 );
 const TestimonialCard = dynamic(
   () => import("@/components/marketing/testimonial-card").then((m) => m.TestimonialCard),
+);
+// TiltCard + Magnetic are pure decorative mouse-tracking — no SEO,
+// no structural layout. Code-split them out of the initial client
+// bundle so the 420ms Total Blocking Time Lighthouse flagged drops:
+// HTML ships the same (ssr:true), JS loads as a parallel chunk
+// which doesn't compete with the hero's hydration.
+const TiltCard = dynamic(
+  () => import("@/components/marketing/tilt-card").then((m) => m.TiltCard),
+);
+const Magnetic = dynamic(
+  () => import("@/components/marketing/magnetic").then((m) => m.Magnetic),
 );
 
 const iconMap: Record<string, typeof Users> = {
