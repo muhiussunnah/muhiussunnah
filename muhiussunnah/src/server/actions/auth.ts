@@ -114,8 +114,15 @@ export async function signInAction(
 
 export async function signOutAction(): Promise<void> {
   const supabase = await supabaseServer();
-  await supabase.auth.signOut();
-  revalidatePath("/", "layout");
+  // scope: "local" clears the session cookie without hitting Supabase
+  // Auth to revoke the refresh token server-side — the default ("global")
+  // adds a 300-900ms network roundtrip that made every logout feel slow.
+  // The cookie is cleared locally, RLS still guards DB access, and the
+  // short-lived access token expires on its own. For our threat model
+  // that trade is worth the instant feedback.
+  await supabase.auth.signOut({ scope: "local" });
+  // NOTE: no layout-wide revalidate here either. Clearing the cookie +
+  // redirecting to /login is enough; the next request starts fresh.
   redirect("/login");
 }
 
