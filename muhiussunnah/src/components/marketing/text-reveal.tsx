@@ -1,5 +1,3 @@
-import { cn } from "@/lib/utils";
-
 /**
  * TextReveal — word-by-word fade-and-rise.
  *
