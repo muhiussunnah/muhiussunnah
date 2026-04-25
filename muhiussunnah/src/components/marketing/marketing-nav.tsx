@@ -23,14 +23,38 @@ async function resolveDashboardHref(userId: string): Promise<string | null> {
       .select("role, schools(slug)")
       .eq("user_id", userId)
       .eq("status", "active")
+      .order("joined_at", { ascending: false })
       .limit(1)
       .maybeSingle();
+    if (!data) return null;
+    const role = data?.role as string | undefined;
+
+    // SUPER_ADMIN works on the platform-level dashboard, not a tenant.
+    if (role === "SUPER_ADMIN") return "/super-admin";
+
+    // Tenants without a school slug (extremely rare; only happens
+    // during a partial onboard) have no dashboard to land on.
     const slug = data?.schools?.slug as string | undefined;
     if (!slug) return null;
-    const role = data?.role as string | undefined;
-    if (role === "TEACHER") return `/teacher`;
-    if (role === "STUDENT" || role === "GUARDIAN") return `/portal`;
-    return `/admin`;
+
+    // Teachers + ustadhs go to their teaching portal — landing on
+    // /admin would just bounce them to / via requireActiveRole.
+    if (
+      role === "CLASS_TEACHER" ||
+      role === "SUBJECT_TEACHER" ||
+      role === "MADRASA_USTADH"
+    ) {
+      return "/teacher";
+    }
+
+    // Students + parents go to their portal.
+    if (role === "STUDENT" || role === "PARENT") return "/portal";
+
+    // Everyone else (SCHOOL_ADMIN, VICE_PRINCIPAL, ACCOUNTANT,
+    // BRANCH_ADMIN, LIBRARIAN, TRANSPORT_MANAGER, HOSTEL_WARDEN,
+    // CANTEEN_MANAGER, COUNSELOR) is in ADMIN_ROLES territory and
+    // /admin's layout will let them through.
+    return "/admin";
   } catch {
     return null;
   }
