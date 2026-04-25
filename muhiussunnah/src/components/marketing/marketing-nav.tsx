@@ -69,6 +69,7 @@ export async function MarketingNav() {
         { href: "/", label: t.nav.home },
         { href: "/features", label: t.nav.features },
         { href: "/pricing", label: t.nav.pricing },
+        { href: "/be-a-partner", label: locale === "en" ? "Be a Partner" : "পার্টনার হোন" },
         { href: "/about", label: t.nav.about },
         { href: "/contact", label: t.nav.contact },
       ]}

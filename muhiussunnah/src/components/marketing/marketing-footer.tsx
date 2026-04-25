@@ -154,6 +154,14 @@ export async function MarketingFooter() {
             <ul className="space-y-2.5 text-sm text-muted-foreground">
               <li><Link href="/features" className="hover:text-primary transition">{t.nav.features}</Link></li>
               <li><Link href="/pricing" className="hover:text-primary transition">{t.nav.pricing}</Link></li>
+              <li>
+                <Link href="/be-a-partner" className="inline-flex items-center gap-1.5 hover:text-primary transition">
+                  {locale === "en" ? "Be a Partner" : "পার্টনার হোন"}
+                  <span className="rounded-full bg-gradient-primary px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white">
+                    50%
+                  </span>
+                </Link>
+              </li>
               <li><Link href="/support" className="hover:text-primary transition">{t.extras.supportLabel}</Link></li>
               <li><Link href="/refund-policy" className="hover:text-primary transition">{t.extras.refundLabel}</Link></li>
               <li><Link href="/register-school" className="hover:text-primary transition">{t.nav.signup}</Link></li>
