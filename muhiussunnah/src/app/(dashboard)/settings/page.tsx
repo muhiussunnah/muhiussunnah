@@ -182,6 +182,15 @@ export default async function SchoolSettingsPage() {
           </Card>
         </div>
       </div>
+
+      {/*
+        Plain-text attribution that used to live under every dashboard
+        page. Per product direction it now appears only on /settings,
+        so the rest of the workspace stays uncluttered.
+      */}
+      <div className="mt-8 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+        Powered by Growthency &amp; Anastechsolutions. All Rights Reserved by only Tazkiyah LTD.
+      </div>
     </>
   );
 }

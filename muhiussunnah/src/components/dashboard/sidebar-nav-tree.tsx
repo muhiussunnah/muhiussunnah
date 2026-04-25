@@ -181,6 +181,9 @@ export function SidebarNavTree({
       {tree.groups.map((group) => {
         const isCollapsed = collapsedGroups.has(group.id);
         const groupHasActive = group.items.some((it) => it.href === activeHref);
+        // When sidebar is icon-only, ignore the per-group collapse and
+        // show every item as flat icons (separator instead of header).
+        const showItems = !expanded || !isCollapsed;
         return (
           <div key={group.id} className="mt-2">
             {expanded ? (
@@ -188,26 +191,31 @@ export function SidebarNavTree({
                 type="button"
                 onClick={() => toggleGroup(group.id)}
                 className={cn(
-                  "group/header flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] transition-colors cursor-pointer",
+                  "group/header flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] cursor-pointer",
+                  "transition-all duration-200",
                   groupHasActive
-                    ? "text-primary"
-                    : "text-muted-foreground/70 hover:text-foreground",
+                    ? "text-primary bg-primary/5"
+                    : "text-foreground/75 hover:text-foreground hover:bg-muted/50",
                 )}
               >
-                <span className="flex size-4 shrink-0 items-center justify-center text-current opacity-70">
+                <span
+                  className={cn(
+                    "flex size-4 shrink-0 items-center justify-center transition-colors",
+                    groupHasActive ? "text-primary" : "text-foreground/60 group-hover/header:text-foreground",
+                  )}
+                >
                   {group.icon}
                 </span>
                 <span className="flex-1 text-start">{group.label}</span>
                 <ChevronDown
                   className={cn(
-                    "size-3.5 transition-transform duration-200",
+                    "size-3.5 transition-transform duration-300 ease-out",
                     isCollapsed ? "-rotate-90" : "rotate-0",
                   )}
                 />
               </button>
             ) : (
-              // When sidebar is collapsed (icon-only mode) show a thin
-              // separator instead of the group header.
+              // Icon-only mode: thin separator instead of header.
               <div
                 className="my-1 mx-3 h-px bg-border/40"
                 aria-hidden
@@ -215,21 +223,36 @@ export function SidebarNavTree({
               />
             )}
 
-            {(!isCollapsed || !expanded) ? (
-              <div className={cn("flex flex-col gap-1", expanded && "mt-1 ps-1")}>
-                {group.items.map((item) => (
-                  <NavLink
-                    key={item.href}
-                    item={item}
-                    active={item.href === activeHref}
-                    expanded={expanded}
-                    pinned={pinned.has(item.href)}
-                    onTogglePin={() => togglePin(item.href)}
-                    indent={expanded}
-                  />
-                ))}
+            {/*
+              Smooth height transition via the grid-template-rows trick:
+              the wrapper goes from `grid-rows-[0fr]` (collapsed) to
+              `grid-rows-[1fr]` (open) with a 250ms ease — interpolating
+              fr units works in modern browsers and avoids needing
+              JavaScript-measured heights or layout-thrashing animations.
+            */}
+            <div
+              className={cn(
+                "grid transition-[grid-template-rows] duration-250 ease-out",
+                showItems ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+              )}
+              aria-hidden={!showItems}
+            >
+              <div className="overflow-hidden">
+                <div className={cn("flex flex-col gap-1", expanded && "mt-1 ps-1")}>
+                  {group.items.map((item) => (
+                    <NavLink
+                      key={item.href}
+                      item={item}
+                      active={item.href === activeHref}
+                      expanded={expanded}
+                      pinned={pinned.has(item.href)}
+                      onTogglePin={() => togglePin(item.href)}
+                      indent={expanded}
+                    />
+                  ))}
+                </div>
               </div>
-            ) : null}
+            </div>
           </div>
         );
       })}
