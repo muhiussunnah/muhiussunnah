@@ -113,9 +113,18 @@ export async function MarketingFooter() {
                 <Phone className="size-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
                 <span className="group-hover:underline underline-offset-4 whitespace-nowrap">+880 1743-656066</span>
               </a>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MapPin className="size-4 text-primary shrink-0" />
-                <span>{tf("location")}</span>
+              <div className="flex items-start gap-2 text-muted-foreground">
+                <MapPin className="size-4 text-primary shrink-0 mt-0.5" />
+                <div className="space-y-1.5">
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-primary font-semibold">Office 1</span>
+                    <div>Rasulpur Shahi Mosque, Dhaka, Jatrabari</div>
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-primary font-semibold">Office 2</span>
+                    <div>Hasnabad, Bashundara River View, Keraniganj</div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -198,27 +207,6 @@ export async function MarketingFooter() {
                 Mustaqeem Billah
               </a>
             </span>
-            <span className="text-muted-foreground/50">·</span>
-            <span>
-              Powered by{" "}
-              <a
-                href="https://growthency.com"
-                target="_blank"
-                rel="noreferrer"
-                className="font-semibold text-primary hover:underline underline-offset-4"
-              >
-                Growthency
-              </a>
-              {" "}&{" "}
-              <a
-                href="https://anastechsolutions.com"
-                target="_blank"
-                rel="noreferrer"
-                className="font-semibold text-primary hover:underline underline-offset-4"
-              >
-                Anastechsolutions
-              </a>
-            </span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-foreground transition">{t.footer.privacy}</Link>
@@ -233,6 +221,11 @@ export async function MarketingFooter() {
               {t.extras.allSystemsOperational}
             </span>
           </div>
+        </div>
+
+        {/* Powered by — centered, plain-text credit */}
+        <div className="mt-4 pt-4 border-t border-border/30 text-center text-[11px] uppercase tracking-[0.18em] text-muted-foreground/70">
+          Powered by Growthency &amp; Anastechsolutions
         </div>
       </div>
     </footer>
