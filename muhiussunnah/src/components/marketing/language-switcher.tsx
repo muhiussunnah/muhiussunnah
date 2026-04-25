@@ -79,9 +79,7 @@ export function LanguageSwitcher({ current, compact = false }: { current: Locale
         <div
           role="listbox"
           className={cn(
-            "absolute top-full mt-2 w-44 z-[200] rounded-lg border border-border/60 bg-popover shadow-2xl",
-            // Scroll internally if the viewport is extremely short (mobile PWA banner).
-            "max-h-[70vh] overflow-y-auto overscroll-contain",
+            "absolute top-full mt-2 w-44 z-[200] rounded-lg border border-border/60 bg-popover shadow-2xl py-1",
             // Use physical properties with both LTR + RTL aware fallbacks
             "end-0 ltr:right-0 rtl:left-0",
           )}
