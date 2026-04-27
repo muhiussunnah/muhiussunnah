@@ -316,6 +316,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       {/* Hero metric row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
+          href="/students"
           label={tAdmin("card_total_students")}
           value={totalStudents}
           icon={<Users2 className="size-4" />}
@@ -329,6 +330,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           }
         />
         <MetricCard
+          href="/attendance"
           label={tAdmin("card_today_attendance")}
           value={todayAttPct}
           valueSuffix={<span className="text-muted-foreground text-base">%</span>}
@@ -344,6 +346,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           }
         />
         <MetricCard
+          href="/fees/payments"
           label={tAdmin("card_period_income", { range: rangeLabel })}
           value={Math.round(curIncome)}
           valuePrefix="৳ "
@@ -353,6 +356,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
         <MetricCard
+          href="/fees"
           label={tAdmin("card_pending_fees")}
           value={Math.round(pendingAmount)}
           valuePrefix="৳ "
@@ -372,17 +376,20 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       {/* Academic */}
       <Section title={tAdmin("section_academic")}>
         <MetricCard
+          href="/classes"
           label={tAdmin("card_classes")}
           value={classCount}
           icon={<BookOpen className="size-4" />}
           target={tAdmin("target_section_count", { count: toBn(sectionCount) })}
         />
         <MetricCard
+          href="/subjects"
           label={tAdmin("card_subjects")}
           value={subjectCount}
           icon={<ScrollText className="size-4" />}
         />
         <MetricCard
+          href="/attendance"
           label={tAdmin("card_period_attendance_rate", { range: rangeLabel })}
           value={curAttPct}
           valueSuffix={<span className="text-muted-foreground text-base">%</span>}
@@ -392,6 +399,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
         <MetricCard
+          href="/notices"
           label={tAdmin("card_period_notices", { range: rangeLabel })}
           value={curNotices}
           icon={<Megaphone className="size-4" />}
@@ -404,6 +412,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       {/* Financial */}
       <Section title={tAdmin("section_financial")}>
         <MetricCard
+          href="/fees/payments"
           label={tAdmin("card_period_income", { range: rangeLabel })}
           value={Math.round(curIncome)}
           valuePrefix="৳ "
@@ -413,6 +422,7 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           trendLabel={tAdmin("trend_vs_prev", { label: prevLabel })}
         />
         <MetricCard
+          href="/expenses"
           label={tAdmin("card_period_expense", { range: rangeLabel })}
           value={Math.round(curExpense)}
           valuePrefix="৳ "
@@ -427,12 +437,14 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
           })}
         />
         <MetricCard
+          href="/fees"
           label={tAdmin("card_total_invoices")}
           value={invoiceCount}
           icon={<Receipt className="size-4" />}
           target={tAdmin("target_collected", { amount: toBnCurrency(Math.round(paidInvoiceAmount)) })}
         />
         <MetricCard
+          href="/reports/income-expense"
           label={tAdmin("card_cash_flow")}
           value={Math.round(Math.abs(curCashFlow))}
           valuePrefix={curCashFlow >= 0 ? "৳ +" : "৳ -"}
@@ -446,23 +458,27 @@ export default async function SchoolAdminDashboardPage({ searchParams }: PagePro
       {/* HR + other */}
       <Section title={tAdmin("section_hr")}>
         <MetricCard
+          href="/staff"
           label={tAdmin("card_teachers")}
           value={teacherCount}
           icon={<Users className="size-4" />}
           tone="accent"
         />
         <MetricCard
+          href="/staff"
           label={tAdmin("card_other_staff")}
           value={staffCount}
           icon={<UserCog className="size-4" />}
         />
         <MetricCard
+          href="/staff"
           label={tAdmin("card_system_users")}
           value={userCount}
           icon={<FileText className="size-4" />}
           target={tAdmin("target_n_active", { count: toBn(activeStaff.length) })}
         />
         <MetricCard
+          href="/students"
           label={tAdmin("card_period_new_admissions", { range: rangeLabel })}
           value={newAdmissions}
           icon={<UserPlus className="size-4" />}

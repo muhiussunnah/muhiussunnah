@@ -6,6 +6,7 @@
  */
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { BanglaDigit } from "./bangla-digit";
@@ -23,6 +24,12 @@ type Props = {
   locale?: "bn" | "en";
   tone?: "default" | "success" | "warning" | "danger" | "accent";
   className?: string;
+  /**
+   * Optional internal link. When set, the whole card becomes a clickable
+   * <Link> — hand cursor + lift on hover already match the rest of the
+   * site's interactive vocabulary.
+   */
+  href?: string;
 };
 
 const toneBorder: Record<NonNullable<Props["tone"]>, string> = {
@@ -61,6 +68,7 @@ export function MetricCard({
   locale = "bn",
   tone = "default",
   className,
+  href,
 }: Props) {
   const trendColor =
     trendPct === undefined || trendPct === null
@@ -71,11 +79,12 @@ export function MetricCard({
           ? "text-destructive"
           : "text-muted-foreground";
 
-  return (
+  const card = (
     <Card
       className={cn(
         "group/metric relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10",
         toneBorder[tone],
+        href && "cursor-pointer hover:border-primary/40 hover:shadow-primary/15",
         className,
       )}
     >
@@ -135,4 +144,13 @@ export function MetricCard({
       </CardContent>
     </Card>
   );
+
+  if (href) {
+    return (
+      <Link href={href} prefetch className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 rounded-xl">
+        {card}
+      </Link>
+    );
+  }
+  return card;
 }
