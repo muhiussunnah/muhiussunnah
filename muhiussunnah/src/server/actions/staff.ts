@@ -226,6 +226,119 @@ export async function inviteStaffAction(
 }
 
 // -----------------------------------------------------------------
+// Create staff with a known password (no invite email)
+// -----------------------------------------------------------------
+//
+// Some principals prefer to onboard a teacher in person:
+//   "Here's your email, here's your password — log in."
+// No reliance on the teacher's inbox, no waiting for a link to land.
+// This action mirrors inviteStaffAction but bypasses Resend entirely
+// and just hands the credentials back to the admin in the success
+// message.
+
+const createStaffSchema = staffSchema.extend({
+  password: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে।").max(72),
+});
+
+export async function createStaffWithPasswordAction(
+  _prev: ActionResult | null,
+  formData: FormData,
+): Promise<ActionResult> {
+  const parsed = parseForm(createStaffSchema, formData);
+  if ("error" in parsed) return parsed.error;
+
+  if (parsed.role === "SUPER_ADMIN") {
+    return fail("এই ভূমিকা এখান থেকে দেওয়া যাবে না।");
+  }
+
+  const auth = await authorizeAction({
+    schoolSlug: parsed.schoolSlug,
+    action: "create",
+    resource: "student",
+  });
+  if ("error" in auth) return auth.error;
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const admin = supabaseAdmin() as any;
+
+  // 1. Create or reuse the auth user with the supplied password.
+  let userId: string | null = null;
+  const { data: created, error: createError } = await admin.auth.admin.createUser({
+    email: parsed.email,
+    password: parsed.password,
+    email_confirm: true, // mark verified so they can log in immediately
+    user_metadata: {
+      full_name: parsed.full_name_bn,
+      phone: parsed.phone,
+    },
+  });
+
+  if (created?.user) {
+    userId = created.user.id;
+  } else if (createError?.message?.toLowerCase().includes("already")) {
+    // Email already has an auth user — look it up and reset the
+    // password to the new value so the principal's choice wins.
+    const { data: list } = await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
+    const match = list?.users?.find(
+      (u: { email?: string }) => u.email?.toLowerCase() === parsed.email.toLowerCase(),
+    );
+    if (!match) return fail("ইউজার খুঁজে পাওয়া যায়নি।");
+    userId = match.id;
+    const { error: pwError } = await admin.auth.admin.updateUserById(userId!, {
+      password: parsed.password,
+    });
+    if (pwError) return fail(pwError.message);
+  } else {
+    return fail(createError?.message ?? "ব্যবহারকারী তৈরি করা যায়নি।");
+  }
+
+  if (!userId) return fail("ইউজার আইডি পাওয়া যায়নি।");
+
+  // 2. Avoid duplicate membership in this school.
+  const { data: existingMembership } = await admin
+    .from("school_users")
+    .select("id")
+    .eq("school_id", auth.active.school_id)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (existingMembership) {
+    return fail("এই ইউজার ইতিমধ্যে এই স্কুলে আছেন।");
+  }
+
+  // 3. Insert membership row.
+  const { error: membershipError } = await admin.from("school_users").insert({
+    school_id: auth.active.school_id,
+    branch_id: parsed.branch_id ?? null,
+    user_id: userId,
+    role: parsed.role,
+    full_name_bn: parsed.full_name_bn,
+    full_name_en: parsed.full_name_en ?? null,
+    email: parsed.email,
+    phone: parsed.phone ?? null,
+    employee_code: parsed.employee_code ?? null,
+    status: "active",
+  });
+  if (membershipError) return fail(membershipError.message);
+
+  // 4. Audit log (sync — small DB write, negligible).
+  await writeAuditLog({
+    schoolId: auth.active.school_id,
+    userId: auth.session.userId,
+    action: "create",
+    resourceType: "staff",
+    meta: { email: parsed.email, role: parsed.role, with_password: true },
+  });
+
+  revalidatePath(`/staff`);
+  // Return the credentials in the message so the admin can copy +
+  // hand them to the staff member directly.
+  return ok(
+    { email: parsed.email, password: parsed.password },
+    `${parsed.full_name_bn} তৈরি হয়েছে। ইমেইল: ${parsed.email}, পাসওয়ার্ড: ${parsed.password}`,
+  );
+}
+
+// -----------------------------------------------------------------
 // Update staff member (role, branch, status)
 // -----------------------------------------------------------------
 

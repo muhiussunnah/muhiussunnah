@@ -1899,7 +1899,19 @@
     "confirm_delete_title": "স্টাফ মুছে ফেলবেন?",
     "confirm_delete_body": "{name}-কে এই স্কুল থেকে সরিয়ে ফেলা হবে। তাদের অ্যাকাউন্ট অন্য স্কুলে থাকলে তা বহাল থাকবে।",
     "confirm_delete_yes": "হ্যাঁ, মুছুন",
-    "confirm_delete_no": "বাতিল"
+    "confirm_delete_no": "বাতিল",
+    "mode_invite": "ইমেইল ইনভাইট",
+    "mode_create": "ডিরেক্ট তৈরি",
+    "create_password_label": "পাসওয়ার্ড",
+    "create_password_hint": "এই পাসওয়ার্ড দিয়েই কর্মী লগইন করবে। সর্বনিম্ন ৬ অক্ষর।",
+    "create_cta": "ব্যবহারকারী তৈরি করুন",
+    "create_creating": "তৈরি হচ্ছে…",
+    "create_help": "ইমেইল ও পাসওয়ার্ড সরাসরি কর্মীকে দিয়ে দিন। তারা সাথে সাথে লগইন করতে পারবে।",
+    "credentials_heading": "ব্যবহারকারী তৈরি হয়েছে",
+    "credentials_email": "ইমেইল",
+    "credentials_password": "পাসওয়ার্ড",
+    "credentials_copy_both": "ইমেইল + পাসওয়ার্ড একসাথে কপি করুন",
+    "credentials_copied": "কপি হয়েছে"
   },
   "notices": {
     "page_title": "নোটিশ ব্যবস্থাপনা",

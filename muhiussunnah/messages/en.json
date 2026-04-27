@@ -1899,7 +1899,19 @@
     "confirm_delete_title": "Delete this staff member?",
     "confirm_delete_body": "{name} will be removed from this school. Their account in any other school is preserved.",
     "confirm_delete_yes": "Yes, delete",
-    "confirm_delete_no": "Cancel"
+    "confirm_delete_no": "Cancel",
+    "mode_invite": "Email invite",
+    "mode_create": "Create directly",
+    "create_password_label": "Password",
+    "create_password_hint": "The staff will log in with this password. Minimum 6 characters.",
+    "create_cta": "Create user",
+    "create_creating": "Creating…",
+    "create_help": "Hand the email + password to the staff member directly — they can log in immediately.",
+    "credentials_heading": "User created",
+    "credentials_email": "Email",
+    "credentials_password": "Password",
+    "credentials_copy_both": "Copy email + password together",
+    "credentials_copied": "Copied"
   },
   "notices": {
     "page_title": "Notices management",
