@@ -401,6 +401,28 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
     color: black !important;
     max-width: 100% !important;
   }
+
+  /*
+   * Watermark — preserve the faded logo on the printed sheet.
+   * Without `print-color-adjust: exact` Chrome/Edge/Safari strip
+   * background tones to save toner; we want to keep it.
+   */
+  .print-watermark {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    /* Use absolute positioning per @page so it lands on every sheet
+       when the document spans multiple pages. */
+    position: fixed !important;
+    inset: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  .print-watermark img {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   @page { margin: 1.5cm; }
 }
 

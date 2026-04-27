@@ -5,6 +5,7 @@ import { ArrowLeft, Sparkles } from "lucide-react";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { BengaliDate } from "@/components/ui/bengali-date";
 import { PrintButton } from "@/components/ui/print-button";
+import { PrintWatermark } from "@/components/ui/print-watermark";
 import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { PORTAL_ROLES } from "@/lib/auth/roles";
@@ -95,7 +96,8 @@ export default async function PortalMarksheetPage({ params }: PageProps) {
         <PrintButton />
       </div>
 
-      <article className="marksheet mx-auto max-w-3xl rounded-lg border border-border/60 bg-card p-8 shadow-soft print:border-0 print:shadow-none print:p-12">
+      <PrintWatermark logoUrl={school?.logo_url ?? null} />
+      <article className="marksheet relative z-10 mx-auto max-w-3xl rounded-lg border border-border/60 bg-card/95 p-8 shadow-soft print:border-0 print:shadow-none print:p-12 print:bg-transparent">
         <header className="flex items-center gap-4 border-b-2 border-primary/60 pb-4">
           {school?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element

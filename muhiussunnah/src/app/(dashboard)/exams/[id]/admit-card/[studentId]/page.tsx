@@ -4,6 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { PrintButton } from "@/components/ui/print-button";
+import { PrintWatermark } from "@/components/ui/print-watermark";
 import { BengaliDate } from "@/components/ui/bengali-date";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -80,7 +81,8 @@ export default async function AdmitCardPage({ params }: PageProps) {
         <PrintButton />
       </div>
 
-      <article className="admit-card mx-auto max-w-3xl rounded-lg border-2 border-primary/60 bg-card p-6 shadow-soft print:border-2 print:shadow-none">
+      <PrintWatermark logoUrl={school?.logo_url ?? null} />
+      <article className="admit-card relative z-10 mx-auto max-w-3xl rounded-lg border-2 border-primary/60 bg-card/95 p-6 shadow-soft print:border-2 print:shadow-none print:bg-transparent">
         <header className="flex items-center gap-4 border-b-2 border-primary/60 pb-3">
           {school?.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element

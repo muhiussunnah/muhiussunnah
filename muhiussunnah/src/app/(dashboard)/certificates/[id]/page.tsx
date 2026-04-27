@@ -9,6 +9,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { requireActiveRole } from "@/lib/auth/active-school";
 import { ADMIN_ROLES } from "@/lib/auth/roles";
 import { PrintButton } from "./print-button";
+import { PrintWatermark } from "@/components/ui/print-watermark";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -39,7 +40,7 @@ export default async function CertificatePrintPage({ params }: PageProps) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (supabase as any)
       .from("schools")
-      .select("name_bn, name_en, eiin")
+      .select("name_bn, name_en, eiin, logo_url")
       .eq("id", membership.school_id)
       .single(),
   ]);
@@ -84,8 +85,9 @@ export default async function CertificatePrintPage({ params }: PageProps) {
         </div>
       </div>
 
+      <PrintWatermark logoUrl={(school as { logo_url?: string | null } | null)?.logo_url ?? null} />
       <article
-        className="certificate mx-auto rounded-lg border border-border/60 bg-white p-8 shadow-soft print:shadow-none print:border-0"
+        className="certificate relative z-10 mx-auto rounded-lg border border-border/60 bg-white/95 p-8 shadow-soft print:shadow-none print:border-0 print:bg-transparent"
         style={{ color: "#000", maxWidth: template?.orientation === "landscape" ? "1100px" : "800px" }}
         dangerouslySetInnerHTML={{ __html: html }}
       />

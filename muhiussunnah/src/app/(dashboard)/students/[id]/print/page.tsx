@@ -8,6 +8,7 @@ import { resolveStudentId } from "@/lib/students/resolve";
 import { getSchoolBranding } from "@/lib/schools/branding";
 import { BanglaDigit } from "@/components/ui/bangla-digit";
 import { PrintActions } from "./print-actions";
+import { PrintWatermark } from "@/components/ui/print-watermark";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -78,8 +79,9 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
   const headerFields = parseHeaderFields(branding);
 
   return (
-    <div className="bg-white text-black print:bg-white min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 py-6 print:p-0 print:max-w-none">
+    <div className="bg-white text-black print:bg-white min-h-screen relative">
+      <PrintWatermark logoUrl={branding?.logo_url ?? null} />
+      <div className="relative z-10 mx-auto max-w-4xl px-4 py-6 print:p-0 print:max-w-none">
         <PrintActions />
 
         <header className="flex items-center gap-5 border-b-2 border-black pb-4">
