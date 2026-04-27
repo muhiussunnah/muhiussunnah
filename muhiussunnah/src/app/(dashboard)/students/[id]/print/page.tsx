@@ -81,7 +81,13 @@ export default async function StudentPrintPage({ params, searchParams }: PagePro
   return (
     <div className="bg-white text-black print:bg-white min-h-screen relative">
       <PrintWatermark logoUrl={branding?.logo_url ?? null} />
-      <div className="relative z-10 mx-auto max-w-4xl px-4 py-6 print:p-0 print:max-w-none">
+      {/*
+        student-print-form class lets the @media print stylesheet shrink
+        section gaps + line-height so the whole admission sheet fits on
+        a single A4 page even for students with long addresses / two
+        guardians filled in.
+      */}
+      <div className="student-print-form relative z-10 mx-auto max-w-4xl px-4 py-6 print:p-0 print:max-w-none">
         <PrintActions />
 
         <header className="flex items-center gap-5 border-b-2 border-black pb-4">

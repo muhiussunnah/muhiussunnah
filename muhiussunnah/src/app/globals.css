@@ -394,6 +394,32 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
   .print\:hidden { display: none !important; }
   header[class*="sticky"], aside, nav { display: none !important; }
   main { padding: 0 !important; }
+
+  /*
+   * Compact spacing for the student admission form so the whole sheet
+   * (header → student info → guardian info → fees → signatures) fits
+   * on a single A4 page in 99% of cases. Even ~5px of overflow used
+   * to spill onto a second mostly-empty page; tightening line-height
+   * + section gaps + bottom padding gives us the buffer we need.
+   */
+  .student-print-form {
+    font-size: 11pt;
+    line-height: 1.35;
+  }
+  .student-print-form section {
+    margin-top: 0.4rem !important;
+    margin-bottom: 0.4rem !important;
+  }
+  .student-print-form h3,
+  .student-print-form h2 {
+    margin-top: 0.4rem !important;
+    margin-bottom: 0.25rem !important;
+  }
+  /* Tighten the row paddings inside the dl-style fields */
+  .student-print-form .py-2 { padding-top: 0.15rem !important; padding-bottom: 0.15rem !important; }
+  .student-print-form .py-3 { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+  .student-print-form .pb-4 { padding-bottom: 0.5rem !important; }
+  .student-print-form .gap-5 { gap: 0.75rem !important; }
   .marksheet, .admit-card, .certificate {
     box-shadow: none !important;
     border: none !important;
