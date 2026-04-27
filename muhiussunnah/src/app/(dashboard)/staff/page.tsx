@@ -31,6 +31,7 @@ export default async function StaffPage() {
     HOSTEL_WARDEN: t("role_HOSTEL_WARDEN"),
     CANTEEN_MANAGER: t("role_CANTEEN_MANAGER"),
     COUNSELOR: t("role_COUNSELOR"),
+    OTHER_STAFF: t("role_OTHER_STAFF"),
   };
 
   const schoolSlug = membership.school_slug;
@@ -75,6 +76,7 @@ export default async function StaffPage() {
     HOSTEL_WARDEN: 10,
     CANTEEN_MANAGER: 11,
     COUNSELOR: 12,
+    OTHER_STAFF: 13,
   };
   const staffList = [...rawStaffList].sort((a, b) => {
     const ra = ROLE_ORDER[a.role] ?? 99;

@@ -180,6 +180,7 @@ export async function inviteStaffAction(
           HOSTEL_WARDEN: "হোস্টেল ওয়ার্ডেন",
           CANTEEN_MANAGER: "ক্যান্টিন ব্যবস্থাপক",
           COUNSELOR: "কাউন্সেলর",
+          OTHER_STAFF: "অন্যান্য স্টাফ",
         };
 
         const tpl = staffInvitationEmail({

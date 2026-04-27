@@ -18,6 +18,7 @@ export const USER_ROLES = [
   "HOSTEL_WARDEN",
   "CANTEEN_MANAGER",
   "COUNSELOR",
+  "OTHER_STAFF",
   "STUDENT",
   "PARENT",
 ] as const;

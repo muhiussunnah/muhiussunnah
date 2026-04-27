@@ -1911,7 +1911,8 @@
     "credentials_email": "ইমেইল",
     "credentials_password": "পাসওয়ার্ড",
     "credentials_copy_both": "ইমেইল + পাসওয়ার্ড একসাথে কপি করুন",
-    "credentials_copied": "কপি হয়েছে"
+    "credentials_copied": "কপি হয়েছে",
+    "role_OTHER_STAFF": "অন্যান্য স্টাফ"
   },
   "notices": {
     "page_title": "নোটিশ ব্যবস্থাপনা",

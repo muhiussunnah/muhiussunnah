@@ -32,6 +32,7 @@ const ROLE_OPTIONS = [
   "HOSTEL_WARDEN",
   "CANTEEN_MANAGER",
   "COUNSELOR",
+  "OTHER_STAFF",
 ] as const;
 
 export function InviteStaffForm({ schoolSlug, branches }: Props) {

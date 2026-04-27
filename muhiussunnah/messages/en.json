@@ -1911,7 +1911,8 @@
     "credentials_email": "Email",
     "credentials_password": "Password",
     "credentials_copy_both": "Copy email + password together",
-    "credentials_copied": "Copied"
+    "credentials_copied": "Copied",
+    "role_OTHER_STAFF": "Other Staff"
   },
   "notices": {
     "page_title": "Notices management",
