@@ -16,6 +16,9 @@ export function TrustBadge({ variant = "inline", className }: Props) {
       className={cn(
         "flex flex-wrap items-center gap-3 text-xs text-muted-foreground",
         variant === "footer" && "border-t border-border/60 px-4 py-3",
+        // Trust strip is a screen-only UI cue. Printable forms,
+        // marksheets, and certificates should never carry it.
+        "print:hidden",
         className,
       )}
     >
