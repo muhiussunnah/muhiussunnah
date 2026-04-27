@@ -7,7 +7,7 @@ import { Eye, EyeOff, Mail, KeyRound, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger } from "@/components/ui/select";
 import {
   inviteStaffAction,
   createStaffWithPasswordAction,
@@ -19,11 +19,28 @@ type Props = { schoolSlug: string; branches: Branch[] };
 
 type Mode = "invite" | "create";
 
+const ROLE_OPTIONS = [
+  "SCHOOL_ADMIN",
+  "VICE_PRINCIPAL",
+  "ACCOUNTANT",
+  "BRANCH_ADMIN",
+  "CLASS_TEACHER",
+  "SUBJECT_TEACHER",
+  "MADRASA_USTADH",
+  "LIBRARIAN",
+  "TRANSPORT_MANAGER",
+  "HOSTEL_WARDEN",
+  "CANTEEN_MANAGER",
+  "COUNSELOR",
+] as const;
+
 export function InviteStaffForm({ schoolSlug, branches }: Props) {
   const t = useTranslations("staff");
   const formRef = useRef<HTMLFormElement>(null);
   const [mode, setMode] = useState<Mode>("invite");
   const [showPassword, setShowPassword] = useState(false);
+  const [role, setRole] = useState<string>("CLASS_TEACHER");
+  const [branchId, setBranchId] = useState<string>("");
   const [createdCredentials, setCreatedCredentials] = useState<{
     email: string;
     password: string;
@@ -145,23 +162,24 @@ export function InviteStaffForm({ schoolSlug, branches }: Props) {
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="role">{t("invite_role_label")}</Label>
-            <Select name="role" defaultValue="CLASS_TEACHER">
-              <SelectTrigger id="role">
-                <SelectValue />
+            {/* Hidden input ships the value with the form submit so the
+                server action sees it. The Select renders the localized
+                label in its trigger via a manual lookup (the base-ui
+                Value primitive falls back to raw "CLASS_TEACHER" text
+                otherwise — same gotcha as the manage dialog). */}
+            <input type="hidden" name="role" value={role} />
+            <Select value={role} onValueChange={(v) => setRole(v ?? role)}>
+              <SelectTrigger id="role" className="w-full justify-between">
+                <span className="flex-1 text-left">
+                  {t(`role_${role}` as Parameters<typeof t>[0])}
+                </span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="SCHOOL_ADMIN">{t("role_SCHOOL_ADMIN")}</SelectItem>
-                <SelectItem value="VICE_PRINCIPAL">{t("role_VICE_PRINCIPAL")}</SelectItem>
-                <SelectItem value="ACCOUNTANT">{t("role_ACCOUNTANT")}</SelectItem>
-                <SelectItem value="BRANCH_ADMIN">{t("role_BRANCH_ADMIN")}</SelectItem>
-                <SelectItem value="CLASS_TEACHER">{t("role_CLASS_TEACHER")}</SelectItem>
-                <SelectItem value="SUBJECT_TEACHER">{t("role_SUBJECT_TEACHER")}</SelectItem>
-                <SelectItem value="MADRASA_USTADH">{t("role_MADRASA_USTADH")}</SelectItem>
-                <SelectItem value="LIBRARIAN">{t("role_LIBRARIAN")}</SelectItem>
-                <SelectItem value="TRANSPORT_MANAGER">{t("role_TRANSPORT_MANAGER")}</SelectItem>
-                <SelectItem value="HOSTEL_WARDEN">{t("role_HOSTEL_WARDEN")}</SelectItem>
-                <SelectItem value="CANTEEN_MANAGER">{t("role_CANTEEN_MANAGER")}</SelectItem>
-                <SelectItem value="COUNSELOR">{t("role_COUNSELOR")}</SelectItem>
+                {ROLE_OPTIONS.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {t(`role_${r}` as Parameters<typeof t>[0])}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -174,11 +192,15 @@ export function InviteStaffForm({ schoolSlug, branches }: Props) {
         {branches.length > 1 ? (
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="branch_id">{t("invite_branch_label")}</Label>
-            <Select name="branch_id">
-              <SelectTrigger id="branch_id">
-                <SelectValue placeholder={t("invite_branch_all")} />
+            <input type="hidden" name="branch_id" value={branchId} />
+            <Select value={branchId} onValueChange={(v) => setBranchId(v ?? "")}>
+              <SelectTrigger id="branch_id" className="w-full justify-between">
+                <span className="flex-1 text-left">
+                  {branches.find((b) => b.id === branchId)?.name ?? t("invite_branch_all")}
+                </span>
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="">— {t("invite_branch_all")} —</SelectItem>
                 {branches.map((b) => (
                   <SelectItem key={b.id} value={b.id}>
                     {b.name}

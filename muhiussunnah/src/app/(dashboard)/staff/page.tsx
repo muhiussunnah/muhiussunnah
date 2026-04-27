@@ -52,11 +52,37 @@ export default async function StaffPage() {
   const { data: staff } = staffRes;
   const { data: branches } = branchesRes;
 
-  const staffList = (staff ?? []) as Array<{
+  const rawStaffList = (staff ?? []) as Array<{
     id: string; full_name_bn: string | null; full_name_en: string | null;
     email: string | null; phone: string | null; role: string; status: string;
     employee_code: string | null; branch_id: string | null; joined_at: string;
   }>;
+
+  // Sort by hierarchy — principal first, then vice principal, branch
+  // head, accountant, then teaching staff, then operations roles. Within
+  // the same role we keep the join order (newest first) so a freshly
+  // added Class Teacher slots in below the others.
+  const ROLE_ORDER: Record<string, number> = {
+    SCHOOL_ADMIN: 1,
+    VICE_PRINCIPAL: 2,
+    BRANCH_ADMIN: 3,
+    ACCOUNTANT: 4,
+    CLASS_TEACHER: 5,
+    SUBJECT_TEACHER: 6,
+    MADRASA_USTADH: 7,
+    LIBRARIAN: 8,
+    TRANSPORT_MANAGER: 9,
+    HOSTEL_WARDEN: 10,
+    CANTEEN_MANAGER: 11,
+    COUNSELOR: 12,
+  };
+  const staffList = [...rawStaffList].sort((a, b) => {
+    const ra = ROLE_ORDER[a.role] ?? 99;
+    const rb = ROLE_ORDER[b.role] ?? 99;
+    if (ra !== rb) return ra - rb;
+    // tie-break: newest first within the same role
+    return b.joined_at.localeCompare(a.joined_at);
+  });
 
   const active = staffList.filter((s) => s.status === "active").length;
   const teachers = staffList.filter((s) => ["CLASS_TEACHER", "SUBJECT_TEACHER", "MADRASA_USTADH"].includes(s.role)).length;
