@@ -449,7 +449,30 @@ html { scrollbar-width: thin; scrollbar-color: #7c5cff transparent; }
     print-color-adjust: exact !important;
   }
 
-  @page { margin: 1.5cm; }
+  /*
+   * Lock the printed sheet to A4 portrait. Bangladesh institutions
+   * universally use A4 paper, so explicitly declaring the size makes
+   * the print engine measure pages from 210mm × 297mm instead of
+   * the OS default Letter — guarantees the same layout whether the
+   * principal hits Save-as-PDF or sends to a real printer.
+   */
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm 1.2cm;
+  }
+
+  /*
+   * Cap every print article at the A4 content width (210mm − 2.4cm
+   * side margin = ~186mm) so wide layouts don't overflow.
+   */
+  .marksheet,
+  .admit-card,
+  .certificate,
+  .student-print-form {
+    max-width: 186mm !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
 }
 
 @layer utilities {
